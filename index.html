@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Léo Performance Tracker</title>
     
-    <!-- Tailwind CSS with config for Dark Mode -->
+    <!-- Tailwind CSS avec config Mode Sombre -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -14,7 +14,7 @@
         }
     </script>
     
-    <!-- Librairies React (Versions stables) -->
+    <!-- Librairies React et Dépendances (Versions stables anti-crash) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.8.1/prop-types.min.js"></script>
@@ -28,37 +28,43 @@
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; transition: background-color 0.3s ease; }
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; transition: background-color 0.3s ease, color 0.3s ease; }
         
-        /* Système d'infobulles optimisé pour ne pas être coupé */
-        .custom-tooltip-container { position: relative; display: inline-flex; align-items: center; cursor: help; }
-        .custom-tooltip-content { 
-            visibility: hidden; opacity: 0; position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); 
-            width: max-content; max-width: 250px; background-color: #1e293b; color: white; text-align: center; 
-            border-radius: 8px; padding: 10px; font-size: 11px; z-index: 99999; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
-            white-space: normal; line-height: 1.4; transition: all 0.2s ease; pointer-events: none;
+        /* Infobulles superposées (z-index maximal) */
+        .info-bubble { position: relative; display: inline-flex; align-items: center; cursor: help; }
+        .info-bubble .info-content {
+            visibility: hidden; opacity: 0; position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%); 
+            width: max-content; max-width: 250px; background-color: #0f172a; color: white; text-align: center; 
+            border-radius: 8px; padding: 10px; font-size: 11px; z-index: 99999; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
+            white-space: normal; line-height: 1.4; transition: all 0.2s ease; pointer-events: none; font-weight: 500;
         }
-        .custom-tooltip-content::after { 
+        .info-bubble .info-content::after { 
             content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); 
-            border-width: 6px; border-style: solid; border-color: #1e293b transparent transparent transparent; 
+            border-width: 6px; border-style: solid; border-color: #0f172a transparent transparent transparent; 
         }
-        .custom-tooltip-container:hover .custom-tooltip-content { visibility: visible; opacity: 1; bottom: 130%; }
+        .info-bubble:hover .info-content { visibility: visible; opacity: 1; bottom: 140%; }
         
-        /* Retrait du overflow-hidden destructeur pour les bulles */
+        /* Garder l'overflow visible sur les cartes pour les bulles, 
+           tandis qu'une div interne masquera les ronds décoratifs */
         .card-container { overflow: visible !important; }
-        .card-wrapper { position: relative; z-index: 1; transition: z-index 0.2s; }
-        .card-wrapper:hover { z-index: 50; }
     </style>
 </head>
 <body class="bg-[#f4f7f9] dark:bg-slate-950 text-slate-900 dark:text-slate-100">
     
     <div id="root">
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; color: #4f46e5;">
-            <p style="font-weight: bold; font-family: sans-serif;">Chargement du tableau de bord Léo Analytics...</p>
+            <svg class="animate-spin h-10 w-10 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p style="font-weight: bold; font-family: sans-serif;">Lancement du Dashboard Sportif...</p>
         </div>
     </div>
 
     <script type="text/babel">
+        // ==========================================
+        // SECURITE ANTI-CRASH
+        // ==========================================
         class ErrorBoundary extends React.Component {
             constructor(props) { super(props); this.state = { hasError: false, error: null }; }
             static getDerivedStateFromError(error) { return { hasError: true, error }; }
@@ -78,7 +84,9 @@
         const { useState, useEffect } = React;
         const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip: RechartsTooltip, ResponsiveContainer, BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend } = window.Recharts;
 
-        // --- ICONES GLOBALES ---
+        // ==========================================
+        // ICONES SVG (Statiques et globales)
+        // ==========================================
         const Icon = ({ path, size = 24, className = "" }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} dangerouslySetInnerHTML={{ __html: path }} />
         );
@@ -103,148 +111,117 @@
         const Crosshair = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/>' />;
         const InfoIcon = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>' />;
         const StarIcon = (p) => <Icon {...p} path='<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>' />;
+        
+        // Icones Dark Mode
         const MoonIcon = (p) => <Icon {...p} path='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>' />;
         const SunIcon = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>' />;
-        const TargetElite = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>' />;
-
-        // Icônes spécifiques
+        
+        // Icônes Spécifiques
         const BallIcon = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20M2 12a14.5 14.5 0 0 0 20 0"/>' />;
         const JudoIcon = (p) => <Icon {...p} path='<rect x="3" y="10" width="18" height="4" rx="1"/><path d="M12 14v5M10 14l-2 4M14 14l2 4"/>' />;
 
-        // --- COMPOSANT INFOBULLE ---
-        const Tooltip = ({ text, children }) => (
-            <div className="custom-tooltip-container">
-                {children}
-                <div className="custom-tooltip-content">{text}</div>
-            </div>
-        );
-
-        // --- COMPOSANT CARTE ---
-        const Card = ({ children, title, icon: IconCmp, className = "" }) => (
-            <div className={`bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm card-container ${className}`}>
-              {title && (
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                    {IconCmp && <IconCmp size={18} className="text-indigo-500" />} {title}
-                  </h3>
-                </div>
-              )}
-              {children}
-            </div>
-        );
-
-        const App = () => {
-          const [activeTab, setActiveTab] = useState('synthesis');
-          const [expandedPast, setExpandedPast] = useState(null);
-          const [expandedFuture, setExpandedFuture] = useState(null);
-          const [isDark, setIsDark] = useState(false);
-          const [pastFilter, setPastFilter] = useState('ALL');
-          const [futureFilter, setFutureFilter] = useState('ALL');
-
-          // Gestion Mode Sombre
-          useEffect(() => {
-              if (isDark) document.documentElement.classList.add('dark');
-              else document.documentElement.classList.remove('dark');
-          }, [isDark]);
-
-          // --- 1. DATA: IDENTITÉ & KPIs ---
-          const identity = {
+        // ==========================================
+        // DATA GLOBALES
+        // ==========================================
+        const identity = {
             name: "Léo", age: "6 ans 9 mois", category: "U9 / Pré-Poussin",
-            morphology: { current: { height: 125.5, weight: 24.3, imc: 14.4 }, average: { height: 123.0, weight: 23.5, imc: 15.6 } },
+            morphology: {
+              current: { height: 125.5, weight: 24.3, imc: 14.4 },
+              average: { height: 123.0, weight: 23.5, imc: 15.6 }
+            },
             details: "Envergure: 122 cm | Taille assise: 68 cm",
             projection: "185 cm / 78 kg", type: "Longiligne en construction",
             status: "Multisport Structuré (7-8h hebdo)"
-          };
+        };
 
-          const advancedKPIs = [
+        const advancedKPIs = [
             { label: "Score Global Pondéré", value: "84/100", trend: "+2", color: "text-indigo-600 dark:text-indigo-400", desc: "Tech(+), Mental(+), Explo(++), Souplesse(-)", info: "Moyenne pondérée : Technique (30%), Physique (25%), Mental (25%), Régularité (10%), Potentiel estimé (10%)." },
             { label: "Indice Transfert", value: "8.5/10", trend: "Validé", color: "text-blue-500 dark:text-blue-400", desc: "Basé sur les données motrices", info: "Évalue la capacité à transférer une compétence acquise dans un sport vers un autre (ex: appuis handball réutilisés au judo)." },
             { label: "Victoire / Gabarit Sup.", value: "78%", trend: "En test", color: "text-orange-500 dark:text-orange-400", desc: "Performance face à plus lourd/grand", info: "Ratio de victoire calculé uniquement lors de surclassements d'âge (U9) ou de poids." },
             { label: "Indice Stabilité Méc.", value: "6.5/10", trend: "Fragile", color: "text-amber-500 dark:text-amber-400", desc: "Hanche intermittente sous pression", info: "Capacité à maintenir sa posture de force (Shisei) et sa verticalité face à l'agressivité de l'adversaire." },
-          ];
+        ];
 
-          // --- 2. DATA: VOLUME & TESTS ---
-          const volumeMensuel = [
+        const volumeMensuel = [
             { mois: 'Sept', Judo: 11, Natation: 11, Handball: 5, Multisport: 5, TOTAL: 32 },
             { mois: 'Oct', Judo: 8, Natation: 6.5, Handball: 3.75, Multisport: 5, TOTAL: 23.25 },
             { mois: 'Nov', Judo: 12.5, Natation: 10, Handball: 5, Multisport: 6, TOTAL: 33.5 },
             { mois: 'Déc', Judo: 11, Natation: 7.5, Handball: 3.75, Multisport: 5, TOTAL: 27.25 },
             { mois: 'Jan', Judo: 12, Natation: 10, Handball: 5.75, Multisport: 6, TOTAL: 33.75 },
             { mois: 'Fév', Judo: 8, Natation: 8.5, Handball: 5, Multisport: 4, TOTAL: 25.5 },
-          ];
+        ];
 
-          const athleticRadar = [
+        const athleticRadar = [
             { subject: 'Vitesse', val: 95 }, { subject: 'Explosivité', val: 95 },
             { subject: 'Coordination', val: 88 }, { subject: 'Endurance', val: 80 },
             { subject: 'Souplesse', val: 30 }, { subject: 'Rotation', val: 65 },
-          ];
+        ];
 
-          const extendedPhysicalTests = [
+        const extendedPhysicalTests = [
             { cat: 'Vitesse', tests: [{ name: 'Sprint 20m', val: '4.69 s', evo: '-11%' }, { name: 'Slalom 10m', val: '3.31 s', evo: '+1%' }, { name: 'Vitesse moy 200m', val: '2.85 m/s' }] },
             { cat: 'Explosivité', tests: [{ name: 'Saut sans élan', val: '162 cm', evo: '+1.2%' }, { name: 'Saut avec élan', val: '236 cm', evo: '+2.1%' }, { name: 'Saut vertical', val: '22 cm', evo: '' }, { name: 'Ratio Explo Horizontale', val: '1.89', evo: '' }] },
             { cat: 'Aérobie & Motricité', tests: [{ name: 'Test 6 min', val: '900 m', evo: '-10%' }, { name: 'VMA Estimée', val: '9 km/h', evo: '' }, { name: '200m', val: '1 min 10', evo: '' }, { name: 'Lancer balle', val: '16 m', evo: '' }] },
             { cat: 'Neuromusculaire', tests: [{ name: 'Réflexes Main D', val: '7/10', evo: '' }, { name: 'Réflexes Main G', val: '8/10', evo: '' }, { name: 'Souplesse', val: '-1 cm', alert: true, evo: '-4cm' }] },
-          ];
+        ];
 
-          const mentalData = [
+        const mentalData = [
             { name: 'Plaisir', score: 100, color: '#10b981', info: "Motivation intrinsèque maximale, aucune contrainte ressentie par l'enfant." }, 
             { name: 'Orient. Tâche', score: 95, color: '#6d28d9', info: "Focalisation saine sur la maîtrise de ses propres gestes plutôt que la comparaison aux autres." },
             { name: 'Compétence', score: 90, color: '#8b5cf6', info: "Confiance en ses capacités, favorisée par l'excellence des résultats sportifs." }, 
             { name: 'Résilience', score: 85, color: '#f59e0b', info: "Capacité à rebondir après un échec (excellente réaction post-DSQ natation)." },
             { name: 'Autonomie', score: 75, color: '#3b82f6', info: "Autonomie logistique franchie : prépare son sac, écoute sans aide parentale." },
-          ];
+        ];
 
-          // --- 3. DATA: SPÉCIALITÉS ---
-          const judoAdvancedStats = {
+        // --- 3. DATA: SPÉCIALITÉS ---
+        const judoAdvancedStats = {
             club: "Dojo Grenelle (75)", grade: "Ceinture Jaune 2 Barrettes", debut: "Sept. 2023 (2.5 ans)",
             kpis: [
-              { label: 'Heures cumulées', value: "187h"}, 
-              { label: 'Randoris', value: "561"},
-              { label: 'Combats', value: "16"}, 
-              { label: 'Victoires', value: "15"},
+              { label: 'Heures cumulées', value: "187h", sub: 'Depuis 2023' }, 
+              { label: 'Randoris', value: "561", sub: 'Cumul (3/h)' },
+              { label: 'Combats', value: "16", sub: 'Saison 25-26' }, 
+              { label: 'Victoires', value: "15", sub: 'Dont 2 Ne-Waza' },
             ],
             directions: [
-              { name: 'Tai-Otoshi / Harai-Goshi', value: 65, color: '#f59e0b' },
-              { name: 'Ippon Seoi Nage', value: 15, color: '#4f46e5' },
-              { name: 'Ne-Waza (Sol)', value: 15, color: '#3b82f6' },
-              { name: 'Ko-Soto-Gari', value: 5, color: '#10b981' },
+              { name: 'Hanche (Tai-Otoshi / Harai-Goshi)', value: 65, color: '#f59e0b' },
+              { name: 'Épaule (Ippon Seoi Nage)', value: 15, color: '#4f46e5' },
+              { name: 'Sol (Ne-Waza)', value: 15, color: '#3b82f6' },
+              { name: 'Jambe (Ko-Soto-Gari)', value: 5, color: '#10b981' },
             ]
-          };
+        };
 
-          const natationStats = {
+        const natationStats = {
             club: "ACBB (92)", debut: "Sept. 2024 (1.5 an)",
             kpis: [
-              { label: 'Heures cumulées', value: "118h"},
-              { label: 'KM parcourus', value: "36"},
-              { label: 'Courses Off.', value: "1"},
-              { label: 'Chrono 25m', value: "28.46s"},
+              { label: 'Heures cumulées', value: "118h", sub: 'Depuis 2024' },
+              { label: 'KM parcourus', value: "36", sub: 'Cumul estimé' },
+              { label: 'Courses Off.', value: "1", sub: 'Saison 25-26' },
+              { label: 'Chrono 25m Dos', value: "28.46s", sub: 'Validé' },
             ]
-          };
+        };
 
-          const handballStats = {
+        const handballStats = {
             club: "Issy Paris Hand (92)", debut: "Sept. 2024 (1.5 an)",
             kpis: [
-              { label: 'Heures cumulées', value: "66h"},
-              { label: 'Matchs Joués', value: "16"},
-              { label: 'Tournois', value: "6"},
-              { label: 'Victoires', value: "2"},
+              { label: 'Heures cumulées', value: "66h", sub: 'Depuis 2024' },
+              { label: 'Matchs Joués', value: "16", sub: 'Saison 25-26' },
+              { label: 'Tournois', value: "6", sub: 'Saison 25-26' },
+              { label: 'Victoires maj.', value: "2", sub: 'Surclassement inclus' },
             ]
-          };
+        };
 
-          // --- 4. DATA: CALENDRIER ---
-          const rawPastEvents = [
+        // --- 4. DATA: CALENDRIER ---
+        const rawPastEvents = [
             { month: "Février 2026", events: [
               { date: '21/02', sport: 'Judo', icon: JudoIcon, color: 'text-slate-900 dark:text-white', bgColor: 'bg-slate-200 dark:bg-slate-800', name: 'Magny-en-Vexin (95)', result: '1ER', adv: 1, matches: "3 combats", 
                 desc: "Niveau global faible. Tournoi maîtrisé du début à la fin avec 3 victoires expéditives.", com: "Autonomie mentale complète validée. Le 3ème combat marque un tournant technique avec une attaque en jambe explosive (Ko-Soto-Gari) parfaitement exécutée." },
               { date: '08/02', sport: 'Judo', icon: JudoIcon, color: 'text-slate-900 dark:text-white', bgColor: 'bg-slate-200 dark:bg-slate-800', name: 'Saint-Arnoult-en-Yv. (78)', result: '1ER', adv: 2, matches: "3 combats", 
                 desc: "Très bonne gestion des combats sur un tournoi de niveau modéré.", com: "Belles liaisons debout-sol et confirmation des acquis." },
-              { date: '07/02', sport: 'Natation', icon: Waves, color: 'text-blue-600', bgColor: 'bg-blue-50 dark:bg-blue-900/20', name: 'Suresnes (92)', result: 'DSQ', adv: 3, matches: "1 course", 
+              { date: '07/02', sport: 'Natation', icon: Waves, color: 'text-blue-600', bgColor: 'bg-blue-50 dark:bg-blue-900/30', name: 'Suresnes (92)', result: 'DSQ', adv: 3, matches: "1 course", 
                 desc: "Disqualification sur 25m dos pour retournement sur le ventre.", com: "Erreur technique de repère spatial avant de toucher le mur. Chrono d'entraînement (28.46s) validant le niveau. Excellente résilience montrée." }
             ]},
             { month: "Janvier 2026", events: [
-              { date: '24/01', sport: 'Handball', icon: BallIcon, color: 'text-orange-600', bgColor: 'bg-orange-50 dark:bg-orange-900/20', name: 'Issy (92) - U9', result: 'NC', adv: 4, matches: "Plusieurs matchs", 
+              { date: '24/01', sport: 'Handball', icon: BallIcon, color: 'text-orange-600', bgColor: 'bg-orange-50 dark:bg-orange-900/30', name: 'Issy (92) - U9', result: 'NC', adv: 4, matches: "Plusieurs matchs", 
                 desc: "Surclassement en U9. Tournoi compliqué.", com: "Forte adversité physique face à des gabarits supérieurs. A eu du mal à lâcher son ballon rapidement." },
-              { date: '18/01', sport: 'Handball', icon: BallIcon, color: 'text-orange-600', bgColor: 'bg-orange-50 dark:bg-orange-900/20', name: 'Suresnes (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", 
+              { date: '18/01', sport: 'Handball', icon: BallIcon, color: 'text-orange-600', bgColor: 'bg-orange-50 dark:bg-orange-900/30', name: 'Suresnes (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", 
                 desc: "Victoire de l'équipe sur ce tournoi interclub.", com: "Évolution très positive sur sa vision du jeu. Capable de lever la tête et de trouver de bonnes passes." },
               { date: '11/01', sport: 'Judo', icon: JudoIcon, color: 'text-slate-900 dark:text-white', bgColor: 'bg-slate-200 dark:bg-slate-800', name: 'Amilly (45)', result: '1ER', adv: 2, matches: "3 combats", 
                 desc: "Tournoi de rentrée 2026 bien maîtrisé.", com: "Domination sur les prises de hanche (Tai-Otoshi)." }
@@ -254,35 +231,35 @@
                 desc: "Termine 1er au global malgré sa seule défaite de l'année.", com: "Défaite subie par Ippon sur un Ippon Seoi Nage adverse. Excellente attitude de résilience, maîtrise technique sur les autres combats." }
             ]},
             { month: "Novembre 2025", events: [
-              { date: '29/11', sport: 'Handball', icon: BallIcon, color: 'text-orange-600', bgColor: 'bg-orange-50 dark:bg-orange-900/20', name: 'Issy (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", 
+              { date: '29/11', sport: 'Handball', icon: BallIcon, color: 'text-orange-600', bgColor: 'bg-orange-50 dark:bg-orange-900/30', name: 'Issy (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", 
                 desc: "Meilleur marqueur de la compétition avec 12 buts.", com: "Très performant face aux enfants de son âge grâce à sa vitesse. Excellent esprit d'équipe." },
               { date: '16/11', sport: 'Judo', icon: JudoIcon, color: 'text-slate-900 dark:text-white', bgColor: 'bg-slate-200 dark:bg-slate-800', name: 'Drancy (93)', result: '1ER', adv: 3, matches: "3 combats", 
                 desc: "Tournoi parfaitement géré niveau mental et concentration.", com: "1er combat: Tai-Otoshi. 2ème: Ippon Seoi Nage. 3ème: enchainement debout-sol." }
             ]},
             { month: "Octobre 2025", events: [
               { date: '12/10', sport: 'Judo', icon: JudoIcon, color: 'text-slate-900 dark:text-white', bgColor: 'bg-slate-200 dark:bg-slate-800', name: 'Pithiviers (45)', result: '1ER', adv: 1, matches: "2 combats", 
-                desc: "1er tournoi de la saison, peu d'adversité.", com: "1er et 2ème combat remportés par le même mix : Harai Goshi puis Tai Otoshi (Ippon)." }
+                desc: "1er tournoi de la saison, peu d'adversité.", com: "1er et 2ème combat remportés par le même mix : Harai Goshi puis Tai-Otoshi." }
             ]}
           ];
 
           const rawFutureEvents = [
             { month: "Mars 2026", events: [
-              { date: '07/03', sport: 'Judo', name: 'Nogent le Rotrou (28)', status: 'INSCRIT', icon: JudoIcon, color: 'text-slate-900 dark:text-white', time: "Pesée 10h30", drive: "1h50 de route", address: "Dojo complexe Robert Huwart, 35 Rue du Perche, 28400" },
-              { date: '14/03', sport: 'Handball', name: 'Issy (92) - U7', status: 'À CONFIRMER', icon: BallIcon, color: 'text-orange-600', time: "14h00-16h30", drive: "0h05 de route", address: "Cité des sports, 92130 ISSY" },
-              { date: '21/03', sport: 'Handball', name: 'Vaucresson (92) - U9', status: 'À CONFIRMER', icon: BallIcon, color: 'text-orange-600', time: "À définir", drive: "0h20 de route", address: "Vaucresson" },
-              { date: '22/03', sport: 'Judo', name: 'Coignières (78)', status: 'INSCRIT', icon: JudoIcon, color: 'text-slate-900 dark:text-white', time: "13h30-13h45", drive: "0h45 de route", address: "Gymnase du moulin à vent, 78310 Coignières" },
-              { date: '28/03', sport: 'Handball', name: 'Fontenay (92) - U7', status: 'À CONFIRMER', icon: BallIcon, color: 'text-orange-600', time: "À définir", drive: "0h25 de route", address: "Fontenay-aux-roses" },
+              { date: '07/03', sport: 'Judo', name: 'Nogent le Rotrou (28)', status: 'INSCRIT', icon: JudoIcon, color: 'text-slate-900 dark:text-white', bgColor: 'bg-slate-200 dark:bg-slate-800', time: "Pesée 10h30", drive: "1h50 de route", address: "Dojo complexe Robert Huwart, 35 Rue du Perche, 28400" },
+              { date: '14/03', sport: 'Handball', name: 'Issy (92) - U7', status: 'À CONFIRMER', icon: BallIcon, color: 'text-orange-600', bgColor: 'bg-orange-50 dark:bg-orange-900/30', time: "14h00-16h30", drive: "0h05 de route", address: "Cité des sports, 92130 ISSY" },
+              { date: '21/03', sport: 'Handball', name: 'Vaucresson (92) - U9', status: 'À CONFIRMER', icon: BallIcon, color: 'text-orange-600', bgColor: 'bg-orange-50 dark:bg-orange-900/30', time: "À définir", drive: "0h20 de route", address: "Vaucresson" },
+              { date: '22/03', sport: 'Judo', name: 'Coignières (78)', status: 'INSCRIT', icon: JudoIcon, color: 'text-slate-900 dark:text-white', bgColor: 'bg-slate-200 dark:bg-slate-800', time: "13h30-13h45", drive: "0h45 de route", address: "Gymnase du moulin à vent, 78310 Coignières" },
+              { date: '28/03', sport: 'Handball', name: 'Fontenay (92) - U7', status: 'À CONFIRMER', icon: BallIcon, color: 'text-orange-600', bgColor: 'bg-orange-50 dark:bg-orange-900/30', time: "À définir", drive: "0h25 de route", address: "Fontenay-aux-roses" },
             ]},
             { month: "Avril 2026", events: [
-              { date: '25/04', sport: 'Natation', name: 'J2 Avenirs (92)', status: 'À CONFIRMER', icon: Waves, color: 'text-blue-600', time: "À définir", drive: "-", address: "Sur le département 92" }
+              { date: '25/04', sport: 'Natation', name: 'J2 Avenirs (92)', status: 'À CONFIRMER', icon: Waves, color: 'text-blue-600', bgColor: 'bg-blue-50 dark:bg-blue-900/30', time: "À définir", drive: "-", address: "Sur le département 92" }
             ]},
             { month: "Mai 2026", events: [
-              { date: '09/05', sport: 'Judo', name: 'Maurepas (78)', status: 'À CONFIRMER', icon: JudoIcon, color: 'text-slate-900 dark:text-white', time: "13h30-14h00", drive: "0h45 de route", address: "Gymnase de la Malmedone, avenue de Rouergue, 78310" },
-              { date: '24/05', sport: 'Handball', name: 'Tournoi des Étoiles', status: 'À CONFIRMER', icon: BallIcon, color: 'text-orange-600', time: "08h00-18h00", drive: "0h45 de route", address: "Sur Herbe (Lieu à confirmer)" },
-              { date: '31/05', sport: 'Judo', name: 'Sully sur Loire (45)', status: 'À CONFIRMER', icon: JudoIcon, color: 'text-slate-900 dark:text-white', time: "À définir", drive: "2h00 de route", address: "Complexe sportif Lionel Jourdain, 7 route de Gien, 45600" },
+              { date: '09/05', sport: 'Judo', name: 'Maurepas (78)', status: 'À CONFIRMER', icon: JudoIcon, color: 'text-slate-900 dark:text-white', bgColor: 'bg-slate-200 dark:bg-slate-800', time: "13h30-14h00", drive: "0h45 de route", address: "Gymnase de la Malmedone, avenue de Rouergue, 78310" },
+              { date: '24/05', sport: 'Handball', name: 'Tournoi des Étoiles', status: 'À CONFIRMER', icon: BallIcon, color: 'text-orange-600', bgColor: 'bg-orange-50 dark:bg-orange-900/30', time: "08h00-18h00", drive: "0h45 de route", address: "Sur Herbe (Lieu à confirmer)" },
+              { date: '31/05', sport: 'Judo', name: 'Sully sur Loire (45)', status: 'À CONFIRMER', icon: JudoIcon, color: 'text-slate-900 dark:text-white', bgColor: 'bg-slate-200 dark:bg-slate-800', time: "À définir", drive: "2h00 de route", address: "Complexe sportif Lionel Jourdain, 7 route de Gien, 45600" },
             ]},
             { month: "Juin 2026", events: [
-              { date: '07/06', sport: 'Judo', name: 'Petits Tigres (75)', status: 'À CONFIRMER', icon: JudoIcon, color: 'text-slate-900 dark:text-white', time: "11h15 - 11h45", drive: "0h15 de route", address: "INJ, 21/25 avenue de la Porte de Chatillon, 75014" },
+              { date: '07/06', sport: 'Judo', name: 'Petits Tigres (75)', status: 'À CONFIRMER', icon: JudoIcon, color: 'text-slate-900 dark:text-white', bgColor: 'bg-slate-200 dark:bg-slate-800', time: "11h15 - 11h45", drive: "0h15 de route", address: "INJ, 21/25 avenue de la Porte de Chatillon, 75014" },
             ]}
           ];
 
@@ -467,7 +444,7 @@
                         </div>
                       </Card>
 
-                      <Card title="Volume Horaire Mensuel - Saison 2025-2026" icon={Activity}>
+                      <Card title="Volume Horaire Mensuel - Saison 2025/2026" icon={Activity}>
                         <div className="h-[250px] w-full mb-4 mt-2">
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={volumeMensuel} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
@@ -479,6 +456,7 @@
                               <Bar dataKey="Judo" stackId="a" fill={isDark ? "#94a3b8" : "#0f172a"} radius={[0,0,0,0]} />
                               <Bar dataKey="Natation" stackId="a" fill="#3b82f6" />
                               <Bar dataKey="Handball" stackId="a" fill="#f97316" />
+                              {/* Seulement la dernière barre porte le label global */}
                               <Bar dataKey="Multisport" stackId="a" fill="#10b981" radius={[4,4,0,0]} label={renderCustomBarLabel} />
                             </BarChart>
                           </ResponsiveContainer>
@@ -499,7 +477,7 @@
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-in fade-in duration-500">
                     <div className="lg:col-span-5 flex flex-col gap-6">
                       <Card title="Équilibre Athlétique Global" icon={Zap}>
-                        <div className="flex justify-between items-center mb-2 px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 rounded-xl overflow-visible">
+                        <div className="flex justify-between items-center mb-2 px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 rounded-xl">
                           <div className="flex items-center">
                             <span className="text-xs font-black uppercase text-emerald-700 dark:text-emerald-400 mr-2">Note Globale Actuelle</span>
                             <Tooltip text="Moyenne des 6 axes du développement moteur. Un score supérieur à 70/100 à cet âge indique une excellente précocité physique naturelle sans spécialisation précoce.">
@@ -521,7 +499,7 @@
                       </Card>
 
                       <Card title="Score Mental (INSEP)" icon={Brain}>
-                        <div className="flex justify-between items-center mb-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-2xl border border-purple-100 dark:border-purple-800 overflow-visible">
+                        <div className="flex justify-between items-center mb-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-2xl border border-purple-100 dark:border-purple-800">
                           <div className="flex items-start gap-2">
                             <div><p className="text-xs font-black uppercase text-purple-700 dark:text-purple-400">Score Actuel</p><p className="text-[10px] font-bold text-purple-500 dark:text-purple-300 mt-1">Cohérent et validé</p></div>
                             <Tooltip text="Scores très élevés car l'enfant évolue dans un environnement ludique et multisport, sans spécialisation précoce toxique (pas de pression de résultat absolu).">
@@ -532,7 +510,7 @@
                         </div>
                         <div className="space-y-4">
                           {mentalData.map((item, i) => (
-                            <div key={i} className="card-container">
+                            <div key={i} className="card-wrapper">
                               <div className="flex justify-between text-[11px] font-bold mb-1.5 uppercase tracking-wide">
                                 <div className="flex items-center">
                                   <span className="text-slate-600 dark:text-slate-300 mr-1">{item.name}</span>
@@ -576,6 +554,7 @@
                         </div>
                       </Card>
 
+                      {/* NOUVELLE BOITE SUGGESTIONS (Remplissant l'espace vide) */}
                       <Card title="Axes d'Amélioration & Exercices (Focus Actuel)" icon={TargetElite}>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
                           <div className="p-4 bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 rounded-2xl">
@@ -596,7 +575,7 @@
                              </p>
                              <ul className="text-xs text-blue-900 dark:text-blue-100 space-y-1.5 list-disc pl-4 font-bold">
                                <li>Jeux de réflexes (attraper la balle lâchée à l'aveugle).</li>
-                               <li>Départs en sprint sur signaux sonores variés.</li>
+                               <li>Départs en sprint sur signaux sonores variés (claquement, bip).</li>
                                <li>Sauts latéraux réactifs avec appuis stables.</li>
                              </ul>
                           </div>
@@ -609,6 +588,7 @@
                 {/* === ONGLET 3: SPÉCIALITÉS === */}
                 {activeTab === 'disciplines' && (
                   <div className="grid grid-cols-1 gap-8 animate-in fade-in duration-500">
+                    
                     {/* SECTION JUDO */}
                     <div className="bg-white dark:bg-slate-900 rounded-[2rem] border-t-8 border-t-slate-800 dark:border-t-slate-600 shadow-xl overflow-hidden">
                       <div className="p-6 md:p-8 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between md:items-center gap-4 bg-slate-50/50 dark:bg-slate-800/30">
@@ -672,7 +652,7 @@
                               <li><strong className="text-slate-900 dark:text-white">Tai-Otoshi / Harai-Goshi</strong> : Les "Spéciaux" dominants, très efficaces mais nécessitent une stabilisation mécanique de la hanche sous forte pression.</li>
                               <li><strong className="text-slate-900 dark:text-white">Ippon Seoi Nage</strong> : Techniquement acquis mais logiquement limité par sa grande taille face aux petits gabarits.</li>
                               <li><strong className="text-slate-900 dark:text-white">Ne-Waza (Sol)</strong> : Liaisons debout-sol parfaitement automatisées (2 victoires pures au sol sur immobilisation).</li>
-                              <li><strong className="text-slate-900 dark:text-white">Ko-Soto-Gari</strong> : Expérimenté 1 seule fois avec grand succès, une excellente piste d'avenir à développer.</li>
+                              <li><strong className="text-slate-900 dark:text-white">Ko-Soto-Gari</strong> : Expérimenté 1 seule fois avec grand succès, une excellente piste d'avenir à développer sans plonger.</li>
                             </ul>
                           </div>
                         </div>
@@ -701,6 +681,7 @@
                             ))}
                           </div>
                           
+                          {/* Diagnostic Technique Natation */}
                           <div className="p-5 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/30 rounded-2xl">
                              <p className="text-[10px] font-black uppercase text-blue-500 mb-3 flex items-center gap-2"><Brain size={14}/> Diagnostic Technique</p>
                              <ul className="text-xs text-blue-900/80 dark:text-blue-100/80 space-y-1.5 list-disc pl-4 font-medium">
@@ -744,6 +725,7 @@
                             ))}
                           </div>
 
+                          {/* Diagnostic Technique Hand */}
                           <div className="p-5 bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-800/30 rounded-2xl">
                              <p className="text-[10px] font-black uppercase text-orange-500 mb-3 flex items-center gap-2"><Brain size={14}/> Diagnostic Technique</p>
                              <ul className="text-xs text-orange-900/80 dark:text-orange-100/80 space-y-1.5 list-disc pl-4 font-medium">
@@ -775,6 +757,8 @@
                     
                     {/* Colonne Gauche: Passé interactif */}
                     <Card title="Événements Passés & Résultats" icon={Award}>
+                      
+                      {/* Filtres Passé */}
                       <div className="flex gap-2 mb-4 overflow-x-auto no-scrollbar pb-1">
                           {['ALL', 'Judo', 'Handball', 'Natation'].map(f => (
                              <button key={f} onClick={() => setPastFilter(f)} className={`px-3 py-1 text-[10px] font-black uppercase rounded-full border transition-colors ${pastFilter === f ? 'bg-slate-800 text-white border-slate-800 dark:bg-indigo-500 dark:border-indigo-500' : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:bg-slate-50'}`}>
@@ -827,6 +811,7 @@
 
                     {/* FUTURE EVENTS */}
                     <Card title="Événements à venir" icon={Calendar}>
+                      {/* Filtres Futur */}
                       <div className="flex gap-2 mb-4 overflow-x-auto no-scrollbar pb-1">
                           {['ALL', 'Judo', 'Handball', 'Natation'].map(f => (
                              <button key={f} onClick={() => setFutureFilter(f)} className={`px-3 py-1 text-[10px] font-black uppercase rounded-full border transition-colors ${futureFilter === f ? 'bg-slate-800 text-white border-slate-800 dark:bg-indigo-500 dark:border-indigo-500' : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:bg-slate-50'}`}>
