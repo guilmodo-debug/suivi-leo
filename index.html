@@ -8,7 +8,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- React & ReactDOM (Stables) -->
+    <!-- Librairies React et Dépendances (Versions CDNJS stables) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.8.1/prop-types.min.js"></script>
@@ -24,15 +24,15 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         
-        /* Infobulles 100% fiables */
+        /* Infobulles 100% fiables et visibles par-dessus le reste */
         .info-bubble { position: relative; display: inline-flex; align-items: center; cursor: help; }
         .info-bubble .info-content {
-            visibility: hidden; opacity: 0; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(-8px);
-            width: max-content; max-width: 260px; background-color: #1e293b; color: #fff; text-align: center;
-            border-radius: 8px; padding: 10px 14px; font-size: 12px; font-weight: 500; line-height: 1.4;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); z-index: 50; transition: all 0.2s; pointer-events: none;
+            visibility: hidden; opacity: 0; position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%);
+            width: max-content; max-width: 250px; background-color: #1e293b; color: #fff; text-align: center;
+            border-radius: 8px; padding: 10px 14px; font-size: 11px; font-weight: 500; line-height: 1.5;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5); z-index: 99999; transition: all 0.2s ease; pointer-events: none;
         }
-        .info-bubble:hover .info-content { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(-4px); }
+        .info-bubble:hover .info-content { visibility: visible; opacity: 1; bottom: 140%; }
         .info-bubble .info-content::after {
             content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
             border-width: 6px; border-style: solid; border-color: #1e293b transparent transparent transparent;
@@ -42,6 +42,10 @@
 <body class="bg-[#f4f7f9] text-slate-900">
     <div id="root">
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; color: #4f46e5;">
+            <svg class="animate-spin h-10 w-10 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
             <p style="font-weight: bold; font-family: sans-serif;">Chargement du tableau de bord Léo Analytics...</p>
         </div>
     </div>
@@ -64,7 +68,7 @@
         }
 
         const { useState } = React;
-        const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip: RechartsTooltip, ResponsiveContainer, BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend, ComposedChart, Area, AreaChart } = window.Recharts;
+        const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip: RechartsTooltip, ResponsiveContainer, BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend } = window.Recharts;
 
         // ==========================================
         // ICONES SVG
@@ -89,11 +93,14 @@
         const ChevronDown = (p) => <Icon {...p} path='<polyline points="6 9 12 15 18 9"/>' />;
         const ChevronUp = (p) => <Icon {...p} path='<polyline points="18 15 12 9 6 15"/>' />;
         const InfoIcon = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>' />;
+        const ArrowRight = (p) => <Icon {...p} path='<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>' />;
+        const CheckCircle2 = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/>' />;
+        const StarIcon = (p) => <Icon {...p} path='<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>' />;
 
         // Icônes spécifiques Disciplines
         const HandIcon = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20M2 12a14.5 14.5 0 0 0 20 0"/>' />;
-        // Nouvelle icône Judo (non ronde, symbolise une ceinture/kimono)
-        const JudoIcon = (p) => <Icon {...p} path='<path d="M4 8h16l-2 12H6L4 8z"/><path d="M2 12h20"/><path d="M10 12v6"/><path d="M14 12v6"/>' />;
+        // Nouvelle icône Judo distincte (Ceinture nouée / Kimono)
+        const JudoIcon = (p) => <Icon {...p} path='<rect x="3" y="10" width="18" height="4" rx="1"/><path d="M12 14v5M10 14l-2 4M14 14l2 4"/>' />;
 
         const App = () => {
           const [activeTab, setActiveTab] = useState('synthesis');
@@ -110,9 +117,9 @@
 
           const advancedKPIs = [
             { label: "Score Global Pondéré", value: "84/100", trend: "+2", color: "text-indigo-600", desc: "Tech(+), Mental(+), Explo(++), Souplesse(-)", info: "Moyenne pondérée : Technique (30%), Physique (25%), Mental (25%), Régularité (10%), Potentiel (10%)." },
-            { label: "Indice Transfert", value: "8.5/10", trend: "Validé", color: "text-blue-500", desc: "Basé sur les données motrices réelles", info: "Capacité à utiliser une compétence d'un sport (ex: appuis handball) dans un autre sport." },
-            { label: "Victoire / Gabarit Sup.", value: "78%", trend: "En test", color: "text-orange-500", desc: "Performance face à plus lourd/grand", info: "Ratio de victoire calculé uniquement lors de surclassements d'âge ou de poids." },
-            { label: "Indice Stabilité Méc.", value: "6.5/10", trend: "Fragile", color: "text-amber-500", desc: "Hanche intermittente sous pression", info: "Capacité à maintenir sa posture de force (Shisei) face à l'agressivité de l'adversaire." },
+            { label: "Indice Transfert", value: "8.5/10", trend: "Validé", color: "text-blue-500", desc: "Basé sur les données motrices réelles", info: "Capacité à utiliser une compétence acquise dans un sport (ex: appuis handball) pour la réinvestir dans un autre." },
+            { label: "Victoire / Gabarit Sup.", value: "78%", trend: "En test", color: "text-orange-500", desc: "Performance face à plus lourd/grand", info: "Ratio de victoire calculé uniquement lors de situations de surclassement d'âge ou de poids défavorable." },
+            { label: "Indice Stabilité Méc.", value: "6.5/10", trend: "Fragile", color: "text-amber-500", desc: "Hanche intermittente sous pression", info: "Capacité de l'athlète à maintenir sa posture de force (Shisei) et sa verticalité face à l'agressivité de l'adversaire." },
           ];
 
           // --- 2. DATA: VOLUME & TESTS ---
@@ -139,72 +146,81 @@
           ];
 
           const mentalData = [
-            { name: 'Plaisir', score: 100, color: '#10b981', info: "Motivation intrinsèque maximale, aucune contrainte ressentie." }, 
-            { name: 'Orient. Tâche', score: 95, color: '#6d28d9', info: "Focalisation sur la maîtrise du geste plutôt que la comparaison aux autres." },
-            { name: 'Compétence', score: 90, color: '#8b5cf6', info: "Confiance en ses capacités physiques, nourrie par le multisport." }, 
-            { name: 'Résilience', score: 85, color: '#f59e0b', info: "Rebondit très vite après un échec (ex: DSQ Natation)." },
-            { name: 'Autonomie', score: 75, color: '#3b82f6', info: "Prépare son sac, gère sa compétition sans aide parentale constante." },
+            { name: 'Plaisir', score: 100, color: '#10b981', info: "Motivation intrinsèque maximale, aucune contrainte ressentie par l'enfant à l'entraînement." }, 
+            { name: 'Orient. Tâche', score: 95, color: '#6d28d9', info: "Focalisation saine sur la maîtrise du geste et sa propre progression plutôt que la comparaison aux autres." },
+            { name: 'Compétence', score: 90, color: '#8b5cf6', info: "Confiance en ses capacités physiques, grandement favorisée par l'excellence des résultats multisports." }, 
+            { name: 'Résilience', score: 85, color: '#f59e0b', info: "Capacité à rebondir immédiatement après un échec (excellente réaction post-DSQ en natation)." },
+            { name: 'Autonomie', score: 75, color: '#3b82f6', info: "Autonomie logistique et de concentration : prépare son sac, s'isole avant le combat sans aide parentale." },
           ];
 
           // --- 3. DATA: SPÉCIALITÉS ---
           const judoStats = {
             grade: "Ceinture Jaune 2 Barrettes", debut: "Sept. 2023 (2.5 ans)",
             kpis: [
-              { label: 'Heures cumulées', value: "184h"}, 
-              { label: 'Randoris', value: "552"},
+              { label: 'Heures cumulées', value: "187h"}, 
+              { label: 'Randoris', value: "561"},
               { label: 'Combats', value: 15 }, 
               { label: 'Victoires', value: 14 },
             ],
             directions: [
-              { name: 'Hanche (Tai-Otoshi / Harai-Goshi)', value: 65, color: '#f59e0b' },
-              { name: 'Épaule (Ippon Seoi Nage)', value: 15, color: '#4f46e5' },
-              { name: 'Sol (Ne-Waza)', value: 15, color: '#3b82f6' },
-              { name: 'Jambe (Ko-Soto-Gari)', value: 5, color: '#10b981' },
+              { name: 'Tai-Otoshi / Harai-Goshi', value: 65, color: '#ef4444' },
+              { name: 'Ippon Seoi Nage', value: 15, color: '#f97316' },
+              { name: 'Ne-Waza (Sol)', value: 15, color: '#3b82f6' },
+              { name: 'Ko-Soto-Gari', value: 5, color: '#10b981' },
             ]
           };
 
           // --- 4. DATA: CALENDRIER ---
+          // Fonction pour générer les étoiles
+          const renderStars = (count) => (
+             <div className="flex items-center gap-0.5">
+                {[...Array(count)].map((_, i) => <StarIcon key={i} size={10} className="text-yellow-500 fill-yellow-500" />)}
+             </div>
+          );
+
           const pastEvents = [
             { month: "Février 2026", events: [
-              { date: '21/02', sport: 'Judo', name: 'Magny-en-Vexin (95)', result: '1ER', icon: JudoIcon, color: 'text-indigo-600', bgColor: 'bg-indigo-50', adv: "Forte", matches: "3 combats", desc: "3 victoires expéditives.", com: "Autonomie mentale complète validée. Le 3ème combat marque un tournant avec Ko-Soto-Gari." },
-              { date: '07/02', sport: 'Natation', name: 'Suresnes (92)', result: 'DSQ', icon: Waves, color: 'text-blue-600', bgColor: 'bg-blue-50', adv: "Forte", matches: "1 course", desc: "Disqualification réglementaire.", com: "Retournement sur le ventre trop tôt. Chrono d'entraînement (28.46s) validant le niveau." }
+              { date: '21/02', sport: 'Judo', name: 'Magny-en-Vexin (95)', result: '1ER', icon: JudoIcon, color: 'text-red-600', bgColor: 'bg-red-50', adv: 1, matches: "3 combats", desc: "Niveau global faible. Tournoi maîtrisé du début à la fin avec 3 victoires expéditives.", com: "Autonomie mentale complète validée. Le 3ème combat marque un tournant avec une attaque en jambe explosive (Ko-Soto-Gari) parfaitement exécutée sans plongeon." },
+              { date: '07/02', sport: 'Natation', name: 'Suresnes (92)', result: 'DSQ', icon: Waves, color: 'text-blue-600', bgColor: 'bg-blue-50', adv: 3, matches: "1 course", desc: "Disqualification sur 25m dos pour retournement sur le ventre.", com: "Erreur technique de repère spatial. Chrono d'entraînement (28.46s) validant le niveau. Excellente résilience montrée." }
             ]},
             { month: "Janvier 2026", events: [
-              { date: '24/01', sport: 'Handball', name: 'Issy (92) - U9', result: 'NC', icon: HandIcon, color: 'text-orange-600', bgColor: 'bg-orange-50', adv: "Très Forte", matches: "Plusieurs matchs", desc: "Surclassement en U9.", com: "Tournoi compliqué face à une adversité physique supérieure. Difficulté à lâcher la balle rapidement." },
-              { date: '18/01', sport: 'Handball', name: 'Suresnes (92) - U7', result: 'NC', icon: HandIcon, color: 'text-orange-600', bgColor: 'bg-orange-50', adv: "Moyenne", matches: "3 matchs", desc: "Bons matchs collectifs.", com: "Évolution positive sur sa vision du jeu. Capable de lever la tête et trouver des passes." }
+              { date: '24/01', sport: 'Handball', name: 'Issy (92) - U9', result: 'NC', icon: HandIcon, color: 'text-orange-600', bgColor: 'bg-orange-50', adv: 4, matches: "Plusieurs matchs", desc: "Surclassement en U9. Tournoi compliqué.", com: "Forte adversité physique face à des gabarits supérieurs. A eu du mal à lâcher son ballon rapidement." },
+              { date: '18/01', sport: 'Handball', name: 'Suresnes (92) - U7', result: '1ER', icon: HandIcon, color: 'text-orange-600', bgColor: 'bg-orange-50', adv: 2, matches: "3 matchs", desc: "Victoire de l'équipe sur ce tournoi.", com: "Évolution très positive sur sa vision du jeu. Capable de lever la tête et trouver des passes." }
             ]},
             { month: "Décembre 2025", events: [
-              { date: '07/12', sport: 'Judo', name: 'Paris Sorbier (75)', result: '1ER', icon: JudoIcon, color: 'text-indigo-600', bgColor: 'bg-indigo-50', adv: "Forte", matches: "3 combats", desc: "1er au global malgré 1 défaite.", com: "Seule défaite de la saison subie par Ippon sur Ippon Seoi Nage. Excellente résilience." }
+              { date: '07/12', sport: 'Judo', name: 'Paris Sorbier (75)', result: '1ER', icon: JudoIcon, color: 'text-red-600', bgColor: 'bg-red-50', adv: 3, matches: "3 combats", desc: "1er au global malgré sa seule défaite de l'année.", com: "Défaite subie par Ippon sur un Ippon Seoi Nage adverse. Excellente attitude de résilience, maîtrise technique sur les autres combats." }
             ]},
             { month: "Novembre 2025", events: [
-              { date: '29/11', sport: 'Handball', name: 'Issy (92) - U7', result: '1ER', icon: HandIcon, color: 'text-orange-600', bgColor: 'bg-orange-50', adv: "Modérée", matches: "4 matchs", desc: "Meilleur marqueur avec 12 buts.", com: "Très performant face aux enfants de son âge, excellent esprit d'équipe." },
-              { date: '16/11', sport: 'Judo', name: 'Drancy (93)', result: '1ER', icon: JudoIcon, color: 'text-indigo-600', bgColor: 'bg-indigo-50', adv: "Moyenne", matches: "3 combats", desc: "Tournoi parfaitement géré.", com: "1er combat: Tai Otoshi. 2ème: Ippon Seoi Nage. 3ème: enchainement debout-sol." }
+              { date: '29/11', sport: 'Handball', name: 'Issy (92) - U7', result: '1ER', icon: HandIcon, color: 'text-orange-600', bgColor: 'bg-orange-50', adv: 2, matches: "3 matchs", desc: "Meilleur marqueur avec 12 buts au total.", com: "Très performant face aux enfants de son âge grâce à sa vitesse. Excellent esprit d'équipe." },
+              { date: '16/11', sport: 'Judo', name: 'Drancy (93)', result: '1ER', icon: JudoIcon, color: 'text-red-600', bgColor: 'bg-red-50', adv: 3, matches: "3 combats", desc: "Tournoi parfaitement géré niveau concentration.", com: "1er combat: Tai Otoshi. 2ème: Ippon Seoi Nage. 3ème: enchainement debout-sol." }
             ]},
             { month: "Octobre 2025", events: [
-              { date: '12/10', sport: 'Judo', name: 'Pithiviers (45)', result: '1ER', icon: JudoIcon, color: 'text-indigo-600', bgColor: 'bg-indigo-50', adv: "Modérée", matches: "2 combats", desc: "Reprise de saison réussie.", com: "Mix Harai Goshi - Tai Otoshi (Ippon)." }
+              { date: '12/10', sport: 'Judo', name: 'Pithiviers (45)', result: '1ER', icon: JudoIcon, color: 'text-red-600', bgColor: 'bg-red-50', adv: 1, matches: "2 combats", desc: "1er tournoi de la saison, peu d'adversité.", com: "1er et 2ème combat remportés par le même mix : Harai Goshi puis Tai Otoshi (Ippon)." }
             ]}
           ];
 
           const futureEvents = [
             { month: "Mars 2026", events: [
-              { date: '07/03', sport: 'Judo', name: 'Nogent le Rotrou (28)', status: 'INSCRIT', icon: JudoIcon, color: 'text-indigo-600', bgColor: 'bg-indigo-50', time: "Pesée 10h30", drive: "1h50 de route", address: "Dojo complexe Robert Huwart" },
-              { date: '22/03', sport: 'Judo', name: 'Coignières (78)', status: 'INSCRIT', icon: JudoIcon, color: 'text-indigo-600', bgColor: 'bg-indigo-50', time: "13h30-13h45", drive: "0h45 de route", address: "Gymnase du moulin à vent" },
+              { date: '07/03', sport: 'Judo', name: 'Nogent le Rotrou (28)', status: 'INSCRIT', icon: JudoIcon, color: 'text-red-600', time: "Pesée 10h30", drive: "1h50", address: "Dojo complexe Robert Huwart" },
+              { date: '14/03', sport: 'Handball', name: 'Issy (92) - U7', status: 'À CONFIRMER', icon: HandIcon, color: 'text-orange-600', time: "14h00-16h30", drive: "0h05", address: "Cité des sports (Issy)" },
+              { date: '21/03', sport: 'Handball', name: 'Vaucresson (92) - U9', status: 'À CONFIRMER', icon: HandIcon, color: 'text-orange-600', time: "À définir", drive: "0h20", address: "Vaucresson" },
+              { date: '28/03', sport: 'Handball', name: 'Fontenay-aux-roses (92)', status: 'À CONFIRMER', icon: HandIcon, color: 'text-orange-600', time: "À définir", drive: "0h25", address: "Fontenay-aux-roses" },
             ]},
             { month: "Avril 2026", events: [
-              { date: '25/04', sport: 'Natation', name: 'J2 Avenirs (92)', status: 'NC', icon: Waves, color: 'text-blue-600', bgColor: 'bg-blue-50', time: "À définir", drive: "-", address: "Département 92" }
+              { date: '25/04', sport: 'Natation', name: 'J2 Avenirs (92)', status: 'À CONFIRMER', icon: Waves, color: 'text-blue-600', time: "À définir", drive: "-", address: "Département 92" }
             ]},
             { month: "Mai 2026", events: [
-              { date: '30/05', sport: 'Handball', name: 'FESTIHAND (92)', status: 'NC', icon: HandIcon, color: 'text-orange-600', bgColor: 'bg-orange-50', time: "À définir", drive: "0h05 de route", address: "Lieu à confirmer (Issy)" },
-              { date: '30/05', sport: 'Natation', name: 'J3 Avenirs (92)', status: 'NC', icon: Waves, color: 'text-blue-600', bgColor: 'bg-blue-50', time: "À définir", drive: "-", address: "Département 92" }
+              { date: '09/05', sport: 'Judo', name: 'Maurepas (78)', status: 'À CONFIRMER', icon: JudoIcon, color: 'text-red-600', time: "13h30-14h00", drive: "0h45", address: "Gymnase de la Malmedone" },
+              { date: '24/05', sport: 'Handball', name: 'Tournoi des Étoiles', status: 'À CONFIRMER', icon: HandIcon, color: 'text-orange-600', time: "08h00-18h00", drive: "0h45", address: "Sur Herbe (Lieu à def)" },
+              { date: '31/05', sport: 'Judo', name: 'Sully sur Loire (45)', status: 'À CONFIRMER', icon: JudoIcon, color: 'text-red-600', time: "À définir", drive: "2h00", address: "Complexe Lionel Jourdain" },
             ]},
             { month: "Juin 2026", events: [
-              { date: '07/06', sport: 'Judo', name: 'Challenge Petits Tigres (75)', status: 'NC', icon: JudoIcon, color: 'text-indigo-600', bgColor: 'bg-indigo-50', time: "11h15 - 11h45", drive: "0h15 de route", address: "INJ Paris" },
-              { date: '20/06', sport: 'Natation', name: 'J4 Avenirs (92)', status: 'NC', icon: Waves, color: 'text-blue-600', bgColor: 'bg-blue-50', time: "À définir", drive: "-", address: "Département 92" }
+              { date: '07/06', sport: 'Judo', name: 'Challenge Petits Tigres (75)', status: 'À CONFIRMER', icon: JudoIcon, color: 'text-red-600', time: "11h15 - 11h45", drive: "0h15", address: "INJ Paris" },
             ]}
           ];
 
           const Card = ({ children, title, icon: IconCmp, className = "" }) => (
-            <div className={`bg-white rounded-3xl p-6 border border-slate-100 shadow-sm ${className}`}>
+            <div className={`bg-white rounded-3xl p-6 border border-slate-100 shadow-sm ${className}`} style={{overflow: 'visible'}}>
               {title && (
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
@@ -232,6 +248,7 @@
                     </h1>
                   </div>
                   
+                  {/* BANDEAU TROPHÉES DISCRET */}
                   <div className="flex flex-col items-end">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Salle des Trophées</p>
                     <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
@@ -276,14 +293,15 @@
                 
                 {/* === ONGLET 1: IDENTITÉ & CHARGE === */}
                 {activeTab === 'synthesis' && (
-                  <div className="space-y-6">
-                    {/* Alerte Tournoi imminent */}
-                    <div className="bg-green-50 border border-green-200 rounded-2xl p-4 flex justify-between items-center shadow-sm">
+                  <div className="space-y-6 animate-in fade-in duration-500">
+                    
+                    {/* Alerte Tournoi imminent Cliquable */}
+                    <div onClick={() => setActiveTab('calendar')} className="bg-green-50 border border-green-200 rounded-2xl p-4 flex justify-between items-center shadow-sm cursor-pointer hover:shadow-md transition-shadow group">
                       <div className="flex items-center gap-4">
-                        <div className="bg-green-100 p-2 rounded-full text-green-600"><Calendar size={20}/></div>
+                        <div className="bg-green-100 p-2 rounded-full text-green-600 group-hover:scale-110 transition-transform"><Calendar size={20}/></div>
                         <div>
                           <p className="text-[10px] font-black uppercase text-green-600 tracking-widest">Prochaine Échéance</p>
-                          <p className="text-sm font-bold text-green-900">07/03/2026 - Tournoi du Perche (Judo)</p>
+                          <p className="text-sm font-bold text-green-900 mt-0.5">07/03/2026 - Tournoi du Perche (Nogent le Rotrou)</p>
                         </div>
                       </div>
                       <span className="px-3 py-1 bg-green-500 text-white text-[10px] font-black uppercase rounded shadow">Inscrit</span>
@@ -291,17 +309,17 @@
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                       {advancedKPIs.map((kpi, i) => (
-                        <div key={i} className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm relative overflow-hidden group">
-                          <div className={`absolute -right-6 -top-6 w-24 h-24 bg-current opacity-5 rounded-full transition-transform ${kpi.color}`}></div>
-                          <div className="flex items-center justify-between mb-2">
+                        <div key={i} className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm relative group" style={{overflow: 'visible'}}>
+                          <div className={`absolute -right-6 -top-6 w-24 h-24 bg-current opacity-5 rounded-full transition-transform z-0 ${kpi.color}`}></div>
+                          <div className="flex items-center justify-between mb-2 relative z-10">
                             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{kpi.label}</p>
                             {kpi.info && <div className="info-bubble"><InfoIcon size={14} className="text-slate-300 hover:text-indigo-500" /><span className="info-content">{kpi.info}</span></div>}
                           </div>
-                          <div className="flex items-baseline gap-3 mb-2">
+                          <div className="flex items-baseline gap-3 mb-2 relative z-10">
                             <span className={`text-3xl font-black ${kpi.color}`}>{kpi.value}</span>
                             <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded-md">{kpi.trend}</span>
                           </div>
-                          <p className="text-xs text-slate-500 font-medium">{kpi.desc}</p>
+                          <p className="text-xs text-slate-500 font-medium relative z-10">{kpi.desc}</p>
                         </div>
                       ))}
                     </div>
@@ -348,7 +366,7 @@
                         </div>
                       </Card>
 
-                      <Card title="Volume Horaire Mensuel - Saison 2025/2026" icon={Activity}>
+                      <Card title="Volume Horaire Mensuel - Saison 2025-2026" icon={Activity}>
                         <div className="h-[250px] w-full mb-4">
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={volumeMensuel} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -357,7 +375,7 @@
                               <YAxis tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
                               <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} itemStyle={{ fontSize: '12px', fontWeight: 'bold' }} />
                               <Legend wrapperStyle={{ fontSize: '11px', fontWeight: 'bold' }} />
-                              <Bar dataKey="Judo" stackId="a" fill="#4f46e5" radius={[0,0,4,4]} />
+                              <Bar dataKey="Judo" stackId="a" fill="#dc2626" radius={[0,0,0,0]} />
                               <Bar dataKey="Natation" stackId="a" fill="#3b82f6" />
                               <Bar dataKey="Handball" stackId="a" fill="#f97316" />
                               <Bar dataKey="Multisport" stackId="a" fill="#10b981" radius={[4,4,0,0]} />
@@ -365,7 +383,7 @@
                           </ResponsiveContainer>
                         </div>
                         <div className="grid grid-cols-4 gap-2">
-                           <div className="bg-indigo-50 rounded text-center py-2 border border-indigo-100"><p className="text-[9px] font-black uppercase text-indigo-600 mb-1">Judo</p><p className="text-sm font-bold text-indigo-900">62.5h</p></div>
+                           <div className="bg-red-50 rounded text-center py-2 border border-red-100"><p className="text-[9px] font-black uppercase text-red-600 mb-1">Judo</p><p className="text-sm font-bold text-red-900">62.5h</p></div>
                            <div className="bg-blue-50 rounded text-center py-2 border border-blue-100"><p className="text-[9px] font-black uppercase text-blue-600 mb-1">Nat</p><p className="text-sm font-bold text-blue-900">53.5h</p></div>
                            <div className="bg-orange-50 rounded text-center py-2 border border-orange-100"><p className="text-[9px] font-black uppercase text-orange-600 mb-1">Hand</p><p className="text-sm font-bold text-orange-900">28.2h</p></div>
                            <div className="bg-green-50 rounded text-center py-2 border border-green-100"><p className="text-[9px] font-black uppercase text-green-600 mb-1">Multi</p><p className="text-sm font-bold text-green-900">31.0h</p></div>
@@ -377,13 +395,13 @@
 
                 {/* === ONGLET 2: BIO-MENTAL === */}
                 {activeTab === 'biomental' && (
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-in fade-in duration-500">
                     <div className="lg:col-span-5 flex flex-col gap-6">
                       <Card title="Équilibre Athlétique Global" icon={Zap}>
                         <div className="flex justify-between items-center mb-2 px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-xl">
                           <div className="flex items-center">
                             <span className="text-xs font-black uppercase text-emerald-700 mr-2">Note Globale Actuelle</span>
-                            <div className="info-bubble"><InfoIcon size={14} className="text-emerald-500" /><span className="info-content">Moyenne des 6 axes du développement moteur. Un score &gt; 70/100 à cet âge indique une excellente précocité physique naturelle.</span></div>
+                            <div className="info-bubble"><InfoIcon size={14} className="text-emerald-500" /><span className="info-content">Moyenne des 6 axes du développement moteur. Un score > 70/100 à cet âge indique une excellente précocité physique naturelle.</span></div>
                           </div>
                           <span className="text-xl font-black text-emerald-600">75/100</span>
                         </div>
@@ -430,7 +448,7 @@
                           <AlertCircle size={20} className="text-amber-500 shrink-0 mt-0.5"/>
                           <div>
                             <p className="text-xs font-black text-amber-800 uppercase tracking-widest mb-1">Alerte Mobilité & Récupération</p>
-                            <p className="text-xs text-amber-700 font-medium leading-relaxed">Souplesse critique (-1cm). Ce déficit de mobilité nécessite la mise en place d'un "Indice Mobilité/Récupération" strict pour éviter les blessures de croissance.</p>
+                            <p className="text-xs text-amber-700/80 font-medium leading-relaxed">Souplesse critique (-1cm). Ce déficit de mobilité nécessite la mise en place d'un "Indice Mobilité/Récupération" strict pour éviter les blessures de croissance.</p>
                           </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full content-start">
@@ -458,26 +476,30 @@
 
                 {/* === ONGLET 3: SPÉCIALITÉS === */}
                 {activeTab === 'disciplines' && (
-                  <div className="grid grid-cols-1 gap-8">
+                  <div className="grid grid-cols-1 gap-8 animate-in fade-in duration-500">
                     {/* SECTION JUDO */}
-                    <div className="bg-white rounded-[2rem] border-t-8 border-t-indigo-600 shadow-xl overflow-hidden">
+                    <div className="bg-white rounded-[2rem] border-t-8 border-t-red-600 shadow-xl overflow-hidden">
                       <div className="p-6 md:p-8 border-b border-slate-100 flex flex-col md:flex-row justify-between md:items-center gap-4 bg-slate-50/50">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 shadow-inner"><JudoIcon size={24}/></div>
+                          <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center text-red-600 shadow-inner"><JudoIcon size={24}/></div>
                           <div>
                             <h3 className="text-xl font-black uppercase text-slate-800">Judo <span className="text-[10px] text-slate-400 font-bold ml-2">— Dojo Grenelle (75)</span></h3>
                             <p className="text-xs font-bold text-slate-500 mt-1">{judoStats.grade} • Début: {judoStats.debut}</p>
                           </div>
                         </div>
-                        <div className="flex gap-2">
+                      </div>
+                      
+                      <div className="bg-white px-6 md:px-8 py-4 border-b border-slate-100">
+                        <div className="flex flex-wrap gap-2 md:gap-4 justify-between">
                           {judoStats.kpis.map((kpi, i) => (
-                             <div key={i} className="text-center bg-white px-3 py-2 rounded-xl border border-slate-100 shadow-sm flex-1">
-                               <p className="text-lg font-black text-indigo-600">{kpi.value}</p>
-                               <p className="text-[8px] font-black uppercase text-slate-400 mt-0.5">{kpi.label}</p>
+                             <div key={i} className="text-center px-2 py-2 flex-1">
+                               <p className="text-lg md:text-xl font-black text-red-600">{kpi.value}</p>
+                               <p className="text-[9px] font-black uppercase text-slate-400 mt-0.5">{kpi.label}</p>
                              </div>
                           ))}
                         </div>
                       </div>
+
                       <div className="p-6 md:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div className="space-y-6">
                           <div className="bg-slate-900 text-white rounded-2xl p-5">
@@ -515,40 +537,18 @@
                           <div className="p-5 bg-slate-50 border border-slate-100 rounded-2xl mt-4">
                             <p className="text-[10px] font-black uppercase text-slate-400 mb-3 flex items-center gap-2"><Brain size={14}/> Diagnostic Technique</p>
                             <ul className="text-xs text-slate-700 space-y-2 list-disc pl-4 font-medium leading-relaxed">
-                              <li><strong className="text-slate-900">Tai-Otoshi / Harai-Goshi</strong> : Les deux "Spéciaux" visuels de l'athlète, très efficaces mais nécessitent une stabilisation mécanique de la hanche sous pression.</li>
-                              <li><strong className="text-slate-900">Ippon Seoi Nage</strong> : Techniquement acquis mais limité par sa grande taille face aux petits gabarits.</li>
-                              <li><strong className="text-slate-900">Ne-Waza</strong> : Liaisons debout-sol parfaitement automatisées.</li>
-                              <li><strong className="text-slate-900">Ko-Soto-Gari</strong> : Expérimenté 1 seule fois, piste à développer.</li>
+                              <li><strong className="text-slate-900">Hanche (Tai-Otoshi / Harai-Goshi)</strong> : Les "Spéciaux" dominants, très efficaces mais nécessitent une stabilisation mécanique sous pression.</li>
+                              <li><strong className="text-slate-900">Épaule (Ippon Seoi Nage)</strong> : Techniquement acquis mais limité par sa grande taille face aux petits gabarits.</li>
+                              <li><strong className="text-slate-900">Sol (Ne-Waza)</strong> : Liaisons debout-sol parfaitement automatisées.</li>
+                              <li><strong className="text-slate-900">Jambe (Ko-Soto-Gari)</strong> : Expérimenté avec succès, piste d'avenir à développer.</li>
                             </ul>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* SECTION HANDBALL & NATATION */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                      {/* HANDBALL */}
-                      <div className="bg-white rounded-[2rem] border-t-8 border-t-orange-500 shadow-xl overflow-hidden">
-                        <div className="p-6 border-b border-slate-100 flex items-center justify-between gap-3 bg-slate-50/50">
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600"><BallIcon size={20}/></div>
-                            <div><h3 className="text-lg font-black uppercase text-slate-800">Handball <span className="text-[9px] text-slate-400 font-bold ml-1">— Issy Paris Hand (92)</span></h3><p className="text-[10px] font-bold text-slate-500 mt-0.5">Début: {handballStats.debut}</p></div>
-                          </div>
-                        </div>
-                        <div className="p-6 space-y-5">
-                          <div className="grid grid-cols-4 gap-2">
-                            {handballStats.kpis.map((kpi, i) => (
-                              <div key={i} className="text-center bg-slate-50 p-2 rounded-xl border border-slate-100"><p className="text-sm font-black text-orange-600">{kpi.value}</p><p className="text-[8px] font-black uppercase text-slate-400 mt-1">{kpi.label}</p></div>
-                            ))}
-                          </div>
-                          <div className="grid grid-cols-2 gap-4 mt-2">
-                            <div className="p-4 bg-green-50 border border-green-100 rounded-xl"><p className="text-[10px] font-black uppercase text-green-600 mb-1">Points Forts</p><p className="text-xs font-medium text-green-800 leading-relaxed">Capacité défensive très forte. Vision du jeu (passes) en progression constante.</p></div>
-                            <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl"><p className="text-[10px] font-black uppercase text-amber-600 mb-1">Points Faibles</p><p className="text-xs font-medium text-amber-800 leading-relaxed">Tendance à garder la balle trop longtemps face aux grands gabarits (U9).</p></div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* NATATION */}
+                      {/* SECTION NATATION */}
                       <div className="bg-white rounded-[2rem] border-t-8 border-t-blue-500 shadow-xl overflow-hidden">
                         <div className="p-6 border-b border-slate-100 flex items-center justify-between gap-3 bg-slate-50/50">
                           <div className="flex items-center gap-4">
@@ -568,19 +568,43 @@
                           </div>
                         </div>
                       </div>
+
+                      {/* SECTION HANDBALL */}
+                      <div className="bg-white rounded-[2rem] border-t-8 border-t-orange-500 shadow-xl overflow-hidden">
+                        <div className="p-6 border-b border-slate-100 flex items-center justify-between gap-3 bg-slate-50/50">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600"><BallIcon size={20}/></div>
+                            <div><h3 className="text-lg font-black uppercase text-slate-800">Handball <span className="text-[9px] text-slate-400 font-bold ml-1">— Issy Paris Hand (92)</span></h3><p className="text-[10px] font-bold text-slate-500 mt-0.5">Début: {handballStats.debut}</p></div>
+                          </div>
+                        </div>
+                        <div className="p-6 space-y-5">
+                          <div className="grid grid-cols-4 gap-2">
+                            {handballStats.kpis.map((kpi, i) => (
+                              <div key={i} className="text-center bg-slate-50 p-2 rounded-xl border border-slate-100"><p className="text-sm font-black text-orange-600">{kpi.value}</p><p className="text-[8px] font-black uppercase text-slate-400 mt-1">{kpi.label}</p></div>
+                            ))}
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 mt-2">
+                            <div className="p-4 bg-green-50 border border-green-100 rounded-xl"><p className="text-[10px] font-black uppercase text-green-600 mb-1">Points Forts</p><p className="text-xs font-medium text-green-800 leading-relaxed">Capacité défensive très forte. Vision du jeu (passes) en progression constante.</p></div>
+                            <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl"><p className="text-[10px] font-black uppercase text-amber-600 mb-1">Points Faibles</p><p className="text-xs font-medium text-amber-800 leading-relaxed">Tendance à garder la balle trop longtemps face aux grands gabarits (U9).</p></div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
 
                 {/* === ONGLET 4: CALENDRIER & RÉSULTATS === */}
                 {activeTab === 'calendar' && (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in duration-500">
                     {/* PASSED EVENTS */}
                     <Card title="Événements Passés & Résultats" icon={Award}>
                       <div className="space-y-4">
                         {pastEvents.map((monthGrp, mIdx) => (
                           <div key={mIdx} className="space-y-3">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 pt-2 border-b border-slate-200 pb-1">{monthGrp.month}</h4>
+                            <div className="flex items-center gap-3 pt-2 pb-1">
+                               <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">{monthGrp.month}</h4>
+                               <div className="flex-1 border-b border-slate-200"></div>
+                            </div>
                             {monthGrp.events.map((ev, i) => {
                               const globalIndex = mIdx * 100 + i;
                               const isExp = expandedPast === globalIndex;
@@ -596,13 +620,12 @@
                                     <div className="bg-white p-1 rounded-full border border-slate-200">{isExp ? <ChevronUp size={16} className="text-slate-400"/> : <ChevronDown size={16} className="text-slate-400"/>}</div>
                                   </div>
                                 </div>
-                                {/* Mobile Tag */}
                                 <div className="px-4 pb-3 sm:hidden text-right block border-t border-slate-100 pt-2">
                                    <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap ${ev.result === '1ER' || ev.result.includes('1er') ? 'border-yellow-400 text-yellow-700 bg-yellow-50' : ev.result === 'DSQ' ? 'border-red-400 text-red-600 bg-red-50' : 'border-slate-200 text-slate-600 bg-white'}`}>{ev.result}</span>
                                 </div>
                                 {isExp && (
                                   <div className="p-4 bg-white border-t border-slate-200 shadow-inner grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Adversité</p><p className="text-xs font-bold text-slate-700">{ev.adv}</p></div>
+                                    <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Adversité</p><div className="flex">{renderStars(ev.adv)}</div></div>
                                     <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Volume</p><p className="text-xs font-bold text-slate-700">{ev.matches}</p></div>
                                     <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Résumé</p><p className="text-xs font-medium text-slate-600 leading-relaxed">{ev.desc}</p></div>
                                     <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Commentaire Technique</p><p className="text-xs font-medium text-slate-600 leading-relaxed italic border-l-2 border-indigo-200 pl-2">{ev.com}</p></div>
@@ -620,7 +643,10 @@
                       <div className="space-y-4">
                         {futureEvents.map((monthGrp, mIdx) => (
                           <div key={mIdx} className="space-y-3">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 pt-2 border-b border-slate-200 pb-1">{monthGrp.month}</h4>
+                            <div className="flex items-center gap-3 pt-2 pb-1">
+                               <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">{monthGrp.month}</h4>
+                               <div className="flex-1 border-b border-slate-200"></div>
+                            </div>
                             {monthGrp.events.map((ev, i) => {
                               const globalIndex = mIdx * 100 + i;
                               const isExp = expandedFuture === globalIndex;
@@ -628,22 +654,22 @@
                               <div key={i} className="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50 hover:border-slate-300 transition-colors shadow-sm">
                                 <div className="p-4 flex items-center justify-between cursor-pointer" onClick={() => setExpandedFuture(isExp ? null : globalIndex)}>
                                   <div className="flex items-center gap-4">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${ev.bgColor} ${ev.color}`}><ev.icon size={18} /></div>
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-white shadow-sm ${ev.color}`}><ev.icon size={18} /></div>
                                     <div><p className="text-sm font-black text-slate-800">{ev.name}</p><p className="text-[10px] font-bold text-slate-500 uppercase mt-0.5">{ev.date} • {ev.sport}</p></div>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap hidden sm:block ${ev.inscrit ? 'bg-green-50 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}`}>{ev.status}</span>
+                                    <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap hidden sm:block ${ev.status === 'INSCRIT' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}`}>{ev.status}</span>
                                     <div className="bg-white p-1 rounded-full border border-slate-200">{isExp ? <ChevronUp size={16} className="text-slate-400"/> : <ChevronDown size={16} className="text-slate-400"/>}</div>
                                   </div>
                                 </div>
                                 <div className="px-4 pb-3 sm:hidden text-right block border-t border-slate-100 pt-2">
-                                   <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap ${ev.inscrit ? 'bg-green-50 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}`}>{ev.status}</span>
+                                   <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap ${ev.status === 'INSCRIT' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}`}>{ev.status}</span>
                                 </div>
                                 {isExp && (
                                   <div className="p-4 bg-white border-t border-slate-200 shadow-inner grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Horaires</p><p className="text-xs font-bold text-slate-700 flex items-center gap-1"><Clock size={12}/>{ev.time}</p></div>
-                                    <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Logistique</p><p className="text-xs font-bold text-slate-700">{ev.drive}</p></div>
-                                    <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Lieu Exact</p><p className="text-xs font-medium text-slate-600 flex items-center gap-1"><MapPin size={12}/>{ev.address}</p></div>
+                                    <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Logistique</p><p className="text-xs font-bold text-slate-700 flex items-center gap-1">🚗 {ev.drive}</p></div>
+                                    <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Lieu Exact</p><p className="text-xs font-medium text-slate-600 flex items-start gap-1"><MapPin size={12} className="shrink-0 mt-0.5"/>{ev.address}</p></div>
                                   </div>
                                 )}
                               </div>
@@ -657,7 +683,7 @@
 
                 {/* === ONGLET 5: STRATÉGIE === */}
                 {activeTab === 'strategy' && (
-                  <div className="space-y-6">
+                  <div className="space-y-6 animate-in fade-in duration-500">
                     <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-[2rem] p-8 shadow-2xl relative overflow-hidden">
                       <div className="absolute top-0 right-0 p-8 opacity-10"><Compass size={150}/></div>
                       <div className="relative z-10 max-w-3xl">
@@ -705,13 +731,13 @@
                     <Card title="Probabilités Statistiques d'Accès à l'Élite (Filtre Pyramidal)" icon={Target}>
                        <p className="text-xs text-slate-500 mb-6">Indicateurs théoriques moyens du parcours d'accès au Haut Niveau (basés sur le volume de licenciés fédéraux). Justifie la stratégie de ne pas spécialiser un athlète avant 12 ans pour ne pas brûler les étapes.</p>
                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                          <div className="p-5 border border-indigo-100 rounded-2xl bg-indigo-50/50 text-center">
-                             <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 mx-auto mb-3"><JudoIcon size={20}/></div>
-                             <h4 className="font-black text-indigo-900 mb-4">JUDO</h4>
+                          <div className="p-5 border border-red-100 rounded-2xl bg-red-50/50 text-center">
+                             <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center text-red-600 mx-auto mb-3"><JudoIcon size={20}/></div>
+                             <h4 className="font-black text-red-900 mb-4">JUDO</h4>
                              <div className="space-y-2 text-xs">
-                               <div className="flex justify-between border-b border-indigo-100 pb-1"><span className="text-slate-600 font-medium">Pôle Espoir (15 ans)</span><span className="font-black text-indigo-600">~2.0%</span></div>
-                               <div className="flex justify-between border-b border-indigo-100 pb-1"><span className="text-slate-600 font-medium">Pôle France / INSEP</span><span className="font-black text-indigo-600">~0.2%</span></div>
-                               <div className="flex justify-between"><span className="text-slate-600 font-medium">Élite Internationale</span><span className="font-black text-indigo-600">0.01%</span></div>
+                               <div className="flex justify-between border-b border-red-100 pb-1"><span className="text-slate-600 font-medium">Pôle Espoir (15 ans)</span><span className="font-black text-red-600">~2.0%</span></div>
+                               <div className="flex justify-between border-b border-red-100 pb-1"><span className="text-slate-600 font-medium">Pôle France / INSEP</span><span className="font-black text-red-600">~0.2%</span></div>
+                               <div className="flex justify-between"><span className="text-slate-600 font-medium">Élite Internationale</span><span className="font-black text-red-600">0.01%</span></div>
                              </div>
                           </div>
                           <div className="p-5 border border-orange-100 rounded-2xl bg-orange-50/50 text-center">
