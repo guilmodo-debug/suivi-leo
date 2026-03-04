@@ -8,10 +8,10 @@
     <!-- Tailwind CSS (Design) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Librairies React et Dépendances (Versions Unpkg stables) -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/prop-types/prop-types.min.js"></script>
+    <!-- Librairies React et Dépendances -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/prop-types/prop-types.js"></script>
     
     <!-- Recharts (Graphiques) -->
     <script src="https://unpkg.com/recharts/umd/Recharts.js"></script>
@@ -19,6 +19,9 @@
     <!-- Babel (Pour compiler React dans le navigateur) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -28,58 +31,80 @@
 <body class="bg-[#f4f7f9] text-slate-900">
     
     <div id="root">
-        <!-- Message affiché pendant que les scripts chargent -->
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; color: #4f46e5;">
             <svg class="animate-spin h-10 w-10 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
             <p style="font-weight: bold;">Chargement du tableau de bord Léo Analytics...</p>
-            <p style="font-size: 12px; color: #64748b; margin-top: 8px;">Si cet écran persiste, vérifiez votre connexion internet.</p>
         </div>
     </div>
 
-    <!-- Script principal de l'application -->
     <script type="text/babel">
-        const { useState } = React;
+        // Error Boundary pour capturer les erreurs React
+        class ErrorBoundary extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = { hasError: false, error: null };
+            }
+            static getDerivedStateFromError(error) {
+                return { hasError: true, error };
+            }
+            render() {
+                if (this.state.hasError) {
+                    return (
+                        <div className="p-8 text-red-500 bg-red-50 min-h-screen">
+                            <h1 className="text-2xl font-bold mb-4">Une erreur est survenue dans l'application :</h1>
+                            <pre className="bg-white p-4 rounded shadow overflow-auto text-sm">{this.state.error.toString()}</pre>
+                        </div>
+                    );
+                }
+                return this.props.children;
+            }
+        }
+
+        const { useState, useEffect } = React;
         const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip: RechartsTooltip, ResponsiveContainer, BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend, ComposedChart, Area, AreaChart } = window.Recharts;
 
         // ==========================================
-        // COMPOSANTS D'ICÔNES (Intégrées directement)
+        // COMPOSANTS D'ICÔNES (Utilisation de Lucide via script)
         // ==========================================
-        const Icon = ({ path, size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} dangerouslySetInnerHTML={{ __html: path }} />
-        );
-        const Activity = (p) => <Icon {...p} path='<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>' />;
-        const Target = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>' />;
-        const AlertCircle = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>' />;
-        const Award = (p) => <Icon {...p} path='<circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>' />;
-        const Waves = (p) => <Icon {...p} path='<path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.6 2 5 2 2.3 0 2.3-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.6 2 5 2 2.3 0 2.3-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.6 2 5 2 2.3 0 2.3-2 5-2 1.3 0 1.9.5 2.5 1"/>' />;
-        const User = (p) => <Icon {...p} path='<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>' />;
-        const Calendar = (p) => <Icon {...p} path='<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>' />;
-        const Brain = (p) => <Icon {...p} path='<path d="M9.5 2h5"/><path d="M16 4.5v1"/><path d="M8 4.5v1"/><path d="M12 21.5c-3-.5-5.5-3-5.5-6.5v-2c0-1.5-1-2.5-2-3s-1.5-2-.5-3.5 3-2.5 4.5-1.5c1 .5 2 .5 3 .5s2 0 3-.5c1.5-1 3.5 0 4.5 1.5s.5 3-2 3.5-2 1.5-2 3v2c0 3.5-2.5 6-5.5 6.5z"/>' />;
-        const Compass = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>' />;
-        const Zap = (p) => <Icon {...p} path='<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>' />;
-        const Trophy = (p) => <Icon {...p} path='<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0v-7z"/>' />;
-        const Flag = (p) => <Icon {...p} path='<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>' />;
-        const XOctagon = (p) => <Icon {...p} path='<polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>' />;
-        const TrendingUp = (p) => <Icon {...p} path='<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>' />;
-        const MapPin = (p) => <Icon {...p} path='<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>' />;
-        const Clock = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' />;
-        const ArrowRight = (p) => <Icon {...p} path='<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>' />;
-        const CheckCircle2 = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/>' />;
-        const Crosshair = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/>' />;
-        const ChevronDown = (p) => <Icon {...p} path='<polyline points="6 9 12 15 18 9"/>' />;
-        const ChevronUp = (p) => <Icon {...p} path='<polyline points="18 15 12 9 6 15"/>' />;
+        const Icon = ({ name, size = 24, className = "" }) => {
+            useEffect(() => {
+                lucide.createIcons();
+            });
+            return <i data-lucide={name} style={{ width: size, height: size }} className={className}></i>;
+        };
 
-        // ==========================================
-        // APPLICATION REACT PRINCIPALE
-        // ==========================================
+        // Remplacement des composants Icon inline par l'appel à la librairie Lucide
+        const Activity = (p) => <Icon name="activity" {...p} />;
+        const Target = (p) => <Icon name="target" {...p} />;
+        const AlertCircle = (p) => <Icon name="alert-circle" {...p} />;
+        const Award = (p) => <Icon name="award" {...p} />;
+        const Waves = (p) => <Icon name="waves" {...p} />;
+        const User = (p) => <Icon name="user" {...p} />;
+        const Calendar = (p) => <Icon name="calendar" {...p} />;
+        const Brain = (p) => <Icon name="brain" {...p} />;
+        const Compass = (p) => <Icon name="compass" {...p} />;
+        const Zap = (p) => <Icon name="zap" {...p} />;
+        const Trophy = (p) => <Icon name="trophy" {...p} />;
+        const Flag = (p) => <Icon name="flag" {...p} />;
+        const XOctagon = (p) => <Icon name="x-octagon" {...p} />;
+        const TrendingUp = (p) => <Icon name="trending-up" {...p} />;
+        const MapPin = (p) => <Icon name="map-pin" {...p} />;
+        const Clock = (p) => <Icon name="clock" {...p} />;
+        const ArrowRight = (p) => <Icon name="arrow-right" {...p} />;
+        const CheckCircle2 = (p) => <Icon name="check-circle-2" {...p} />;
+        const Crosshair = (p) => <Icon name="crosshair" {...p} />;
+        const ChevronDown = (p) => <Icon name="chevron-down" {...p} />;
+        const ChevronUp = (p) => <Icon name="chevron-up" {...p} />;
+
+
         const App = () => {
           const [activeTab, setActiveTab] = useState('synthesis');
           const [expandedEventIndex, setExpandedEventIndex] = useState(null);
 
-          // --- 1. DATA: IDENTITÉ & KPIs ---
+          // --- DATA ---
           const identity = {
             name: "Léo", age: "6 ans 9 mois", category: "U9 / Pré-Poussin",
             morphology: {
@@ -98,7 +123,6 @@
             { label: "Indice Stabilité Mécanique", value: "6.5/10", trend: "Fragile", color: "text-amber-500", desc: "Hanche intermittente sous pression" },
           ];
 
-          // --- 2. DATA: VOLUME & TESTS ---
           const volumeMensuel = [
             { mois: 'Sept', Judo: 11, Natation: 11, Handball: 5, Multisport: 5 },
             { mois: 'Oct', Judo: 8, Natation: 6.5, Handball: 3.75, Multisport: 5 },
@@ -127,7 +151,6 @@
             { name: 'Autonomie', score: 75, color: '#3b82f6' },
           ];
 
-          // --- 3. DATA: SPÉCIALITÉS ---
           const judoAdvancedStats = {
             profil: "Attaquant / Explosif", garde: "Droitier (Migi-Shizentai)",
             kpis: [
@@ -135,7 +158,7 @@
               { label: 'Défaites', value: 1, sub: 'Sur Ippon Seoi-Nage' }, { label: 'Taux Finalisation', value: "100%", sub: 'Ratio Ippon/Victoire' },
             ],
             palmares: [
-              { label: 'Médailles d\'Or', value: 6, icon: Award, color: 'text-yellow-500' },
+              { label: "Médailles d'Or", value: 6, icon: Award, color: 'text-yellow-500' },
               { label: 'Départements Visités', value: 5, icon: MapPin, color: 'text-slate-500' },
             ],
             directions: [
@@ -146,7 +169,6 @@
             ]
           };
 
-          // --- 4. DATA: CALENDRIER (Passé / À Venir) ---
           const pastEvents = [
             { date: '12/10/2025', sport: 'Judo', name: 'Tournoi de Pithiviers', result: '1er (Or)', icon: Target, color: 'bg-indigo-100 text-indigo-600', 
               desc: "1er tournoi de la saison. Adversité modérée. 1er combat : Mix Harai Goshi - Tai Otoshi (Ippon). 2ème combat : Mix Harai Goshi - Tai Otoshi (Ippon)." },
@@ -178,7 +200,6 @@
             { date: '07/06/2026', sport: 'Judo', name: 'Challenge Petits Tigres', loc: 'INJ Paris' },
           ];
 
-          // --- Composant Carte ---
           const Card = ({ children, title, icon: IconCmp, className = "" }) => (
             <div className={`bg-white rounded-3xl p-6 border border-slate-100 shadow-sm ${className}`}>
               {title && (
@@ -194,7 +215,6 @@
 
           return (
             <div className="min-h-screen bg-[#f4f7f9] text-slate-900 font-sans p-4 md:p-8">
-              {/* HEADER GITHUB PAGES */}
               <header className="max-w-7xl mx-auto mb-8 bg-white rounded-[2rem] p-8 border-l-8 border-l-indigo-600 shadow-lg shadow-slate-200/50">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                   <div>
@@ -206,13 +226,12 @@
                       CENTRE D'OPTIMISATION <span className="text-indigo-600">LÉO</span>
                     </h1>
                     <p className="mt-3 text-sm font-bold text-slate-500">
-                      Diagnostic Majeur : <span className="text-indigo-600">Ce n’est pas la performance brute qui progresse, c’est la structure motrice.</span>
+                      Diagnostic Majeur : <span className="text-indigo-600">Ce n'est pas la performance brute qui progresse, c'est la structure motrice.</span>
                     </p>
                   </div>
                 </div>
               </header>
 
-              {/* NAVIGATION */}
               <nav className="max-w-7xl mx-auto flex gap-2 mb-8 overflow-x-auto no-scrollbar pb-2">
                 {[
                   { id: 'synthesis', label: '1. Identité & Charge', icon: Activity },
@@ -236,7 +255,6 @@
               </nav>
 
               <main className="max-w-7xl mx-auto pb-20">
-                {/* === ONGLET 1: SYNTHÈSE === */}
                 {activeTab === 'synthesis' && (
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -329,7 +347,7 @@
                                 itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
                               />
                               <Legend wrapperStyle={{ fontSize: '11px', fontWeight: 'bold' }} />
-                              <Bar dataKey="Judo" stackId="a" fill="#4f46e5" radius={[0, 0, 4, 4]} />
+                              <Bar dataKey="Judo" stackId="a" fill="#4f46e5" radius={[0, 0, 0, 0]} />
                               <Bar dataKey="Natation" stackId="a" fill="#3b82f6" />
                               <Bar dataKey="Handball" stackId="a" fill="#f97316" />
                               <Bar dataKey="Multisport" stackId="a" fill="#10b981" radius={[4, 4, 0, 0]} />
@@ -341,7 +359,6 @@
                   </div>
                 )}
 
-                {/* === ONGLET 2: BIO-MENTAL === */}
                 {activeTab === 'biomental' && (
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     <div className="lg:col-span-5 flex flex-col gap-6">
@@ -413,7 +430,6 @@
                   </div>
                 )}
 
-                {/* === ONGLET 3: SPÉCIALITÉS === */}
                 {activeTab === 'disciplines' && (
                   <div className="grid grid-cols-1 gap-8">
                     {/* SECTION JUDO */}
@@ -465,6 +481,7 @@
                                 <div key={i}>
                                   <div className="flex justify-between text-[11px] font-bold mb-1.5">
                                     <span className="text-slate-700">{dir.name}</span>
+                                    <span style={{color: dir.color}}>{dir.value}%</span>
                                   </div>
                                   <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                                     <div className="h-full transition-all duration-1000" style={{ width: `${dir.value}%`, backgroundColor: dir.color }}></div>
@@ -479,7 +496,7 @@
                               <p className="text-[10px] font-black uppercase text-indigo-600 mb-2 flex items-center gap-1"><Brain size={12}/> Diagnostic Technique</p>
                               <ul className="text-xs text-indigo-900/80 space-y-1.5 list-disc pl-3 font-medium leading-relaxed">
                                 <li>**Ashi-Waza** : Arme préférentielle et naturelle.</li>
-                                <li>**Koshi-Waza** : Instable sous pression, maîtrise non parfaite.</li>
+                                <li>**Koshi-Waza** : Instable sous pression.</li>
                                 <li>**Te-Waza** : Limité par sa grande taille face aux petits.</li>
                               </ul>
                             </div>
@@ -523,7 +540,7 @@
                           <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl">
                             <p className="text-[10px] font-black uppercase text-blue-600 mb-2 flex items-center gap-1"><Crosshair size={12}/> Diagnostic Technique</p>
                             <ul className="text-xs text-blue-900/80 space-y-1.5 list-disc pl-3 font-medium">
-                              <li>DSQ sur 25m dos (retournement avant le mur). Chrono 28.46s validé à l'entraînement.</li>
+                              <li>DSQ sur 25m dos (retournement avant le mur). Chrono validé à l'entraînement.</li>
                               <li>Réactivité au départ à travailler urgemment (perte est. 0.4s).</li>
                             </ul>
                           </div>
@@ -559,7 +576,7 @@
                             <p className="text-[10px] font-black uppercase text-orange-600 mb-2 flex items-center gap-1"><Crosshair size={12}/> Diagnostic Tactique</p>
                             <ul className="text-xs text-orange-900/80 space-y-1.5 list-disc pl-3 font-medium">
                               <li>Capacité défensive forte et engagement physique réel.</li>
-                              <li>Adversité U9 très complexe face à des gabarits supérieurs.</li>
+                              <li>Adversité U9 complexe face à des gabarits supérieurs.</li>
                               <li>Problème cible : Libération de balle trop tardive face aux grands.</li>
                             </ul>
                           </div>
@@ -569,11 +586,8 @@
                   </div>
                 )}
 
-                {/* === ONGLET 4: CALENDRIER & RÉSULTATS === */}
                 {activeTab === 'calendar' && (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    
-                    {/* Colonne Gauche: Passé interactif */}
                     <Card title="Événements Passés & Résultats (Interactif)" icon={Award}>
                       <div className="space-y-4">
                         {pastEvents.map((ev, i) => (
@@ -611,7 +625,6 @@
                       </div>
                     </Card>
 
-                    {/* Colonne Droite: À venir */}
                     <Card title="Calendrier Prévisionnel" icon={Calendar}>
                       <div className="relative border-l-2 border-slate-100 ml-3 space-y-6 pb-4">
                         {futureEvents.map((ev, i) => (
@@ -631,7 +644,6 @@
                   </div>
                 )}
 
-                {/* === ONGLET 5: STRATÉGIE === */}
                 {activeTab === 'strategy' && (
                   <div className="space-y-6">
                     <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-[2rem] p-8 shadow-2xl relative overflow-hidden">
@@ -639,7 +651,7 @@
                       <div className="relative z-10 max-w-3xl">
                         <h2 className="text-sm font-black uppercase tracking-widest text-indigo-400 mb-4">Postulat Stratégique Majeur</h2>
                         <p className="text-2xl md:text-3xl font-black leading-tight mb-6">
-                          "Ce n’est pas la performance brute qui progresse aujourd'hui... <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-emerald-400">c’est la structure du sportif.</span>"
+                          "Ce n'est pas la performance brute qui progresse aujourd'hui... <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-emerald-400">c'est la structure du sportif.</span>"
                         </p>
                         <ul className="space-y-2 text-sm text-slate-300 font-medium">
                           <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-400"/> Autonomie mentale validée en compétition.</li>
@@ -694,7 +706,11 @@
         };
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        root.render(
+            <ErrorBoundary>
+                <App />
+            </ErrorBoundary>
+        );
     </script>
 </body>
 </html>
