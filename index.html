@@ -8,7 +8,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Librairies React et Dépendances (Versions CDNJS stables) -->
+    <!-- React & ReactDOM (Stables) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.8.1/prop-types.min.js"></script>
@@ -68,7 +68,7 @@
         }
 
         const { useState } = React;
-        const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip: RechartsTooltip, ResponsiveContainer, BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend } = window.Recharts;
+        const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip: RechartsTooltip, ResponsiveContainer, BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend, ComposedChart, Area, AreaChart } = window.Recharts;
 
         // ==========================================
         // ICONES SVG
@@ -96,11 +96,19 @@
         const ArrowRight = (p) => <Icon {...p} path='<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>' />;
         const CheckCircle2 = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/>' />;
         const StarIcon = (p) => <Icon {...p} path='<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>' />;
+        const Flag = (p) => <Icon {...p} path='<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>' />;
 
         // Icônes spécifiques Disciplines
         const HandIcon = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20M2 12a14.5 14.5 0 0 0 20 0"/>' />;
-        // Nouvelle icône Judo distincte (Ceinture nouée / Kimono)
         const JudoIcon = (p) => <Icon {...p} path='<rect x="3" y="10" width="18" height="4" rx="1"/><path d="M12 14v5M10 14l-2 4M14 14l2 4"/>' />;
+
+        // --- COMPOSANT INFOBULLE ---
+        const Tooltip = ({ text, children }) => (
+            <div className="info-bubble">
+                {children}
+                <div className="info-content">{text}</div>
+            </div>
+        );
 
         const App = () => {
           const [activeTab, setActiveTab] = useState('synthesis');
@@ -163,15 +171,34 @@
               { label: 'Victoires', value: 14 },
             ],
             directions: [
-              { name: 'Tai-Otoshi / Harai-Goshi', value: 65, color: '#ef4444' },
-              { name: 'Ippon Seoi Nage', value: 15, color: '#f97316' },
-              { name: 'Ne-Waza (Sol)', value: 15, color: '#3b82f6' },
-              { name: 'Ko-Soto-Gari', value: 5, color: '#10b981' },
+              { name: 'Hanche (Tai-Otoshi / Harai-Goshi)', value: 65, color: '#f59e0b' },
+              { name: 'Épaule (Ippon Seoi Nage)', value: 15, color: '#4f46e5' },
+              { name: 'Sol (Ne-Waza)', value: 15, color: '#3b82f6' },
+              { name: 'Jambe (Ko-Soto-Gari)', value: 5, color: '#10b981' },
+            ]
+          };
+
+          const natationStats = {
+            debut: "Sept. 2024 (1.5 an)",
+            kpis: [
+              { label: 'Heures cumulées', value: "118h" },
+              { label: 'KM parcourus', value: "36" },
+              { label: 'Courses Off.', value: 1 },
+              { label: '25m Dos', value: "28.46s" },
+            ]
+          };
+
+          const handballStats = {
+            debut: "Sept. 2024 (1.5 an)",
+            kpis: [
+              { label: 'Heures cumulées', value: "66h" },
+              { label: 'Matchs Joués', value: 16 },
+              { label: 'Tournois', value: 6 },
+              { label: 'Victoires (Eq)', value: 2 },
             ]
           };
 
           // --- 4. DATA: CALENDRIER ---
-          // Fonction pour générer les étoiles
           const renderStars = (count) => (
              <div className="flex items-center gap-0.5">
                 {[...Array(count)].map((_, i) => <StarIcon key={i} size={10} className="text-yellow-500 fill-yellow-500" />)}
@@ -180,7 +207,7 @@
 
           const pastEvents = [
             { month: "Février 2026", events: [
-              { date: '21/02', sport: 'Judo', name: 'Magny-en-Vexin (95)', result: '1ER', icon: JudoIcon, color: 'text-red-600', bgColor: 'bg-red-50', adv: 1, matches: "3 combats", desc: "Niveau global faible. Tournoi maîtrisé du début à la fin avec 3 victoires expéditives.", com: "Autonomie mentale complète validée. Le 3ème combat marque un tournant avec une attaque en jambe explosive (Ko-Soto-Gari) parfaitement exécutée sans plongeon." },
+              { date: '21/02', sport: 'Judo', name: 'Magny-en-Vexin (95)', result: '1ER', icon: JudoIcon, color: 'text-slate-800', bgColor: 'bg-slate-200', adv: 1, matches: "3 combats", desc: "Niveau global faible. Tournoi maîtrisé du début à la fin avec 3 victoires expéditives.", com: "Autonomie mentale complète validée. Le 3ème combat marque un tournant avec une attaque en jambe explosive (Ko-Soto-Gari) parfaitement exécutée sans plongeon." },
               { date: '07/02', sport: 'Natation', name: 'Suresnes (92)', result: 'DSQ', icon: Waves, color: 'text-blue-600', bgColor: 'bg-blue-50', adv: 3, matches: "1 course", desc: "Disqualification sur 25m dos pour retournement sur le ventre.", com: "Erreur technique de repère spatial. Chrono d'entraînement (28.46s) validant le niveau. Excellente résilience montrée." }
             ]},
             { month: "Janvier 2026", events: [
@@ -188,34 +215,35 @@
               { date: '18/01', sport: 'Handball', name: 'Suresnes (92) - U7', result: '1ER', icon: HandIcon, color: 'text-orange-600', bgColor: 'bg-orange-50', adv: 2, matches: "3 matchs", desc: "Victoire de l'équipe sur ce tournoi.", com: "Évolution très positive sur sa vision du jeu. Capable de lever la tête et trouver des passes." }
             ]},
             { month: "Décembre 2025", events: [
-              { date: '07/12', sport: 'Judo', name: 'Paris Sorbier (75)', result: '1ER', icon: JudoIcon, color: 'text-red-600', bgColor: 'bg-red-50', adv: 3, matches: "3 combats", desc: "1er au global malgré sa seule défaite de l'année.", com: "Défaite subie par Ippon sur un Ippon Seoi Nage adverse. Excellente attitude de résilience, maîtrise technique sur les autres combats." }
+              { date: '07/12', sport: 'Judo', name: 'Paris Sorbier (75)', result: '1ER', icon: JudoIcon, color: 'text-slate-800', bgColor: 'bg-slate-200', adv: 3, matches: "3 combats", desc: "1er au global malgré sa seule défaite de l'année.", com: "Défaite subie par Ippon sur un Ippon Seoi Nage adverse. Excellente attitude de résilience, maîtrise technique sur les autres combats." }
             ]},
             { month: "Novembre 2025", events: [
               { date: '29/11', sport: 'Handball', name: 'Issy (92) - U7', result: '1ER', icon: HandIcon, color: 'text-orange-600', bgColor: 'bg-orange-50', adv: 2, matches: "3 matchs", desc: "Meilleur marqueur avec 12 buts au total.", com: "Très performant face aux enfants de son âge grâce à sa vitesse. Excellent esprit d'équipe." },
-              { date: '16/11', sport: 'Judo', name: 'Drancy (93)', result: '1ER', icon: JudoIcon, color: 'text-red-600', bgColor: 'bg-red-50', adv: 3, matches: "3 combats", desc: "Tournoi parfaitement géré niveau concentration.", com: "1er combat: Tai Otoshi. 2ème: Ippon Seoi Nage. 3ème: enchainement debout-sol." }
+              { date: '16/11', sport: 'Judo', name: 'Drancy (93)', result: '1ER', icon: JudoIcon, color: 'text-slate-800', bgColor: 'bg-slate-200', adv: 3, matches: "3 combats", desc: "Tournoi parfaitement géré niveau concentration.", com: "1er combat: Tai Otoshi. 2ème: Ippon Seoi Nage. 3ème: enchainement debout-sol." }
             ]},
             { month: "Octobre 2025", events: [
-              { date: '12/10', sport: 'Judo', name: 'Pithiviers (45)', result: '1ER', icon: JudoIcon, color: 'text-red-600', bgColor: 'bg-red-50', adv: 1, matches: "2 combats", desc: "1er tournoi de la saison, peu d'adversité.", com: "1er et 2ème combat remportés par le même mix : Harai Goshi puis Tai Otoshi (Ippon)." }
+              { date: '12/10', sport: 'Judo', name: 'Pithiviers (45)', result: '1ER', icon: JudoIcon, color: 'text-slate-800', bgColor: 'bg-slate-200', adv: 1, matches: "2 combats", desc: "1er tournoi de la saison, peu d'adversité.", com: "1er et 2ème combat remportés par le même mix : Harai Goshi puis Tai Otoshi (Ippon)." }
             ]}
           ];
 
           const futureEvents = [
             { month: "Mars 2026", events: [
-              { date: '07/03', sport: 'Judo', name: 'Nogent le Rotrou (28)', status: 'INSCRIT', icon: JudoIcon, color: 'text-red-600', time: "Pesée 10h30", drive: "1h50", address: "Dojo complexe Robert Huwart" },
+              { date: '07/03', sport: 'Judo', name: 'Nogent le Rotrou (28)', status: 'INSCRIT', icon: JudoIcon, color: 'text-slate-800', time: "Pesée 10h30", drive: "1h50", address: "Dojo complexe Robert Huwart" },
               { date: '14/03', sport: 'Handball', name: 'Issy (92) - U7', status: 'À CONFIRMER', icon: HandIcon, color: 'text-orange-600', time: "14h00-16h30", drive: "0h05", address: "Cité des sports (Issy)" },
               { date: '21/03', sport: 'Handball', name: 'Vaucresson (92) - U9', status: 'À CONFIRMER', icon: HandIcon, color: 'text-orange-600', time: "À définir", drive: "0h20", address: "Vaucresson" },
+              { date: '22/03', sport: 'Judo', name: 'Coignières (78)', status: 'INSCRIT', icon: JudoIcon, color: 'text-slate-800', time: "13h30-13h45", drive: "0h45", address: "Gymnase du moulin à vent" },
               { date: '28/03', sport: 'Handball', name: 'Fontenay-aux-roses (92)', status: 'À CONFIRMER', icon: HandIcon, color: 'text-orange-600', time: "À définir", drive: "0h25", address: "Fontenay-aux-roses" },
             ]},
             { month: "Avril 2026", events: [
               { date: '25/04', sport: 'Natation', name: 'J2 Avenirs (92)', status: 'À CONFIRMER', icon: Waves, color: 'text-blue-600', time: "À définir", drive: "-", address: "Département 92" }
             ]},
             { month: "Mai 2026", events: [
-              { date: '09/05', sport: 'Judo', name: 'Maurepas (78)', status: 'À CONFIRMER', icon: JudoIcon, color: 'text-red-600', time: "13h30-14h00", drive: "0h45", address: "Gymnase de la Malmedone" },
+              { date: '09/05', sport: 'Judo', name: 'Maurepas (78)', status: 'À CONFIRMER', icon: JudoIcon, color: 'text-slate-800', time: "13h30-14h00", drive: "0h45", address: "Gymnase de la Malmedone" },
               { date: '24/05', sport: 'Handball', name: 'Tournoi des Étoiles', status: 'À CONFIRMER', icon: HandIcon, color: 'text-orange-600', time: "08h00-18h00", drive: "0h45", address: "Sur Herbe (Lieu à def)" },
-              { date: '31/05', sport: 'Judo', name: 'Sully sur Loire (45)', status: 'À CONFIRMER', icon: JudoIcon, color: 'text-red-600', time: "À définir", drive: "2h00", address: "Complexe Lionel Jourdain" },
+              { date: '31/05', sport: 'Judo', name: 'Sully sur Loire (45)', status: 'À CONFIRMER', icon: JudoIcon, color: 'text-slate-800', time: "À définir", drive: "2h00", address: "Complexe Lionel Jourdain" },
             ]},
             { month: "Juin 2026", events: [
-              { date: '07/06', sport: 'Judo', name: 'Challenge Petits Tigres (75)', status: 'À CONFIRMER', icon: JudoIcon, color: 'text-red-600', time: "11h15 - 11h45", drive: "0h15", address: "INJ Paris" },
+              { date: '07/06', sport: 'Judo', name: 'Challenge Petits Tigres (75)', status: 'À CONFIRMER', icon: JudoIcon, color: 'text-slate-800', time: "11h15 - 11h45", drive: "0h15", address: "INJ Paris" },
             ]}
           ];
 
@@ -248,7 +276,7 @@
                     </h1>
                   </div>
                   
-                  {/* BANDEAU TROPHÉES DISCRET */}
+                  {/* BANDEAU TROPHÉES */}
                   <div className="flex flex-col items-end">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Salle des Trophées</p>
                     <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
@@ -313,7 +341,7 @@
                           <div className={`absolute -right-6 -top-6 w-24 h-24 bg-current opacity-5 rounded-full transition-transform z-0 ${kpi.color}`}></div>
                           <div className="flex items-center justify-between mb-2 relative z-10">
                             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{kpi.label}</p>
-                            {kpi.info && <div className="info-bubble"><InfoIcon size={14} className="text-slate-300 hover:text-indigo-500" /><span className="info-content">{kpi.info}</span></div>}
+                            {kpi.info && <Tooltip text={kpi.info}><InfoIcon size={14} className="text-slate-300 hover:text-indigo-500" /></Tooltip>}
                           </div>
                           <div className="flex items-baseline gap-3 mb-2 relative z-10">
                             <span className={`text-3xl font-black ${kpi.color}`}>{kpi.value}</span>
@@ -366,7 +394,7 @@
                         </div>
                       </Card>
 
-                      <Card title="Volume Horaire Mensuel - Saison 2025-2026" icon={Activity}>
+                      <Card title="Volume Horaire Mensuel - Saison 2025/2026" icon={Activity}>
                         <div className="h-[250px] w-full mb-4">
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={volumeMensuel} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -375,7 +403,7 @@
                               <YAxis tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
                               <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} itemStyle={{ fontSize: '12px', fontWeight: 'bold' }} />
                               <Legend wrapperStyle={{ fontSize: '11px', fontWeight: 'bold' }} />
-                              <Bar dataKey="Judo" stackId="a" fill="#dc2626" radius={[0,0,0,0]} />
+                              <Bar dataKey="Judo" stackId="a" fill="#1e293b" radius={[0,0,0,0]} />
                               <Bar dataKey="Natation" stackId="a" fill="#3b82f6" />
                               <Bar dataKey="Handball" stackId="a" fill="#f97316" />
                               <Bar dataKey="Multisport" stackId="a" fill="#10b981" radius={[4,4,0,0]} />
@@ -383,7 +411,7 @@
                           </ResponsiveContainer>
                         </div>
                         <div className="grid grid-cols-4 gap-2">
-                           <div className="bg-red-50 rounded text-center py-2 border border-red-100"><p className="text-[9px] font-black uppercase text-red-600 mb-1">Judo</p><p className="text-sm font-bold text-red-900">62.5h</p></div>
+                           <div className="bg-slate-100 rounded text-center py-2 border border-slate-200"><p className="text-[9px] font-black uppercase text-slate-600 mb-1">Judo</p><p className="text-sm font-bold text-slate-900">62.5h</p></div>
                            <div className="bg-blue-50 rounded text-center py-2 border border-blue-100"><p className="text-[9px] font-black uppercase text-blue-600 mb-1">Nat</p><p className="text-sm font-bold text-blue-900">53.5h</p></div>
                            <div className="bg-orange-50 rounded text-center py-2 border border-orange-100"><p className="text-[9px] font-black uppercase text-orange-600 mb-1">Hand</p><p className="text-sm font-bold text-orange-900">28.2h</p></div>
                            <div className="bg-green-50 rounded text-center py-2 border border-green-100"><p className="text-[9px] font-black uppercase text-green-600 mb-1">Multi</p><p className="text-sm font-bold text-green-900">31.0h</p></div>
@@ -401,7 +429,9 @@
                         <div className="flex justify-between items-center mb-2 px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-xl">
                           <div className="flex items-center">
                             <span className="text-xs font-black uppercase text-emerald-700 mr-2">Note Globale Actuelle</span>
-                            <div className="info-bubble"><InfoIcon size={14} className="text-emerald-500" /><span className="info-content">Moyenne des 6 axes du développement moteur. Un score > 70/100 à cet âge indique une excellente précocité physique naturelle.</span></div>
+                            <Tooltip text="Moyenne des 6 axes du développement moteur. Un score > 70/100 à cet âge indique une excellente précocité physique naturelle.">
+                              <InfoIcon size={14} className="text-emerald-500" />
+                            </Tooltip>
                           </div>
                           <span className="text-xl font-black text-emerald-600">75/100</span>
                         </div>
@@ -421,7 +451,9 @@
                         <div className="flex justify-between items-center mb-6 p-4 bg-purple-50 rounded-2xl border border-purple-100">
                           <div className="flex items-start gap-2">
                             <div><p className="text-xs font-black uppercase text-purple-700">Score Actuel</p><p className="text-[10px] font-bold text-purple-500 mt-1">Cohérent et validé</p></div>
-                            <div className="info-bubble mt-0.5"><InfoIcon size={14} className="text-purple-400" /><span className="info-content">Scores mentaux très élevés et normaux : l'enfant évolue dans un environnement ludique et multisport, sans spécialisation précoce toxique (pas de pression de résultat absolu).</span></div>
+                            <Tooltip text="Scores très élevés car l'enfant évolue dans un environnement multisport sans spécialisation toxique ni pression de résultat absolu.">
+                              <InfoIcon size={14} className="text-purple-400 mt-0.5" />
+                            </Tooltip>
                           </div>
                           <div className="text-3xl font-black text-purple-600">86<span className="text-lg text-purple-300">/100</span></div>
                         </div>
@@ -431,7 +463,7 @@
                               <div className="flex justify-between text-[11px] font-bold mb-1.5 uppercase tracking-wide">
                                 <div className="flex items-center">
                                   <span className="text-slate-600 mr-1">{item.name}</span>
-                                  {item.info && <div className="info-bubble"><InfoIcon size={12} className="text-slate-300 hover:text-purple-500" /><span className="info-content">{item.info}</span></div>}
+                                  {item.info && <Tooltip text={item.info}><InfoIcon size={12} className="text-slate-300 hover:text-purple-500" /></Tooltip>}
                                 </div>
                                 <span className="text-slate-400">{item.score}%</span>
                               </div>
@@ -460,7 +492,7 @@
                                   <div key={i} className="flex justify-between items-center">
                                     <span className="text-xs font-bold text-slate-600">{test.name}</span>
                                     <div className="flex items-center gap-2">
-                                      {test.evo && (<span className={`text-[9px] font-black px-1.5 py-0.5 rounded ${test.evo.includes('+') && !test.name.includes('Slalom') ? 'bg-green-100 text-green-600' : test.name.includes('Slalom') || test.name.includes('Souplesse') ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>{test.evo}</span>)}
+                                      {test.evo && (<span className={`text-[9px] font-black px-1.5 py-0.5 rounded ${test.evo.includes('+') && !test.name.includes('Slalom') ? 'bg-green-100 text-green-600' : test.name.includes('Slalom') || test.name.includes('Souplesse') || test.name.includes('10%') ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>{test.evo}</span>)}
                                       <span className={`text-sm font-black ${test.alert ? 'text-red-500 bg-red-50 px-2 py-0.5 rounded' : 'text-slate-800'}`}>{test.val}</span>
                                     </div>
                                   </div>
@@ -478,10 +510,10 @@
                 {activeTab === 'disciplines' && (
                   <div className="grid grid-cols-1 gap-8 animate-in fade-in duration-500">
                     {/* SECTION JUDO */}
-                    <div className="bg-white rounded-[2rem] border-t-8 border-t-red-600 shadow-xl overflow-hidden">
+                    <div className="bg-white rounded-[2rem] border-t-8 border-t-slate-800 shadow-xl overflow-hidden">
                       <div className="p-6 md:p-8 border-b border-slate-100 flex flex-col md:flex-row justify-between md:items-center gap-4 bg-slate-50/50">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center text-red-600 shadow-inner"><JudoIcon size={24}/></div>
+                          <div className="w-12 h-12 bg-slate-200 rounded-xl flex items-center justify-center text-slate-800 shadow-inner"><JudoIcon size={24}/></div>
                           <div>
                             <h3 className="text-xl font-black uppercase text-slate-800">Judo <span className="text-[10px] text-slate-400 font-bold ml-2">— Dojo Grenelle (75)</span></h3>
                             <p className="text-xs font-bold text-slate-500 mt-1">{judoStats.grade} • Début: {judoStats.debut}</p>
@@ -493,7 +525,7 @@
                         <div className="flex flex-wrap gap-2 md:gap-4 justify-between">
                           {judoStats.kpis.map((kpi, i) => (
                              <div key={i} className="text-center px-2 py-2 flex-1">
-                               <p className="text-lg md:text-xl font-black text-red-600">{kpi.value}</p>
+                               <p className="text-lg md:text-xl font-black text-slate-800">{kpi.value}</p>
                                <p className="text-[9px] font-black uppercase text-slate-400 mt-0.5">{kpi.label}</p>
                              </div>
                           ))}
@@ -535,12 +567,12 @@
                             </div>
                           </div>
                           <div className="p-5 bg-slate-50 border border-slate-100 rounded-2xl mt-4">
-                            <p className="text-[10px] font-black uppercase text-slate-400 mb-3 flex items-center gap-2"><Brain size={14}/> Diagnostic Technique</p>
+                            <p className="text-[10px] font-black uppercase text-slate-400 mb-3 flex items-center gap-2"><Brain size={14}/> Diagnostic Technique détaillé</p>
                             <ul className="text-xs text-slate-700 space-y-2 list-disc pl-4 font-medium leading-relaxed">
-                              <li><strong className="text-slate-900">Hanche (Tai-Otoshi / Harai-Goshi)</strong> : Les "Spéciaux" dominants, très efficaces mais nécessitent une stabilisation mécanique sous pression.</li>
-                              <li><strong className="text-slate-900">Épaule (Ippon Seoi Nage)</strong> : Techniquement acquis mais limité par sa grande taille face aux petits gabarits.</li>
-                              <li><strong className="text-slate-900">Sol (Ne-Waza)</strong> : Liaisons debout-sol parfaitement automatisées.</li>
-                              <li><strong className="text-slate-900">Jambe (Ko-Soto-Gari)</strong> : Expérimenté avec succès, piste d'avenir à développer.</li>
+                              <li><strong className="text-slate-900">Tai-Otoshi / Harai-Goshi</strong> : Les deux "Spéciaux" visuels de l'athlète, très efficaces mais nécessitent une stabilisation mécanique de la hanche sous pression.</li>
+                              <li><strong className="text-slate-900">Ippon Seoi Nage</strong> : Techniquement acquis mais limité par sa grande taille face aux petits gabarits.</li>
+                              <li><strong className="text-slate-900">Ne-Waza</strong> : Liaisons debout-sol parfaitement automatisées.</li>
+                              <li><strong className="text-slate-900">Ko-Soto-Gari</strong> : Expérimenté 1 seule fois avec grand succès, piste d'avenir à développer.</li>
                             </ul>
                           </div>
                         </div>
@@ -559,7 +591,7 @@
                         <div className="p-6 space-y-5">
                           <div className="grid grid-cols-4 gap-2">
                             {natationStats.kpis.map((kpi, i) => (
-                              <div key={i} className="text-center bg-slate-50 p-2 rounded-xl border border-slate-100"><p className="text-sm font-black text-blue-600">{kpi.value}</p><p className="text-[8px] font-black uppercase text-slate-400 mt-1">{kpi.label}</p></div>
+                              <div key={i} className="text-center bg-slate-50 p-2 rounded-xl border border-slate-100"><p className="text-sm md:text-lg font-black text-blue-600">{kpi.value}</p><p className="text-[8px] font-black uppercase text-slate-400 mt-1">{kpi.label}</p></div>
                             ))}
                           </div>
                           <div className="grid grid-cols-2 gap-4 mt-2">
@@ -580,7 +612,7 @@
                         <div className="p-6 space-y-5">
                           <div className="grid grid-cols-4 gap-2">
                             {handballStats.kpis.map((kpi, i) => (
-                              <div key={i} className="text-center bg-slate-50 p-2 rounded-xl border border-slate-100"><p className="text-sm font-black text-orange-600">{kpi.value}</p><p className="text-[8px] font-black uppercase text-slate-400 mt-1">{kpi.label}</p></div>
+                              <div key={i} className="text-center bg-slate-50 p-2 rounded-xl border border-slate-100"><p className="text-sm md:text-lg font-black text-orange-600">{kpi.value}</p><p className="text-[8px] font-black uppercase text-slate-400 mt-1">{kpi.label}</p></div>
                             ))}
                           </div>
                           <div className="grid grid-cols-2 gap-4 mt-2">
@@ -628,7 +660,7 @@
                                     <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Adversité</p><div className="flex">{renderStars(ev.adv)}</div></div>
                                     <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Volume</p><p className="text-xs font-bold text-slate-700">{ev.matches}</p></div>
                                     <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Résumé</p><p className="text-xs font-medium text-slate-600 leading-relaxed">{ev.desc}</p></div>
-                                    <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Commentaire Technique</p><p className="text-xs font-medium text-slate-600 leading-relaxed italic border-l-2 border-indigo-200 pl-2">{ev.com}</p></div>
+                                    <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Commentaire Technique</p><p className="text-xs font-medium text-slate-600 leading-relaxed italic border-l-2 border-slate-200 pl-2">{ev.com}</p></div>
                                   </div>
                                 )}
                               </div>
@@ -658,12 +690,12 @@
                                     <div><p className="text-sm font-black text-slate-800">{ev.name}</p><p className="text-[10px] font-bold text-slate-500 uppercase mt-0.5">{ev.date} • {ev.sport}</p></div>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap hidden sm:block ${ev.status === 'INSCRIT' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}`}>{ev.status}</span>
+                                    <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap hidden sm:block ${ev.status === 'INSCRIT' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-slate-100 text-slate-500 border-slate-200'}`}>{ev.status}</span>
                                     <div className="bg-white p-1 rounded-full border border-slate-200">{isExp ? <ChevronUp size={16} className="text-slate-400"/> : <ChevronDown size={16} className="text-slate-400"/>}</div>
                                   </div>
                                 </div>
                                 <div className="px-4 pb-3 sm:hidden text-right block border-t border-slate-100 pt-2">
-                                   <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap ${ev.status === 'INSCRIT' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}`}>{ev.status}</span>
+                                   <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap ${ev.status === 'INSCRIT' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-slate-100 text-slate-500 border-slate-200'}`}>{ev.status}</span>
                                 </div>
                                 {isExp && (
                                   <div className="p-4 bg-white border-t border-slate-200 shadow-inner grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -704,7 +736,7 @@
                         <div className="mb-4"><span className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-lg text-[10px] font-black uppercase tracking-widest">Court Terme (Trimestre)</span></div>
                         <h3 className="text-lg font-black mb-4">Nettoyage Technique</h3>
                         <ul className="space-y-3 text-xs text-slate-600 font-medium">
-                          <li className="flex gap-2 items-start"><ArrowRight size={14} className="text-emerald-500 shrink-0 mt-0.5"/> Consolider l'Ashi-Waza (Judo).</li>
+                          <li className="flex gap-2 items-start"><ArrowRight size={14} className="text-emerald-500 shrink-0 mt-0.5"/> Consolider le Ko-Soto-Gari (Judo).</li>
                           <li className="flex gap-2 items-start"><ArrowRight size={14} className="text-emerald-500 shrink-0 mt-0.5"/> Stabiliser la mécanique de rotation (Hanche).</li>
                           <li className="flex gap-2 items-start"><ArrowRight size={14} className="text-emerald-500 shrink-0 mt-0.5"/> Finir "propre" au mur en natation.</li>
                         </ul>
@@ -718,12 +750,12 @@
                           <li className="flex gap-2 items-start"><ArrowRight size={14} className="text-blue-500 shrink-0 mt-0.5"/> Augmenter l'explosivité verticale pure.</li>
                         </ul>
                       </Card>
-                      <Card className="border-t-4 border-t-indigo-500">
-                        <div className="mb-4"><span className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-lg text-[10px] font-black uppercase tracking-widest">Long Terme (2 ans +)</span></div>
+                      <Card className="border-t-4 border-t-slate-800">
+                        <div className="mb-4"><span className="px-3 py-1 bg-slate-100 text-slate-800 rounded-lg text-[10px] font-black uppercase tracking-widest">Long Terme (2 ans +)</span></div>
                         <h3 className="text-lg font-black mb-4">Construction Identitaire</h3>
                         <ul className="space-y-3 text-xs text-slate-600 font-medium">
-                          <li className="flex gap-2 items-start"><ArrowRight size={14} className="text-indigo-500 shrink-0 mt-0.5"/> Construire un profil de "déséquilibre intelligent".</li>
-                          <li className="flex gap-2 items-start"><ArrowRight size={14} className="text-indigo-500 shrink-0 mt-0.5"/> Maintien strict du modèle multisport jusqu'en U11.</li>
+                          <li className="flex gap-2 items-start"><ArrowRight size={14} className="text-slate-800 shrink-0 mt-0.5"/> Construire un profil de "déséquilibre intelligent".</li>
+                          <li className="flex gap-2 items-start"><ArrowRight size={14} className="text-slate-800 shrink-0 mt-0.5"/> Maintien strict du modèle multisport jusqu'en U11.</li>
                         </ul>
                       </Card>
                     </div>
@@ -731,16 +763,16 @@
                     <Card title="Probabilités Statistiques d'Accès à l'Élite (Filtre Pyramidal)" icon={Target}>
                        <p className="text-xs text-slate-500 mb-6">Indicateurs théoriques moyens du parcours d'accès au Haut Niveau (basés sur le volume de licenciés fédéraux). Justifie la stratégie de ne pas spécialiser un athlète avant 12 ans pour ne pas brûler les étapes.</p>
                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                          <div className="p-5 border border-red-100 rounded-2xl bg-red-50/50 text-center">
-                             <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center text-red-600 mx-auto mb-3"><JudoIcon size={20}/></div>
-                             <h4 className="font-black text-red-900 mb-4">JUDO</h4>
+                          <div className="p-5 border border-slate-200 rounded-2xl bg-slate-50 text-center">
+                             <div className="w-10 h-10 bg-slate-200 rounded-xl flex items-center justify-center text-slate-800 mx-auto mb-3"><JudoIcon size={20}/></div>
+                             <h4 className="font-black text-slate-900 mb-4">JUDO</h4>
                              <div className="space-y-2 text-xs">
-                               <div className="flex justify-between border-b border-red-100 pb-1"><span className="text-slate-600 font-medium">Pôle Espoir (15 ans)</span><span className="font-black text-red-600">~2.0%</span></div>
-                               <div className="flex justify-between border-b border-red-100 pb-1"><span className="text-slate-600 font-medium">Pôle France / INSEP</span><span className="font-black text-red-600">~0.2%</span></div>
-                               <div className="flex justify-between"><span className="text-slate-600 font-medium">Élite Internationale</span><span className="font-black text-red-600">0.01%</span></div>
+                               <div className="flex justify-between border-b border-slate-200 pb-1"><span className="text-slate-600 font-medium">Pôle Espoir (15 ans)</span><span className="font-black text-slate-800">~2.0%</span></div>
+                               <div className="flex justify-between border-b border-slate-200 pb-1"><span className="text-slate-600 font-medium">Pôle France / INSEP</span><span className="font-black text-slate-800">~0.2%</span></div>
+                               <div className="flex justify-between"><span className="text-slate-600 font-medium">Élite Internationale</span><span className="font-black text-slate-800">0.01%</span></div>
                              </div>
                           </div>
-                          <div className="p-5 border border-orange-100 rounded-2xl bg-orange-50/50 text-center">
+                          <div className="p-5 border border-orange-100 rounded-2xl bg-orange-50 text-center">
                              <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 mx-auto mb-3"><BallIcon size={20}/></div>
                              <h4 className="font-black text-orange-900 mb-4">HANDBALL</h4>
                              <div className="space-y-2 text-xs">
@@ -749,7 +781,7 @@
                                <div className="flex justify-between"><span className="text-slate-600 font-medium">Élite Internationale</span><span className="font-black text-orange-600">0.005%</span></div>
                              </div>
                           </div>
-                          <div className="p-5 border border-blue-100 rounded-2xl bg-blue-50/50 text-center">
+                          <div className="p-5 border border-blue-100 rounded-2xl bg-blue-50 text-center">
                              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mx-auto mb-3"><Waves size={20}/></div>
                              <h4 className="font-black text-blue-900 mb-4">NATATION</h4>
                              <div className="space-y-2 text-xs">
