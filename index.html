@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Léo | Performance Tracker</title>
     
-    <!-- Tailwind CSS (Avec support du Mode Sombre) -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -28,9 +28,9 @@
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; transition: background-color 0.3s ease; }
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; transition: background-color 0.3s, color 0.3s; }
         
-        /* Système d'infobulles : un z-index massif pour passer au-dessus de tout */
+        /* Système d'infobulles optimisé pour ne pas être coupé */
         .custom-tooltip-container { position: relative; display: inline-flex; align-items: center; cursor: help; }
         .custom-tooltip-content { 
             visibility: hidden; opacity: 0; position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%); 
@@ -44,11 +44,11 @@
         }
         .custom-tooltip-container:hover .custom-tooltip-content { visibility: visible; opacity: 1; bottom: 140%; }
         
-        /* Force les cartes à laisser sortir les infobulles */
+        /* Retrait du overflow-hidden destructeur pour les bulles */
         .card-container { overflow: visible !important; }
     </style>
 </head>
-<body class="bg-[#f4f7f9] text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+<body class="bg-[#f4f7f9] dark:bg-slate-950 text-slate-900 dark:text-slate-100">
     
     <div id="root">
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; color: #4f46e5;">
@@ -92,6 +92,7 @@
         const Zap = (p) => <Icon {...p} path='<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>' />;
         const TrophyIcon = (p) => <Icon {...p} path='<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0v-7z"/>' />;
         const Flag = (p) => <Icon {...p} path='<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>' />;
+        const XOctagon = (p) => <Icon {...p} path='<polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>' />;
         const MapPin = (p) => <Icon {...p} path='<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>' />;
         const Clock = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' />;
         const ArrowRight = (p) => <Icon {...p} path='<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>' />;
@@ -101,8 +102,6 @@
         const Crosshair = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/>' />;
         const InfoIcon = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>' />;
         const StarIcon = (p) => <Icon {...p} path='<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>' />;
-        
-        // Mode Sombre
         const MoonIcon = (p) => <Icon {...p} path='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>' />;
         const SunIcon = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>' />;
 
@@ -120,15 +119,12 @@
 
         const App = () => {
           const [activeTab, setActiveTab] = useState('synthesis');
-          
-          // Etats calendrier
           const [expandedPastIndex, setExpandedPastIndex] = useState(null);
           const [expandedFutureIndex, setExpandedFutureIndex] = useState(null);
           const [pastFilter, setPastFilter] = useState('ALL');
           const [futureFilter, setFutureFilter] = useState('ALL');
-
-          // Mode Sombre
           const [isDark, setIsDark] = useState(false);
+
           useEffect(() => {
               if (isDark) document.documentElement.classList.add('dark');
               else document.documentElement.classList.remove('dark');
@@ -155,12 +151,12 @@
 
           // --- 2. DATA: VOLUME & TESTS ---
           const volumeMensuel = [
-            { mois: 'Sept', Judo: 11, Natation: 11, Handball: 5, Multisport: 5, TOTAL: 32 },
-            { mois: 'Oct', Judo: 8, Natation: 6.5, Handball: 3.75, Multisport: 5, TOTAL: 23.25 },
-            { mois: 'Nov', Judo: 12.5, Natation: 10, Handball: 5, Multisport: 6, TOTAL: 33.5 },
-            { mois: 'Déc', Judo: 11, Natation: 7.5, Handball: 3.75, Multisport: 5, TOTAL: 27.25 },
-            { mois: 'Jan', Judo: 12, Natation: 10, Handball: 5.75, Multisport: 6, TOTAL: 33.75 },
-            { mois: 'Fév', Judo: 8, Natation: 8.5, Handball: 5, Multisport: 4, TOTAL: 25.5 },
+            { mois: 'Sept', Judo: 11, Natation: 11, Handball: 5, Multisport: 5 },
+            { mois: 'Oct', Judo: 8, Natation: 6.5, Handball: 3.75, Multisport: 5 },
+            { mois: 'Nov', Judo: 12.5, Natation: 10, Handball: 5, Multisport: 6 },
+            { mois: 'Déc', Judo: 11, Natation: 7.5, Handball: 3.75, Multisport: 5 },
+            { mois: 'Jan', Judo: 12, Natation: 10, Handball: 5.75, Multisport: 6 },
+            { mois: 'Fév', Judo: 8, Natation: 8.5, Handball: 5, Multisport: 4 },
           ];
 
           const athleticRadar = [
@@ -189,10 +185,10 @@
             club: "Dojo Grenelle (75)",
             grade: "Ceinture Jaune 2 Barrettes", debut: "Sept. 2023 (2.5 ans)",
             kpis: [
-              { label: 'Heures cumulées', value: "187h", sub: 'Depuis 2023' }, 
-              { label: 'Randoris', value: "561", sub: 'Cumul (3/h)' },
-              { label: 'Combats', value: "16", sub: 'Saison 25-26' }, 
-              { label: 'Victoires', value: "15", sub: 'Dont 2 Ne-Waza' },
+              { label: 'Heures cumulées', value: "187h" }, 
+              { label: 'Randoris', value: "561" },
+              { label: 'Combats', value: "16" }, 
+              { label: 'Victoires', value: "15" },
             ],
             directions: [
               { name: 'Tai-Otoshi / Harai-Goshi', value: 60, color: '#f59e0b' },
@@ -206,10 +202,10 @@
             club: "ACBB (92)",
             debut: "Sept. 2024 (1.5 an)",
             kpis: [
-              { label: 'Heures cumulées', value: "118h", sub: 'Depuis 2024' },
-              { label: 'KM parcourus', value: "36", sub: 'Cumul estimé' },
-              { label: 'Courses Off.', value: "1", sub: 'Saison 25-26' },
-              { label: 'Chrono 25m', value: "28.46s", sub: 'Validé' },
+              { label: 'Heures cumulées', value: "118h" },
+              { label: 'KM parcourus', value: "36" },
+              { label: 'Courses Off.', value: "1" },
+              { label: 'Chrono 25m', value: "28.46s" },
             ]
           };
 
@@ -217,156 +213,103 @@
             club: "Issy Paris Hand (92)",
             debut: "Sept. 2024 (1.5 an)",
             kpis: [
-              { label: 'Heures cumulées', value: "66h", sub: 'Depuis 2024' },
-              { label: 'Matchs Joués', value: "16", sub: 'Saison 25-26' },
-              { label: 'Tournois', value: "6", sub: 'Saison 25-26' },
-              { label: 'Victoires', value: "2", sub: 'Tournois remportés' },
+              { label: 'Heures cumulées', value: "66h" },
+              { label: 'Matchs Joués', value: "16" },
+              { label: 'Tournois', value: "6" },
+              { label: 'Victoires', value: "2" },
             ]
           };
 
           // --- 4. DATA: CALENDRIER ---
+          // Structure sans erreur pour les événements passés
           const rawPastEvents = [
-            { isHeader: true, title: "Février 2026", sport: 'ALL' },
-            { date: '21/02', sport: 'Judo', name: 'Magny-en-Vexin (95)', result: '1ER', adv: 1, matches: "3 combats", 
-              desc: "Niveau global faible. Tournoi maîtrisé du début à la fin avec 3 victoires expéditives.", com: "Autonomie mentale complète validée. Le 3ème combat marque un tournant avec une attaque en jambe explosive parfaitement exécutée (Ko-Soto-Gari)." },
-            { date: '08/02', sport: 'Judo', name: 'Saint-Arnoult-en-Yv. (78)', result: '1ER', adv: 2, matches: "3 combats", 
-              desc: "Très bonne gestion des combats sur un tournoi de niveau modéré.", com: "Belles liaisons debout-sol et confirmation des acquis." },
-            { date: '07/02', sport: 'Natation', name: 'Suresnes (92)', result: 'DSQ', adv: 3, matches: "1 course", 
-              desc: "Disqualification sur 25m dos pour retournement sur le ventre.", com: "Erreur technique de repère spatial avant de toucher le mur. Chrono d'entraînement (28.46s) validant le niveau. Excellente résilience montrée." },
-            
-            { isHeader: true, title: "Janvier 2026", sport: 'ALL' },
-            { date: '24/01', sport: 'Handball', name: 'Issy (92) - U9', result: 'NC', adv: 4, matches: "Plusieurs matchs", 
-              desc: "Surclassement en U9. Tournoi compliqué.", com: "Forte adversité physique face à des gabarits supérieurs. A eu du mal à lâcher son ballon rapidement." },
-            { date: '18/01', sport: 'Handball', name: 'Suresnes (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", 
-              desc: "Victoire de l'équipe sur ce tournoi interclub.", com: "Évolution très positive sur sa vision du jeu. Capable de lever la tête et de trouver de bonnes passes." },
-            { date: '11/01', sport: 'Judo', name: 'Amilly (45)', result: '1ER', adv: 2, matches: "3 combats", 
-              desc: "Tournoi de rentrée 2026 bien maîtrisé.", com: "Domination sur les prises de hanche (Tai-Otoshi)." },
-            
-            { isHeader: true, title: "Décembre 2025", sport: 'ALL' },
-            { date: '07/12', sport: 'Judo', name: 'Paris Sorbier (75)', result: '1ER', adv: 3, matches: "3 combats", 
-              desc: "Termine 1er au global malgré sa seule défaite de l'année.", com: "Défaite subie par Ippon sur un Ippon Seoi Nage adverse. Excellente attitude de résilience." },
-            
-            { isHeader: true, title: "Novembre 2025", sport: 'ALL' },
-            { date: '29/11', sport: 'Handball', name: 'Issy (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", 
-              desc: "Meilleur marqueur de la compétition avec 12 buts.", com: "Très performant face aux enfants de son âge grâce à sa vitesse. Excellent esprit d'équipe." },
-            { date: '16/11', sport: 'Judo', name: 'Drancy (93)', result: '1ER', adv: 3, matches: "3 combats", 
-              desc: "Tournoi parfaitement géré niveau mental et concentration.", com: "1er combat: Tai-Otoshi. 2ème: Ippon Seoi Nage. 3ème: enchainement debout-sol." },
-            
-            { isHeader: true, title: "Octobre 2025", sport: 'ALL' },
-            { date: '12/10', sport: 'Judo', name: 'Pithiviers (45)', result: '1ER', adv: 1, matches: "2 combats", 
-              desc: "1er tournoi de la saison, peu d'adversité.", com: "1er et 2ème combat remportés par le même mix : Harai Goshi puis Tai-Otoshi." }
+            { sport: 'Judo', date: '21/02/2026', month: 'Février 2026', name: 'Magny-en-Vexin (95)', result: '1ER', adv: 1, matches: "3 combats", desc: "Niveau global faible. Tournoi maîtrisé du début à la fin avec 3 victoires expéditives.", com: "Le 3ème combat marque un tournant avec une attaque en jambe explosive parfaitement exécutée (Ko-Soto-Gari)." },
+            { sport: 'Judo', date: '08/02/2026', month: 'Février 2026', name: 'Saint-Arnoult-en-Yv. (78)', result: '1ER', adv: 2, matches: "3 combats", desc: "Très bonne gestion des combats sur un tournoi de niveau modéré.", com: "Belles liaisons debout-sol et confirmation des acquis." },
+            { sport: 'Natation', date: '07/02/2026', month: 'Février 2026', name: 'Suresnes (92)', result: 'DSQ', adv: 3, matches: "1 course", desc: "Disqualification sur 25m dos pour retournement sur le ventre.", com: "Erreur technique de repère spatial. Chrono d'entraînement (28.46s) validant le niveau." },
+            { sport: 'Handball', date: '24/01/2026', month: 'Janvier 2026', name: 'Issy (92) - U9', result: 'NC', adv: 4, matches: "Plusieurs matchs", desc: "Surclassement en U9. Tournoi compliqué.", com: "Forte adversité physique face à des gabarits supérieurs. A eu du mal à lâcher son ballon rapidement." },
+            { sport: 'Handball', date: '18/01/2026', month: 'Janvier 2026', name: 'Suresnes (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", desc: "Victoire de l'équipe sur ce tournoi interclub.", com: "Évolution très positive sur sa vision du jeu. Capable de lever la tête et de trouver de bonnes passes." },
+            { sport: 'Judo', date: '11/01/2026', month: 'Janvier 2026', name: 'Amilly (45)', result: '1ER', adv: 2, matches: "3 combats", desc: "Tournoi de rentrée 2026 bien maîtrisé.", com: "Domination sur les prises de hanche (Tai-Otoshi)." },
+            { sport: 'Judo', date: '07/12/2025', month: 'Décembre 2025', name: 'Paris Sorbier (75)', result: '1ER', adv: 4, matches: "3 combats", desc: "Termine 1er au global malgré sa seule défaite de l'année.", com: "Défaite subie par Ippon sur un Ippon Seoi Nage adverse. Excellente attitude de résilience." },
+            { sport: 'Handball', date: '29/11/2025', month: 'Novembre 2025', name: 'Issy (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", desc: "Meilleur marqueur de la compétition avec 12 buts.", com: "Très performant face aux enfants de son âge grâce à sa vitesse. Excellent esprit d'équipe." },
+            { sport: 'Judo', date: '16/11/2025', month: 'Novembre 2025', name: 'Drancy (93)', result: '1ER', adv: 3, matches: "3 combats", desc: "Tournoi parfaitement géré niveau mental et concentration.", com: "1er combat: Tai-Otoshi. 2ème: Ippon Seoi Nage. 3ème: enchainement debout-sol." },
+            { sport: 'Judo', date: '12/10/2025', month: 'Octobre 2025', name: 'Pithiviers (45)', result: '1ER', adv: 1, matches: "2 combats", desc: "1er tournoi de la saison, peu d'adversité.", com: "1er et 2ème combat remportés par le même mix : Harai Goshi puis Tai-Otoshi." }
           ];
 
           const rawFutureEvents = [
-            { isHeader: true, title: "Mars 2026", sport: 'ALL' },
-            { date: '07/03', sport: 'Judo', name: 'Nogent le Rotrou (28)', time: 'Pesée 10h30', drive: '1h50 de route', address: 'Dojo complexe Robert Huwart, 35 Rue du Perche', inscrit: true },
-            { date: '14/03', sport: 'Handball', name: 'Issy (92) - U7', time: '14h00-16h30', drive: '0h05 de route', address: 'Cité des sports, 92130 ISSY', inscrit: false },
-            { date: '21/03', sport: 'Handball', name: 'Vaucresson (92) - U9', time: 'À définir', drive: '0h20 de route', address: 'Vaucresson', inscrit: false },
-            { date: '22/03', sport: 'Judo', name: 'Coignières (78)', time: '13h30-13h45', drive: '0h45 de route', address: 'Gymnase du moulin à vent, 78310', inscrit: true },
-            { date: '28/03', sport: 'Handball', name: 'Fontenay (92) - U7', time: 'À définir', drive: '0h25 de route', address: 'Fontenay-aux-roses', inscrit: false },
-            { isHeader: true, title: "Avril 2026", sport: 'ALL' },
-            { date: '25/04', sport: 'Natation', name: 'J2 Avenirs (92)', time: 'À définir', drive: '-', address: 'Sur le département 92', inscrit: false },
-            { isHeader: true, title: "Mai 2026", sport: 'ALL' },
-            { date: '09/05', sport: 'Judo', name: 'Maurepas (78)', time: '13h30-14h00', drive: '0h45 de route', address: 'Gymnase de la Malmedone, 78310', inscrit: false },
-            { date: '24/05', sport: 'Handball', name: 'Tournoi des Étoiles', time: '08h00-18h00', drive: '0h45 de route', address: 'Sur Herbe (Lieu à confirmer)', inscrit: false },
-            { date: '31/05', sport: 'Judo', name: 'Sully sur Loire (45)', time: 'À définir', drive: '2h00 de route', address: 'Complexe sportif Lionel Jourdain, 45600', inscrit: false },
-            { isHeader: true, title: "Juin 2026", sport: 'ALL' },
-            { date: '07/06', sport: 'Judo', name: 'Petits Tigres (75)', time: '11h15-11h45', drive: '0h15 de route', address: 'INJ, 21 avenue de la Porte de Chatillon', inscrit: false }
+            { sport: 'Judo', date: '07/03/2026', month: 'Mars 2026', name: 'Nogent le Rotrou (28)', time: 'Pesée 10h30', drive: '1h50 de route', address: 'Dojo complexe Robert Huwart, 35 Rue du Perche', inscrit: true },
+            { sport: 'Handball', date: '14/03/2026', month: 'Mars 2026', name: 'Issy (92) - U7', time: '14h00-16h30', drive: '0h05 de route', address: 'Cité des sports, 92130 ISSY', inscrit: false },
+            { sport: 'Handball', date: '21/03/2026', month: 'Mars 2026', name: 'Vaucresson (92) - U9', time: 'À définir', drive: '0h20 de route', address: 'Vaucresson', inscrit: false },
+            { sport: 'Judo', date: '22/03/2026', month: 'Mars 2026', name: 'Coignières (78)', time: '13h30-13h45', drive: '0h45 de route', address: 'Gymnase du moulin à vent, 78310', inscrit: true },
+            { sport: 'Handball', date: '28/03/2026', month: 'Mars 2026', name: 'Fontenay (92) - U7', time: 'À définir', drive: '0h25 de route', address: 'Fontenay-aux-roses', inscrit: false },
+            { sport: 'Natation', date: '25/04/2026', month: 'Avril 2026', name: 'J2 Avenirs (92)', time: 'À définir', drive: '-', address: 'Sur le département 92', inscrit: false },
+            { sport: 'Judo', date: '09/05/2026', month: 'Mai 2026', name: 'Maurepas (78)', time: '13h30-14h00', drive: '0h45 de route', address: 'Gymnase de la Malmedone, 78310', inscrit: false },
+            { sport: 'Handball', date: '24/05/2026', month: 'Mai 2026', name: 'Tournoi des Étoiles', time: '08h00-18h00', drive: '0h45 de route', address: 'Sur Herbe (Lieu à confirmer)', inscrit: false },
+            { sport: 'Judo', date: '31/05/2026', month: 'Mai 2026', name: 'Sully sur Loire (45)', time: 'À définir', drive: '2h00 de route', address: 'Complexe Lionel Jourdain, 45600', inscrit: false },
+            { sport: 'Judo', date: '07/06/2026', month: 'Juin 2026', name: 'Petits Tigres (75)', time: '11h15-11h45', drive: '0h15 de route', address: 'INJ, 21 av de la Porte de Chatillon', inscrit: false }
           ];
 
-          // Filtrage fonctionnel et nettoyage des mois vides
-          const filteredPastEvents = rawPastEvents.filter(ev => {
-              if (ev.isHeader) return true;
-              if (pastFilter === 'ALL') return true;
-              return ev.sport === pastFilter;
-          }).filter((ev, i, arr) => {
-              if (ev.isHeader && (!arr[i+1] || arr[i+1].isHeader)) return false; 
-              return true;
+          // Group by Month logic for Past Events
+          const filteredPast = rawPastEvents.filter(e => pastFilter === 'ALL' || e.sport === pastFilter);
+          const pastByMonth = {};
+          filteredPast.forEach(ev => {
+              if (!pastByMonth[ev.month]) pastByMonth[ev.month] = [];
+              pastByMonth[ev.month].push(ev);
           });
+          const pastEntries = Object.entries(pastByMonth);
 
-          const filteredFutureEvents = rawFutureEvents.filter(ev => {
-              if (ev.isHeader) return true;
-              if (futureFilter === 'ALL') return true;
-              return ev.sport === futureFilter;
-          }).filter((ev, i, arr) => {
-              if (ev.isHeader && (!arr[i+1] || arr[i+1].isHeader)) return false; 
-              return true;
+          // Group by Month logic for Future Events
+          const filteredFuture = rawFutureEvents.filter(e => futureFilter === 'ALL' || e.sport === futureFilter);
+          const futureByMonth = {};
+          filteredFuture.forEach(ev => {
+              if (!futureByMonth[ev.month]) futureByMonth[ev.month] = [];
+              futureByMonth[ev.month].push(ev);
           });
+          const futureEntries = Object.entries(futureByMonth);
 
-          // --- Utilitaires de rendu ---
+
           const Card = ({ children, title, icon: IconCmp, className = "" }) => (
-            <div className={`bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm card-container relative ${className}`}>
-              {/* Div permettant de cacher d'éventuels fonds décoratifs sans couper l'infobulle */}
-              <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none z-0"></div>
-              <div className="relative z-10">
-                {title && (
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                      {IconCmp && <IconCmp size={18} className="text-indigo-500" />} {title}
-                    </h3>
-                  </div>
-                )}
-                {children}
-              </div>
+            <div className={`bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm card-container ${className}`}>
+              {title && (
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                    {IconCmp && <IconCmp size={18} className="text-indigo-500" />} {title}
+                  </h3>
+                </div>
+              )}
+              {children}
             </div>
           );
 
-          // Règle de couleur de test: Sprint/Slalom = plus bas est mieux, Distance = plus haut est mieux.
-          // Donc -10% au test 6 min est négatif = rouge.
-          const getEvoColor = (testName, evo) => {
-            if (!evo) return 'text-slate-500 bg-slate-100 dark:bg-slate-800 dark:text-slate-400';
+          // Règle de couleur : Sprint/Slalom = plus bas est mieux. Distance = plus haut est mieux.
+          // Le -10% au test 6 min est négatif => rouge.
+          const getEvoClass = (testName, evo) => {
+            if (!evo) return 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400';
             const isNegative = evo.includes('-');
             const name = testName.toLowerCase();
             const lowerIsBetter = name.includes('sprint') || name.includes('slalom');
             
             if (lowerIsBetter) {
-                return isNegative ? 'text-green-700 bg-green-100 dark:text-green-400 dark:bg-green-900/30' : 'text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-900/30';
+                return isNegative ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
             } else {
-                return isNegative ? 'text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-900/30' : 'text-green-700 bg-green-100 dark:text-green-400 dark:bg-green-900/30';
+                return isNegative ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
             }
           };
 
           const renderStars = (count) => (
              <div className="flex items-center gap-0.5">
-                {[...Array(count)].map((_, i) => <StarIcon key={i} size={10} className="text-yellow-500 fill-yellow-500" />)}
+                {[...Array(count)].map((_, i) => <StarIcon key={i} size={12} className="text-yellow-500 fill-yellow-500" />)}
              </div>
           );
-          
-          // Récupère la couleur selon le sport
-          const getSportIcon = (sport) => {
-              if (sport === 'Judo') return JudoIcon;
-              if (sport === 'Handball') return BallIcon;
-              if (sport === 'Natation') return Waves;
-              return Target;
-          }
-          
-          const getSportColor = (sport) => {
-              if (sport === 'Judo') return 'text-slate-900 dark:text-white bg-slate-200 dark:bg-slate-700';
-              if (sport === 'Handball') return 'text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/30';
-              if (sport === 'Natation') return 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30';
-              return '';
-          };
-
-          // Safe Custom Bar Label
-          const renderCustomBarLabel = (props) => {
-              const { x, y, width, payload } = props;
-              if (!payload || payload.TOTAL === undefined) return null;
-              return (
-                <text x={x + width / 2} y={y - 5} fill={isDark ? "#94a3b8" : "#64748b"} fontSize="10px" fontWeight="bold" textAnchor="middle">
-                  {payload.TOTAL}h
-                </text>
-              );
-          };
 
           return (
-            <div className="min-h-screen">
+            <div className="min-h-screen font-sans p-4 md:p-8">
               
               {/* HEADER COMPLETEMENT REVU */}
               <header className="max-w-7xl mx-auto mb-8 bg-white dark:bg-slate-900 rounded-[2rem] p-8 border-l-8 border-l-indigo-600 shadow-lg shadow-slate-200/50 dark:shadow-none transition-colors relative z-20">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                   <div>
                     <div className="flex items-center gap-3 mb-2">
-                      <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-md text-[10px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-800">Dossier Sportif Avenir</span>
+                      <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded-md text-[10px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-800">Dossier Sportif Avenir</span>
                       <span className="text-xs font-bold text-slate-400 flex items-center gap-1"><Calendar size={12}/> MAJ GLOBALE: Mars 2026</span>
                     </div>
                     <h1 className="text-4xl font-black tracking-tight flex items-center gap-3 text-slate-900 dark:text-white">
@@ -444,7 +387,7 @@
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                       {advancedKPIs.map((kpi, i) => (
-                        <div key={i} className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm relative group overflow-hidden">
+                        <div key={i} className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm relative overflow-hidden group">
                           <div className={`absolute -right-6 -top-6 w-24 h-24 bg-current opacity-5 rounded-full transition-transform group-hover:scale-150 z-0 ${kpi.color}`}></div>
                           <div className="flex items-center justify-between mb-2 relative z-10">
                             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{kpi.label}</p>
@@ -513,7 +456,7 @@
                               <Bar dataKey="Judo" stackId="a" fill={isDark ? "#94a3b8" : "#0f172a"} radius={[0,0,0,0]} />
                               <Bar dataKey="Natation" stackId="a" fill="#3b82f6" />
                               <Bar dataKey="Handball" stackId="a" fill="#f97316" />
-                              <Bar dataKey="Multisport" stackId="a" fill="#10b981" radius={[4,4,0,0]} label={renderCustomBarLabel} />
+                              <Bar dataKey="Multisport" stackId="a" fill="#10b981" radius={[4,4,0,0]} />
                             </BarChart>
                           </ResponsiveContainer>
                         </div>
@@ -599,7 +542,7 @@
                                   <div key={i} className="flex justify-between items-center">
                                     <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{test.name}</span>
                                     <div className="flex items-center gap-2">
-                                      {test.evo && (<span className={`text-[9px] font-black px-1.5 py-0.5 rounded ${getEvoColor(test.name, test.evo)}`}>{test.evo}</span>)}
+                                      {test.evo && (<span className={`text-[9px] font-black px-1.5 py-0.5 rounded ${getEvoClass(test.name, test.evo)}`}>{test.evo}</span>)}
                                       <span className={`text-sm font-black ${test.alert ? 'text-red-500 bg-red-50 dark:bg-red-900/30 px-2 py-0.5 rounded' : 'text-slate-800 dark:text-slate-100'}`}>{test.val}</span>
                                     </div>
                                   </div>
@@ -610,6 +553,7 @@
                         </div>
                       </Card>
 
+                      {/* BOITE SUGGESTIONS D'AMELIORATION */}
                       <Card title="Axes d'Amélioration & Exercices (Focus Actuel)" icon={Target}>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
                           <div className="p-4 bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 rounded-2xl">
@@ -832,11 +776,18 @@
                             {monthGrp.events.map((ev, i) => {
                               const globalIndex = mIdx * 100 + i;
                               const isExp = expandedPastIndex === globalIndex;
+                              
+                              // Utilise les icônes globales React avec les couleurs spécifiées.
+                              let EvIcon = JudoIcon;
+                              let iconColorClass = "text-slate-900 dark:text-white bg-slate-200 dark:bg-slate-700";
+                              if(ev.sport === 'Handball') { EvIcon = BallIcon; iconColorClass = "text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/30"; }
+                              if(ev.sport === 'Natation') { EvIcon = Waves; iconColorClass = "text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30"; }
+
                               return (
                               <div key={i} className="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-800/30 hover:border-slate-300 dark:hover:border-slate-600 transition-colors shadow-sm">
                                 <div className="p-4 flex items-center justify-between cursor-pointer" onClick={() => setExpandedPastIndex(isExp ? null : globalIndex)}>
                                   <div className="flex items-center gap-4">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${ev.color.includes('bg-') ? ev.color : ev.bgColor + ' ' + ev.color}`}><ev.icon size={18} /></div>
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${iconColorClass}`}><EvIcon size={18} /></div>
                                     <div><p className="text-sm font-black text-slate-800 dark:text-white">{ev.name}</p><p className="text-[10px] font-bold text-slate-500 uppercase mt-0.5">{ev.date} • {ev.sport}</p></div>
                                   </div>
                                   <div className="flex items-center gap-2">
@@ -885,11 +836,17 @@
                             {monthGrp.events.map((ev, i) => {
                               const globalIndex = mIdx * 100 + i;
                               const isExp = expandedFutureIndex === globalIndex;
+                              
+                              let EvIcon = JudoIcon;
+                              let iconColorClass = "text-slate-900 dark:text-white";
+                              if(ev.sport === 'Handball') { EvIcon = BallIcon; iconColorClass = "text-orange-600 dark:text-orange-400"; }
+                              if(ev.sport === 'Natation') { EvIcon = Waves; iconColorClass = "text-blue-600 dark:text-blue-400"; }
+
                               return (
                               <div key={i} className="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-800/30 hover:border-slate-300 dark:hover:border-slate-600 transition-colors shadow-sm">
                                 <div className="p-4 flex items-center justify-between cursor-pointer" onClick={() => setExpandedFutureIndex(isExp ? null : globalIndex)}>
                                   <div className="flex items-center gap-4">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${ev.color.includes('bg-') ? ev.color : ev.bgColor + ' ' + ev.color}`}><ev.icon size={18} /></div>
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm ${iconColorClass}`}><EvIcon size={18} /></div>
                                     <div><p className="text-sm font-black text-slate-800 dark:text-white">{ev.name}</p><p className="text-[10px] font-bold text-slate-500 uppercase mt-0.5">{ev.date} • {ev.sport}</p></div>
                                   </div>
                                   <div className="flex items-center gap-2">
