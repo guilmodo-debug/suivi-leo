@@ -30,12 +30,12 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; transition: background-color 0.3s ease; }
         
-        /* Système d'infobulles : un z-index massif pour passer au-dessus de tout */
+        /* Infobulles intelligentes */
         .custom-tooltip-container { position: relative; display: inline-flex; align-items: center; cursor: help; }
         .custom-tooltip-content { 
             visibility: hidden; opacity: 0; position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%); 
             width: max-content; max-width: 250px; background-color: #0f172a; color: white; text-align: center; 
-            border-radius: 8px; padding: 10px; font-size: 11px; z-index: 99999; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+            border-radius: 8px; padding: 10px; font-size: 11px; z-index: 99999; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
             white-space: normal; line-height: 1.4; transition: all 0.2s ease; pointer-events: none; font-weight: 500;
         }
         .custom-tooltip-content::after { 
@@ -44,7 +44,6 @@
         }
         .custom-tooltip-container:hover .custom-tooltip-content { visibility: visible; opacity: 1; bottom: 140%; }
         
-        /* Force les cartes à laisser sortir les infobulles */
         .card-container { overflow: visible !important; }
     </style>
 </head>
@@ -52,7 +51,7 @@
     
     <div id="root">
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; color: #4f46e5;">
-            <p style="font-weight: bold; font-family: sans-serif;">Chargement du tableau de bord Léo Analytics...</p>
+            <p style="font-weight: bold; font-family: sans-serif;">Chargement du Dashboard Sportif...</p>
         </div>
     </div>
 
@@ -64,7 +63,7 @@
                 if (this.state.hasError) {
                     return (
                         <div className="p-8 text-red-500 bg-red-50 min-h-screen">
-                            <h1 className="text-2xl font-bold mb-4">Une erreur est survenue :</h1>
+                            <h1 className="text-2xl font-bold mb-4">Erreur détectée :</h1>
                             <pre className="bg-white p-4 rounded shadow overflow-auto text-sm">{this.state.error.toString()}</pre>
                         </div>
                     );
@@ -76,7 +75,7 @@
         const { useState, useEffect } = React;
         const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip: RechartsTooltip, ResponsiveContainer, BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend } = window.Recharts;
 
-        // --- ICONES GLOBALES ---
+        // --- ICONES ---
         const Icon = ({ path, size = 24, className = "" }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} dangerouslySetInnerHTML={{ __html: path }} />
         );
@@ -95,7 +94,7 @@
         const MapPin = (p) => <Icon {...p} path='<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>' />;
         const Clock = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' />;
         const ArrowRight = (p) => <Icon {...p} path='<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>' />;
-        const CheckCircle2 = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>' />;
+        const CheckCircle2 = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/>' />;
         const ChevronDown = (p) => <Icon {...p} path='<polyline points="6 9 12 15 18 9"/>' />;
         const ChevronUp = (p) => <Icon {...p} path='<polyline points="18 15 12 9 6 15"/>' />;
         const Crosshair = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/>' />;
@@ -119,7 +118,7 @@
         const App = () => {
           const [activeTab, setActiveTab] = useState('synthesis');
           
-          // Etats calendrier (ID uniques)
+          // Etats Calendrier
           const [expandedPastId, setExpandedPastId] = useState(null);
           const [expandedFutureId, setExpandedFutureId] = useState(null);
           
@@ -185,7 +184,6 @@
           ];
 
           // --- 3. DATA: SPÉCIALITÉS ---
-          // MISE A JOUR APRES LE TOURNOI DE MARS (Nogent le Rotrou)
           const judoAdvancedStats = {
             club: "Dojo Grenelle (75)",
             grade: "Ceinture Jaune 2 Barrettes", debut: "Sept. 2023 (2.5 ans)",
@@ -227,95 +225,56 @@
 
           // --- 4. DATA: CALENDRIER BRUT FLAT ---
           const rawPastEvents = [
-            { isHeader: true, month: "Mars 2026", sport: 'ALL' },
             { id: "p0", month: "Mars 2026", date: '07/03', sport: 'Judo', name: 'Nogent le Rotrou (28)', result: '1ER', adv: 2, matches: "3 combats", desc: "Tournoi parfaitement maîtrisé avec 3 victoires par Ippon.", com: "Excellente posture verticale (fin du 'plongeon'). Utilisation très efficace du balayage (De-Ashi-Barai) et du crochetage (Ko-Soto-Gari)." },
-            { isHeader: true, month: "Février 2026", sport: 'ALL' },
             { id: "p1", month: "Février 2026", date: '21/02', sport: 'Judo', name: 'Magny-en-Vexin (95)', result: '1ER', adv: 1, matches: "3 combats", desc: "Niveau global faible. Tournoi maîtrisé du début à la fin avec 3 victoires expéditives.", com: "Le 3ème combat marque un tournant technique avec une attaque en jambe explosive parfaitement exécutée (Ko-Soto-Gari)." },
             { id: "p2", month: "Février 2026", date: '08/02', sport: 'Judo', name: 'Saint-Arnoult-en-Yv. (78)', result: '1ER', adv: 2, matches: "3 combats", desc: "Très bonne gestion des combats sur un tournoi de niveau modéré.", com: "Belles liaisons debout-sol et confirmation des acquis." },
             { id: "p3", month: "Février 2026", date: '07/02', sport: 'Natation', name: 'Suresnes (92)', result: 'DSQ', adv: 3, matches: "1 course", desc: "Disqualification sur 25m dos pour retournement sur le ventre.", com: "Erreur technique de repère spatial avant de toucher le mur. Chrono d'entraînement (28.46s) validant le niveau." },
             
-            { isHeader: true, month: "Janvier 2026", sport: 'ALL' },
             { id: "p4", month: "Janvier 2026", date: '24/01', sport: 'Handball', name: 'Issy (92) - U9', result: 'NC', adv: 4, matches: "Plusieurs matchs", desc: "Surclassement en U9. Tournoi compliqué.", com: "Forte adversité physique face à des gabarits supérieurs. A eu du mal à lâcher son ballon rapidement." },
             { id: "p5", month: "Janvier 2026", date: '18/01', sport: 'Handball', name: 'Suresnes (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", desc: "Victoire de l'équipe sur ce tournoi interclub.", com: "Évolution très positive sur sa vision du jeu. Capable de lever la tête et de trouver de bonnes passes." },
             { id: "p6", month: "Janvier 2026", date: '11/01', sport: 'Judo', name: 'Amilly (45)', result: '1ER', adv: 2, matches: "3 combats", desc: "Tournoi de rentrée 2026 bien maîtrisé.", com: "Domination sur les prises de hanche (Tai-Otoshi)." },
             
-            { isHeader: true, month: "Décembre 2025", sport: 'ALL' },
             { id: "p7", month: "Décembre 2025", date: '07/12', sport: 'Judo', name: 'Paris Sorbier (75)', result: '1ER', adv: 4, matches: "3 combats", desc: "Termine 1er au global malgré sa seule défaite de l'année.", com: "Défaite subie par Ippon sur un Ippon Seoi Nage adverse. Excellente attitude de résilience." },
             
-            { isHeader: true, month: "Novembre 2025", sport: 'ALL' },
             { id: "p8", month: "Novembre 2025", date: '29/11', sport: 'Handball', name: 'Issy (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", desc: "Meilleur marqueur de la compétition avec 12 buts.", com: "Très performant face aux enfants de son âge grâce à sa vitesse. Excellent esprit d'équipe." },
             { id: "p9", month: "Novembre 2025", date: '16/11', sport: 'Judo', name: 'Drancy (93)', result: '1ER', adv: 3, matches: "3 combats", desc: "Tournoi parfaitement géré niveau mental et concentration.", com: "1er combat: Tai-Otoshi. 2ème: Ippon Seoi Nage. 3ème: enchainement debout-sol." },
             
-            { isHeader: true, month: "Octobre 2025", sport: 'ALL' },
             { id: "p10", month: "Octobre 2025", date: '12/10', sport: 'Judo', name: 'Pithiviers (45)', result: '1ER', adv: 1, matches: "2 combats", desc: "1er tournoi de la saison, peu d'adversité.", com: "1er et 2ème combat remportés par le même mix : Harai Goshi puis Tai-Otoshi." }
           ];
 
           const rawFutureEvents = [
-            { isHeader: true, month: "Mars 2026", sport: 'ALL' },
             { id: "f2", month: "Mars 2026", date: '14/03', sport: 'Handball', name: 'Issy (92) - U7', time: '14h00-16h30', drive: '0h05 de route', address: 'Cité des sports, 92130 ISSY', inscrit: true },
             { id: "f4", month: "Mars 2026", date: '22/03', sport: 'Judo', name: 'Coignières (78)', time: '13h30-13h45', drive: '0h45 de route', address: 'Gymnase du moulin à vent, 78310', inscrit: true },
             { id: "f5", month: "Mars 2026", date: '28/03', sport: 'Handball', name: 'Fontenay (92) - U7', time: 'À définir', drive: '0h25 de route', address: 'Fontenay-aux-roses', inscrit: false },
             
-            { isHeader: true, month: "Avril 2026", sport: 'ALL' },
             { id: "f6", month: "Avril 2026", date: '25/04', sport: 'Natation', name: 'J2 Avenirs (92)', time: 'À définir', drive: '-', address: 'Sur le département 92', inscrit: false },
             
-            { isHeader: true, month: "Mai 2026", sport: 'ALL' },
             { id: "f7", month: "Mai 2026", date: '09/05', sport: 'Judo', name: 'Maurepas (78)', time: '13h30-14h00', drive: '0h45 de route', address: 'Gymnase de la Malmedone, 78310', inscrit: false },
             { id: "f8", month: "Mai 2026", date: '24/05', sport: 'Handball', name: 'Tournoi des Étoiles', time: '08h00-18h00', drive: '0h45 de route', address: 'Sur Herbe (Lieu à confirmer)', inscrit: false },
             { id: "f9", month: "Mai 2026", date: '31/05', sport: 'Judo', name: 'Sully sur Loire (45)', time: 'À définir', drive: '2h00 de route', address: 'Complexe Lionel Jourdain, 45600', inscrit: false },
             
-            { isHeader: true, month: "Juin 2026", sport: 'ALL' },
             { id: "f10", month: "Juin 2026", date: '07/06', sport: 'Judo', name: 'Petits Tigres (75)', time: '11h15-11h45', drive: '0h15 de route', address: 'INJ, 21 av de la Porte de Chatillon', inscrit: false }
           ];
 
-          // Filtrage robuste
-          const filteredPastEvents = rawPastEvents.filter(ev => {
-              if (ev.isHeader) return true;
-              if (pastFilter === 'ALL') return true;
-              return ev.sport === pastFilter;
-          }).filter((ev, i, arr) => {
-              if (ev.isHeader && (!arr[i+1] || arr[i+1].isHeader)) return false; // Retire les mois vides
-              return true;
-          });
-
-          const filteredFutureEvents = rawFutureEvents.filter(ev => {
-              if (ev.isHeader) return true;
-              if (futureFilter === 'ALL') return true;
-              return ev.sport === futureFilter;
-          }).filter((ev, i, arr) => {
-              if (ev.isHeader && (!arr[i+1] || arr[i+1].isHeader)) return false; 
-              return true;
-          });
-
-          // Règle de couleur : Sprint/Slalom = plus bas est mieux. Distance = plus haut est mieux.
-          // Le -10% au test 6 min est négatif => rouge.
-          const getEvoClass = (testName, evo) => {
-            if (!evo) return 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400';
-            const isNegative = evo.includes('-');
-            const name = testName.toLowerCase();
-            const lowerIsBetter = name.includes('sprint') || name.includes('slalom');
-            
-            if (lowerIsBetter) {
-                return isNegative ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
-            } else {
-                return isNegative ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
-            }
+          // Filtrage et Groupement robustes
+          const getFilteredAndGrouped = (events, filterState) => {
+              const filtered = events.filter(e => filterState === 'ALL' || e.sport === filterState);
+              const grouped = {};
+              filtered.forEach(ev => {
+                  if (!grouped[ev.month]) grouped[ev.month] = [];
+                  grouped[ev.month].push(ev);
+              });
+              return grouped; 
           };
 
-          const renderStars = (count) => {
-             const stars = [];
-             for(let i=0; i<count; i++) {
-                 stars.push(<StarIcon key={i} size={12} className="text-yellow-500 fill-yellow-500" />);
-             }
-             return <div className="flex items-center gap-0.5">{stars}</div>;
-          };
+          const groupedPastEvents = getFilteredAndGrouped(rawPastEvents, pastFilter);
+          const groupedFutureEvents = getFilteredAndGrouped(rawFutureEvents, futureFilter);
 
-          // Composant carte standardisé
+          // --- Fonctions d'affichage ---
           const Card = ({ children, title, icon: IconCmp, className = "" }) => (
-            <div className={`bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm relative card-container ${className}`}>
-              {/* Div permettant de cacher d'éventuels fonds décoratifs sans couper l'infobulle */}
+            <div className={`bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm card-container ${className}`}>
               <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none z-0"></div>
-              <div className="relative z-10 h-full">
+              <div className="relative z-10 h-full flex flex-col">
                 {title && (
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center gap-2">
@@ -328,15 +287,26 @@
             </div>
           );
 
-          // Rendu Graphique Sécurisé
-          const renderCustomBarLabel = (props) => {
-              if (!props || !props.payload || props.payload.TOTAL === undefined) return null;
-              const { x, y, width, payload } = props;
-              return (
-                <text x={x + width / 2} y={y - 5} fill={isDark ? "#94a3b8" : "#64748b"} fontSize="10px" fontWeight="bold" textAnchor="middle">
-                  {payload.TOTAL}h
-                </text>
-              );
+          // Couleur pour tests: -10% au test 6 min est négatif => rouge.
+          const getEvoClass = (testName, evo) => {
+            if (!evo) return 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400';
+            const isNegative = evo.includes('-');
+            const name = testName.toLowerCase();
+            const lowerIsBetter = name.includes('sprint') || name.includes('slalom');
+            
+            if (lowerIsBetter) {
+                return isNegative ? 'text-green-700 bg-green-100 dark:text-green-400 dark:bg-green-900/30' : 'text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-900/30';
+            } else {
+                return isNegative ? 'text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-900/30' : 'text-green-700 bg-green-100 dark:text-green-400 dark:bg-green-900/30';
+            }
+          };
+
+          const renderStars = (count) => {
+             const stars = [];
+             for(let i=0; i<count; i++) {
+                 stars.push(<StarIcon key={i} size={12} className="text-yellow-500 fill-yellow-500" />);
+             }
+             return <div className="flex items-center gap-0.5">{stars}</div>;
           };
 
           const getSportIcon = (sport) => {
@@ -506,7 +476,12 @@
                               <Bar dataKey="Judo" stackId="a" fill={isDark ? "#94a3b8" : "#0f172a"} radius={[0,0,0,0]} />
                               <Bar dataKey="Natation" stackId="a" fill="#3b82f6" />
                               <Bar dataKey="Handball" stackId="a" fill="#f97316" />
-                              <Bar dataKey="Multisport" stackId="a" fill="#10b981" radius={[4,4,0,0]} label={renderCustomBarLabel} />
+                              {/* Rendu des étiquettes en interne via props */}
+                              <Bar dataKey="Multisport" stackId="a" fill="#10b981" radius={[4,4,0,0]} label={(props) => {
+                                  if (!props || !props.payload || props.payload.TOTAL === undefined) return null;
+                                  const { x, y, width, payload } = props;
+                                  return <text x={x + width / 2} y={y - 5} fill={isDark ? "#94a3b8" : "#64748b"} fontSize="10px" fontWeight="bold" textAnchor="middle">{payload.TOTAL}h</text>;
+                                }} />
                             </BarChart>
                           </ResponsiveContainer>
                         </div>
@@ -529,7 +504,7 @@
                         <div className="flex justify-between items-center mb-2 px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 rounded-xl overflow-visible">
                           <div className="flex items-center">
                             <span className="text-xs font-black uppercase text-emerald-700 dark:text-emerald-400 mr-2">Note Globale Actuelle</span>
-                            <Tooltip text="Moyenne des 6 axes du développement moteur. Un score > 70/100 à cet âge indique une excellente précocité physique naturelle sans spécialisation précoce.">
+                            <Tooltip text="Moyenne des 6 axes du développement moteur. Un score > 70/100 à cet âge indique une excellente précocité physique naturelle.">
                               <InfoIcon size={14} className="text-emerald-500 cursor-help" />
                             </Tooltip>
                           </div>
