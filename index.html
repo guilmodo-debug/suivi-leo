@@ -92,7 +92,6 @@
         const Zap = (p) => <Icon {...p} path='<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>' />;
         const TrophyIcon = (p) => <Icon {...p} path='<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0v-7z"/>' />;
         const Flag = (p) => <Icon {...p} path='<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>' />;
-        const XOctagon = (p) => <Icon {...p} path='<polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>' />;
         const MapPin = (p) => <Icon {...p} path='<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>' />;
         const Clock = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' />;
         const ArrowRight = (p) => <Icon {...p} path='<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>' />;
@@ -226,65 +225,70 @@
             ]
           };
 
-          // --- 4. DATA: CALENDRIER BRUT ---
+          // --- 4. DATA: CALENDRIER BRUT FLAT ---
           const rawPastEvents = [
+            { isHeader: true, month: "Mars 2026", sport: 'ALL' },
             { id: "p0", month: "Mars 2026", date: '07/03', sport: 'Judo', name: 'Nogent le Rotrou (28)', result: '1ER', adv: 2, matches: "3 combats", desc: "Tournoi parfaitement maîtrisé avec 3 victoires par Ippon.", com: "Excellente posture verticale (fin du 'plongeon'). Utilisation très efficace du balayage (De-Ashi-Barai) et du crochetage (Ko-Soto-Gari)." },
-            { id: "p1", month: "Février 2026", date: '21/02', sport: 'Judo', name: 'Magny-en-Vexin (95)', result: '1ER', adv: 1, matches: "3 combats", desc: "Niveau global faible. Tournoi maîtrisé du début à la fin avec 3 victoires expéditives.", com: "Le 3ème combat marque un tournant avec une attaque en jambe explosive parfaitement exécutée (Ko-Soto-Gari)." },
+            { isHeader: true, month: "Février 2026", sport: 'ALL' },
+            { id: "p1", month: "Février 2026", date: '21/02', sport: 'Judo', name: 'Magny-en-Vexin (95)', result: '1ER', adv: 1, matches: "3 combats", desc: "Niveau global faible. Tournoi maîtrisé du début à la fin avec 3 victoires expéditives.", com: "Le 3ème combat marque un tournant technique avec une attaque en jambe explosive parfaitement exécutée (Ko-Soto-Gari)." },
             { id: "p2", month: "Février 2026", date: '08/02', sport: 'Judo', name: 'Saint-Arnoult-en-Yv. (78)', result: '1ER', adv: 2, matches: "3 combats", desc: "Très bonne gestion des combats sur un tournoi de niveau modéré.", com: "Belles liaisons debout-sol et confirmation des acquis." },
             { id: "p3", month: "Février 2026", date: '07/02', sport: 'Natation', name: 'Suresnes (92)', result: 'DSQ', adv: 3, matches: "1 course", desc: "Disqualification sur 25m dos pour retournement sur le ventre.", com: "Erreur technique de repère spatial avant de toucher le mur. Chrono d'entraînement (28.46s) validant le niveau." },
+            
+            { isHeader: true, month: "Janvier 2026", sport: 'ALL' },
             { id: "p4", month: "Janvier 2026", date: '24/01', sport: 'Handball', name: 'Issy (92) - U9', result: 'NC', adv: 4, matches: "Plusieurs matchs", desc: "Surclassement en U9. Tournoi compliqué.", com: "Forte adversité physique face à des gabarits supérieurs. A eu du mal à lâcher son ballon rapidement." },
             { id: "p5", month: "Janvier 2026", date: '18/01', sport: 'Handball', name: 'Suresnes (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", desc: "Victoire de l'équipe sur ce tournoi interclub.", com: "Évolution très positive sur sa vision du jeu. Capable de lever la tête et de trouver de bonnes passes." },
             { id: "p6", month: "Janvier 2026", date: '11/01', sport: 'Judo', name: 'Amilly (45)', result: '1ER', adv: 2, matches: "3 combats", desc: "Tournoi de rentrée 2026 bien maîtrisé.", com: "Domination sur les prises de hanche (Tai-Otoshi)." },
+            
+            { isHeader: true, month: "Décembre 2025", sport: 'ALL' },
             { id: "p7", month: "Décembre 2025", date: '07/12', sport: 'Judo', name: 'Paris Sorbier (75)', result: '1ER', adv: 4, matches: "3 combats", desc: "Termine 1er au global malgré sa seule défaite de l'année.", com: "Défaite subie par Ippon sur un Ippon Seoi Nage adverse. Excellente attitude de résilience." },
+            
+            { isHeader: true, month: "Novembre 2025", sport: 'ALL' },
             { id: "p8", month: "Novembre 2025", date: '29/11', sport: 'Handball', name: 'Issy (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", desc: "Meilleur marqueur de la compétition avec 12 buts.", com: "Très performant face aux enfants de son âge grâce à sa vitesse. Excellent esprit d'équipe." },
             { id: "p9", month: "Novembre 2025", date: '16/11', sport: 'Judo', name: 'Drancy (93)', result: '1ER', adv: 3, matches: "3 combats", desc: "Tournoi parfaitement géré niveau mental et concentration.", com: "1er combat: Tai-Otoshi. 2ème: Ippon Seoi Nage. 3ème: enchainement debout-sol." },
+            
+            { isHeader: true, month: "Octobre 2025", sport: 'ALL' },
             { id: "p10", month: "Octobre 2025", date: '12/10', sport: 'Judo', name: 'Pithiviers (45)', result: '1ER', adv: 1, matches: "2 combats", desc: "1er tournoi de la saison, peu d'adversité.", com: "1er et 2ème combat remportés par le même mix : Harai Goshi puis Tai-Otoshi." }
           ];
 
           const rawFutureEvents = [
-            { id: "f2", month: "Mars 2026", date: '14/03', sport: 'Handball', name: 'Issy (92) - U7', time: '14h00-16h30', drive: '0h05 de route', address: 'Cité des sports, 92130 ISSY', inscrit: false },
-            { id: "f3", month: "Mars 2026", date: '21/03', sport: 'Handball', name: 'Vaucresson (92) - U9', time: 'À définir', drive: '0h20 de route', address: 'Vaucresson', inscrit: false },
+            { isHeader: true, month: "Mars 2026", sport: 'ALL' },
+            { id: "f2", month: "Mars 2026", date: '14/03', sport: 'Handball', name: 'Issy (92) - U7', time: '14h00-16h30', drive: '0h05 de route', address: 'Cité des sports, 92130 ISSY', inscrit: true },
             { id: "f4", month: "Mars 2026", date: '22/03', sport: 'Judo', name: 'Coignières (78)', time: '13h30-13h45', drive: '0h45 de route', address: 'Gymnase du moulin à vent, 78310', inscrit: true },
             { id: "f5", month: "Mars 2026", date: '28/03', sport: 'Handball', name: 'Fontenay (92) - U7', time: 'À définir', drive: '0h25 de route', address: 'Fontenay-aux-roses', inscrit: false },
+            
+            { isHeader: true, month: "Avril 2026", sport: 'ALL' },
             { id: "f6", month: "Avril 2026", date: '25/04', sport: 'Natation', name: 'J2 Avenirs (92)', time: 'À définir', drive: '-', address: 'Sur le département 92', inscrit: false },
+            
+            { isHeader: true, month: "Mai 2026", sport: 'ALL' },
             { id: "f7", month: "Mai 2026", date: '09/05', sport: 'Judo', name: 'Maurepas (78)', time: '13h30-14h00', drive: '0h45 de route', address: 'Gymnase de la Malmedone, 78310', inscrit: false },
             { id: "f8", month: "Mai 2026", date: '24/05', sport: 'Handball', name: 'Tournoi des Étoiles', time: '08h00-18h00', drive: '0h45 de route', address: 'Sur Herbe (Lieu à confirmer)', inscrit: false },
             { id: "f9", month: "Mai 2026", date: '31/05', sport: 'Judo', name: 'Sully sur Loire (45)', time: 'À définir', drive: '2h00 de route', address: 'Complexe Lionel Jourdain, 45600', inscrit: false },
+            
+            { isHeader: true, month: "Juin 2026", sport: 'ALL' },
             { id: "f10", month: "Juin 2026", date: '07/06', sport: 'Judo', name: 'Petits Tigres (75)', time: '11h15-11h45', drive: '0h15 de route', address: 'INJ, 21 av de la Porte de Chatillon', inscrit: false }
           ];
 
-          // Filtrage et Groupement robustes (pas de header fictif dans les objets)
-          const getFilteredAndGrouped = (events, filterState) => {
-              const filtered = events.filter(e => filterState === 'ALL' || e.sport === filterState);
-              const grouped = {};
-              filtered.forEach(ev => {
-                  if (!grouped[ev.month]) grouped[ev.month] = [];
-                  grouped[ev.month].push(ev);
-              });
-              return grouped; 
-          };
+          // Filtrage robuste
+          const filteredPastEvents = rawPastEvents.filter(ev => {
+              if (ev.isHeader) return true;
+              if (pastFilter === 'ALL') return true;
+              return ev.sport === pastFilter;
+          }).filter((ev, i, arr) => {
+              if (ev.isHeader && (!arr[i+1] || arr[i+1].isHeader)) return false; // Retire les mois vides
+              return true;
+          });
 
-          const groupedPastEvents = getFilteredAndGrouped(rawPastEvents, pastFilter);
-          const groupedFutureEvents = getFilteredAndGrouped(rawFutureEvents, futureFilter);
+          const filteredFutureEvents = rawFutureEvents.filter(ev => {
+              if (ev.isHeader) return true;
+              if (futureFilter === 'ALL') return true;
+              return ev.sport === futureFilter;
+          }).filter((ev, i, arr) => {
+              if (ev.isHeader && (!arr[i+1] || arr[i+1].isHeader)) return false; 
+              return true;
+          });
 
-          // --- Fonctions d'affichage ---
-          const Card = ({ children, title, icon: IconCmp, className = "" }) => (
-            <div className={`bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm card-container ${className}`}>
-              <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none z-0"></div>
-              <div className="relative z-10 h-full flex flex-col">
-                {title && (
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                      {IconCmp && <IconCmp size={18} className="text-indigo-500" />} {title}
-                    </h3>
-                  </div>
-                )}
-                {children}
-              </div>
-            </div>
-          );
-
-          // Couleur pour tests: -10% au test 6 min est négatif => rouge.
+          // Règle de couleur : Sprint/Slalom = plus bas est mieux. Distance = plus haut est mieux.
+          // Le -10% au test 6 min est négatif => rouge.
           const getEvoClass = (testName, evo) => {
             if (!evo) return 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400';
             const isNegative = evo.includes('-');
@@ -306,14 +310,33 @@
              return <div className="flex items-center gap-0.5">{stars}</div>;
           };
 
+          // Composant carte standardisé
+          const Card = ({ children, title, icon: IconCmp, className = "" }) => (
+            <div className={`bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm relative card-container ${className}`}>
+              {/* Div permettant de cacher d'éventuels fonds décoratifs sans couper l'infobulle */}
+              <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none z-0"></div>
+              <div className="relative z-10 h-full">
+                {title && (
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                      {IconCmp && <IconCmp size={18} className="text-indigo-500" />} {title}
+                    </h3>
+                  </div>
+                )}
+                {children}
+              </div>
+            </div>
+          );
+
+          // Rendu Graphique Sécurisé
           const renderCustomBarLabel = (props) => {
-            if (!props || !props.payload || props.payload.TOTAL === undefined) return null;
-            const { x, y, width, payload } = props;
-            return (
-              <text x={x + width / 2} y={y - 5} fill={isDark ? "#94a3b8" : "#64748b"} fontSize="10px" fontWeight="bold" textAnchor="middle">
-                {payload.TOTAL}h
-              </text>
-            );
+              if (!props || !props.payload || props.payload.TOTAL === undefined) return null;
+              const { x, y, width, payload } = props;
+              return (
+                <text x={x + width / 2} y={y - 5} fill={isDark ? "#94a3b8" : "#64748b"} fontSize="10px" fontWeight="bold" textAnchor="middle">
+                  {payload.TOTAL}h
+                </text>
+              );
           };
 
           const getSportIcon = (sport) => {
@@ -406,7 +429,7 @@
                         <div className="bg-green-100 dark:bg-green-800/50 p-3 rounded-full text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform"><Calendar size={24}/></div>
                         <div>
                           <p className="text-[11px] font-black uppercase text-green-600 dark:text-green-400 tracking-widest">Prochaine Échéance Sportive</p>
-                          <p className="text-sm md:text-base font-bold text-green-900 dark:text-green-100 mt-1">22/03/2026 - Tournoi de Coignières (78)</p>
+                          <p className="text-sm md:text-base font-bold text-green-900 dark:text-green-100 mt-1">14/03/2026 - Interclub #4 U7 (Issy)</p>
                         </div>
                       </div>
                       <span className="px-4 py-1.5 bg-green-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow">Inscription Validée</span>
@@ -536,7 +559,7 @@
                         </div>
                         <div className="space-y-4">
                           {mentalData.map((item, i) => (
-                            <div key={i} className="card-container">
+                            <div key={i}>
                               <div className="flex justify-between text-[11px] font-bold mb-1.5 uppercase tracking-wide">
                                 <div className="flex items-center">
                                   <span className="text-slate-600 dark:text-slate-300 mr-1">{item.name}</span>
@@ -799,7 +822,7 @@
                                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">{month}</h4>
                                <div className="flex-1 border-b border-slate-200 dark:border-slate-800"></div>
                             </div>
-                            {events.map((ev, i) => {
+                            {events.map((ev) => {
                               const isExp = expandedPastId === ev.id;
                               const EvIcon = getSportIcon(ev.sport);
                               const iconColorClass = getSportColorClass(ev.sport);
@@ -848,13 +871,13 @@
                       <div className="space-y-4">
                         {Object.keys(groupedFutureEvents).length === 0 ? (
                            <p className="text-sm text-slate-400 font-medium text-center py-4">Aucun événement à venir pour ce filtre.</p>
-                        ) : Object.entries(groupedFutureEvents).map(([month, events], mIdx) => (
-                          <div key={mIdx} className="space-y-3">
+                        ) : Object.entries(groupedFutureEvents).map(([month, events]) => (
+                          <div key={month} className="space-y-3">
                             <div className="flex items-center gap-3 pt-2 pb-1">
                                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">{month}</h4>
                                <div className="flex-1 border-b border-slate-200 dark:border-slate-800"></div>
                             </div>
-                            {events.map((ev, i) => {
+                            {events.map((ev) => {
                               const isExp = expandedFutureId === ev.id;
                               const EvIcon = getSportIcon(ev.sport);
                               const iconColorClass = getSportColorClass(ev.sport);
