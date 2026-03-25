@@ -225,49 +225,51 @@
             ]
           };
 
-          // --- 4. DATA: CALENDRIER (FORMAT FLAT SÉCURISÉ) ---
+          // --- 4. DATA: CALENDRIER BRUT FLAT ---
           const rawPastEvents = [
-            { isHeader: true, month: "Mars 2026" },
+            { isHeader: true, month: "Mars 2026", sport: 'ALL' },
             { id: "p_c2203", date: '22/03', sport: 'Judo', name: 'Coignières (78)', result: '1ER', adv: 3, matches: "3 combats", desc: "Tournoi accroché. Forte progression mentale sous pression avec 3 victoires par Ippon.", com: "Meilleure gestion du kumi-kata. Harai-Goshi très propre. Liaison debout-sol déterminante (Yoko-Shiho-Gatame)." },
             { id: "p_h1403", date: '14/03', sport: 'Handball', name: 'Interclub #4 U7 (Issy)', result: '3ÈME', adv: 3, matches: "Plusieurs matchs", desc: "Termine sur le podium (3ème place) de l'interclub.", com: "Engagement constant et toujours une grosse solidité défensive." },
             { id: "p0", date: '07/03', sport: 'Judo', name: 'Nogent le Rotrou (28)', result: '1ER', adv: 2, matches: "3 combats", desc: "Tournoi parfaitement maîtrisé avec 3 victoires par Ippon.", com: "Excellente posture verticale (fin du 'plongeon'). Utilisation très efficace du balayage (De-Ashi-Barai) et du crochetage (Ko-Soto-Gari)." },
             
-            { isHeader: true, month: "Février 2026" },
+            { isHeader: true, month: "Février 2026", sport: 'ALL' },
             { id: "p1", date: '21/02', sport: 'Judo', name: 'Magny-en-Vexin (95)', result: '1ER', adv: 1, matches: "3 combats", desc: "Niveau global faible. Tournoi maîtrisé du début à la fin avec 3 victoires expéditives.", com: "Le 3ème combat marque un tournant avec une attaque en jambe explosive parfaitement exécutée (Ko-Soto-Gari)." },
             { id: "p2", date: '08/02', sport: 'Judo', name: 'Saint-Arnoult-en-Yv. (78)', result: '1ER', adv: 2, matches: "3 combats", desc: "Très bonne gestion des combats sur un tournoi de niveau modéré.", com: "Belles liaisons debout-sol et confirmation des acquis." },
             { id: "p3", date: '07/02', sport: 'Natation', name: 'Suresnes (92)', result: 'DSQ', adv: 3, matches: "1 course", desc: "Disqualification sur 25m dos pour retournement sur le ventre.", com: "Erreur technique de repère spatial avant de toucher le mur. Chrono d'entraînement (28.46s) validant le niveau." },
             
-            { isHeader: true, month: "Janvier 2026" },
+            { isHeader: true, month: "Janvier 2026", sport: 'ALL' },
             { id: "p4", date: '24/01', sport: 'Handball', name: 'Issy (92) - U9', result: 'NC', adv: 4, matches: "Plusieurs matchs", desc: "Surclassement en U9. Tournoi compliqué.", com: "Forte adversité physique face à des gabarits supérieurs. A eu du mal à lâcher son ballon rapidement." },
             { id: "p5", date: '18/01', sport: 'Handball', name: 'Suresnes (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", desc: "Victoire de l'équipe sur ce tournoi interclub.", com: "Évolution très positive sur sa vision du jeu. Capable de lever la tête et de trouver de bonnes passes." },
             { id: "p6", date: '11/01', sport: 'Judo', name: 'Amilly (45)', result: '1ER', adv: 2, matches: "3 combats", desc: "Tournoi de rentrée 2026 bien maîtrisé.", com: "Domination sur les prises de hanche (Tai-Otoshi)." },
             
-            { isHeader: true, month: "Décembre 2025" },
+            { isHeader: true, month: "Décembre 2025", sport: 'ALL' },
             { id: "p7", date: '07/12', sport: 'Judo', name: 'Paris Sorbier (75)', result: '1ER', adv: 4, matches: "3 combats", desc: "Termine 1er au global malgré sa seule défaite de l'année.", com: "Défaite subie par Ippon sur un Ippon Seoi Nage adverse. Excellente attitude de résilience." },
             
-            { isHeader: true, month: "Novembre 2025" },
+            { isHeader: true, month: "Novembre 2025", sport: 'ALL' },
             { id: "p8", date: '29/11', sport: 'Handball', name: 'Issy (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", desc: "Meilleur marqueur de la compétition avec 12 buts.", com: "Très performant face aux enfants de son âge grâce à sa vitesse. Excellent esprit d'équipe." },
             { id: "p9", date: '16/11', sport: 'Judo', name: 'Drancy (93)', result: '1ER', adv: 3, matches: "3 combats", desc: "Tournoi parfaitement géré niveau mental et concentration.", com: "1er combat: Tai-Otoshi. 2ème: Ippon Seoi Nage. 3ème: enchainement debout-sol." },
             
-            { isHeader: true, month: "Octobre 2025" },
+            { isHeader: true, month: "Octobre 2025", sport: 'ALL' },
             { id: "p10", date: '12/10', sport: 'Judo', name: 'Pithiviers (45)', result: '1ER', adv: 1, matches: "2 combats", desc: "1er tournoi de la saison, peu d'adversité.", com: "1er et 2ème combat remportés par le même mix : Harai Goshi puis Tai-Otoshi." }
           ];
 
           const rawFutureEvents = [
-            { isHeader: true, month: "Mars 2026" },
-            { id: "f5", date: '28/03', sport: 'Handball', name: 'Interclub #6 U7', time: 'À définir', drive: '0h25 de route', address: 'Fontenay-aux-roses', inscrit: false },
+            { isHeader: true, month: "Mars 2026", sport: 'ALL' },
+            { id: "f5", date: '28/03', sport: 'Handball', name: 'Interclub #5 U7 (Fontenay)', time: '13h30-16h00', drive: '0h25 de route', address: 'Fontenay-aux-roses', inscrit: true },
             { id: "f_nat2", date: '29/03', sport: 'Natation', name: 'J2 Avenirs (92)', time: '13h00-16h30', drive: '0h25 de route', address: '92035 LA GARENNE-COLOMBES', inscrit: true },
             
-            { isHeader: true, month: "Avril 2026" },
+            { isHeader: true, month: "Avril 2026", sport: 'ALL' },
+            { id: "f_judo_avr1", date: '05/04', sport: 'Judo', name: "Coupe des p'tits samouraïs (78)", time: '14h00-17h00', drive: '0h30 de route', address: 'Guyancourt', inscrit: true },
+            { id: "f_judo_avr2", date: '25/04', sport: 'Judo', name: 'Tournoi de Plaisir (78)', time: '09h00-12h00', drive: '0h30 de route', address: 'Plaisir', inscrit: true },
             { id: "f6", date: '25/04', sport: 'Natation', name: 'J2 Avenirs (92)', time: 'À définir', drive: '-', address: 'Sur le département 92', inscrit: false },
             
-            { isHeader: true, month: "Mai 2026" },
+            { isHeader: true, month: "Mai 2026", sport: 'ALL' },
             { id: "f7", date: '09/05', sport: 'Judo', name: 'Tournoi de Maurepas (78)', time: '13h30-14h00', drive: '0h45 de route', address: 'Gymnase de la Malmedone, 78310', inscrit: false },
             { id: "f8", date: '24/05', sport: 'Handball', name: 'Tournoi des Étoiles', time: '08h00-18h00', drive: '0h45 de route', address: 'Sur Herbe (Lieu à confirmer)', inscrit: false },
             { id: "f_nat3", date: '30/05', sport: 'Natation', name: 'J3 Avenirs (92)', time: 'À définir', drive: 'À définir', address: 'Sur le département 92', inscrit: false },
             { id: "f9", date: '31/05', sport: 'Judo', name: 'Tournoi Sully sur Loire (45)', time: 'À définir', drive: '2h00 de route', address: 'Complexe Lionel Jourdain, 45600', inscrit: false },
             
-            { isHeader: true, month: "Juin 2026" },
+            { isHeader: true, month: "Juin 2026", sport: 'ALL' },
             { id: "f11", date: '07/06', sport: 'Judo', name: 'Challenge Petits Tigres (75)', time: '11h15-11h45', drive: '0h15 de route', address: 'INJ, 21 av de la Porte de Chatillon', inscrit: false },
             { id: "f12", date: '20/06', sport: 'Natation', name: 'J4 Avenirs (92)', time: 'À définir', drive: 'À définir', address: 'Sur le département 92', inscrit: false }
           ];
@@ -279,7 +281,7 @@
           }).filter((ev, index, array) => {
               if (ev.isHeader) {
                   const nextEv = array[index + 1];
-                  if (!nextEv || nextEv.isHeader) return false;
+                  if (!nextEv || nextEv.isHeader) return false; // Retire les mois vides
               }
               return true;
           });
@@ -290,7 +292,7 @@
           }).filter((ev, index, array) => {
               if (ev.isHeader) {
                   const nextEv = array[index + 1];
-                  if (!nextEv || nextEv.isHeader) return false;
+                  if (!nextEv || nextEv.isHeader) return false; 
               }
               return true;
           });
@@ -298,8 +300,9 @@
           // --- Utilitaires de rendu ---
           const Card = ({ children, title, icon: IconCmp, className = "" }) => (
             <div className={`bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm relative card-container ${className}`}>
+              {/* Div permettant de cacher d'éventuels fonds décoratifs sans couper l'infobulle */}
               <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none z-0"></div>
-              <div className="relative z-10 h-full flex flex-col">
+              <div className="relative z-10 h-full">
                 {title && (
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center gap-2">
@@ -437,7 +440,7 @@
                         <div className="bg-green-100 dark:bg-green-800/50 p-3 rounded-full text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform"><Calendar size={24}/></div>
                         <div>
                           <p className="text-[11px] font-black uppercase text-green-600 dark:text-green-400 tracking-widest">Prochaine Échéance Sportive</p>
-                          <p className="text-sm md:text-base font-bold text-green-900 dark:text-green-100 mt-1">29/03/2026 - J2 Avenirs (92) (Natation)</p>
+                          <p className="text-sm md:text-base font-bold text-green-900 dark:text-green-100 mt-1">28/03/2026 - Interclub #5 U7 (Fontenay-aux-roses)</p>
                         </div>
                       </div>
                       <span className="px-4 py-1.5 bg-green-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow">Inscription Validée</span>
