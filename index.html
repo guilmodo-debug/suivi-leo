@@ -226,75 +226,81 @@
             ]
           };
 
-          // --- 4. DATA: CALENDRIER BRUT FLAT ---
-          const rawPastEvents = [
-            { isHeader: true, month: "Mars 2026", sport: 'ALL' },
-            { id: "p_n2903", date: '29/03', sport: 'Natation', name: 'J2 Avenirs (92)', result: 'RECORDS', adv: 3, matches: "2 courses", desc: "Nouveaux records personnels explosés sur 25m Dos (25.38s) et 25m Crawl (27.32s).", com: "Meilleure gestion globale. Attention à l'entrée en piqué au plongeon et à la respiration en 2 temps en crawl qui déséquilibre la nage." },
-            { id: "p_h2803", date: '28/03', sport: 'Handball', name: 'Interclub #5 U7 (Fontenay)', result: '1ER', adv: 3, matches: "3 matchs", desc: "Superbe performance collective. Léo continue de dominer par sa vitesse en contre-attaque.", com: "Très bonne vision du jeu et passes précises. L'engagement défensif est resté au top." },
-            { id: "p_c2203", date: '22/03', sport: 'Judo', name: 'Coignières (78)', result: '1ER', adv: 3, matches: "3 combats", desc: "Tournoi accroché. Forte progression mentale sous pression avec 3 victoires par Ippon.", com: "Meilleure gestion du kumi-kata. Harai-Goshi très propre. Liaison debout-sol déterminante (Yoko-Shiho-Gatame)." },
-            { id: "p_h1403", date: '14/03', sport: 'Handball', name: 'Interclub #4 U7 (Issy)', result: '3ÈME', adv: 3, matches: "Plusieurs matchs", desc: "Termine sur le podium (3ème place) de l'interclub.", com: "Engagement constant et toujours une grosse solidité défensive." },
-            { id: "p0", date: '07/03', sport: 'Judo', name: 'Nogent le Rotrou (28)', result: '1ER', adv: 2, matches: "3 combats", desc: "Tournoi parfaitement maîtrisé avec 3 victoires par Ippon.", com: "Excellente posture verticale (fin du 'plongeon'). Utilisation très efficace du balayage (De-Ashi-Barai) et du crochetage (Ko-Soto-Gari)." },
-            
-            { isHeader: true, month: "Février 2026", sport: 'ALL' },
-            { id: "p1", date: '21/02', sport: 'Judo', name: 'Magny-en-Vexin (95)', result: '1ER', adv: 1, matches: "3 combats", desc: "Niveau global faible. Tournoi maîtrisé du début à la fin avec 3 victoires expéditives.", com: "Le 3ème combat marque un tournant avec une attaque en jambe explosive parfaitement exécutée (Ko-Soto-Gari)." },
-            { id: "p2", date: '08/02', sport: 'Judo', name: 'Saint-Arnoult-en-Yv. (78)', result: '1ER', adv: 2, matches: "3 combats", desc: "Très bonne gestion des combats sur un tournoi de niveau modéré.", com: "Belles liaisons debout-sol et confirmation des acquis." },
-            { id: "p3", date: '07/02', sport: 'Natation', name: 'Suresnes (92)', result: 'DSQ', adv: 3, matches: "1 course", desc: "Disqualification sur 25m dos pour retournement sur le ventre.", com: "Erreur technique de repère spatial avant de toucher le mur. Chrono d'entraînement (28.46s) validant le niveau." },
-            
-            { isHeader: true, month: "Janvier 2026", sport: 'ALL' },
-            { id: "p4", date: '24/01', sport: 'Handball', name: 'Issy (92) - U9', result: 'NC', adv: 4, matches: "Plusieurs matchs", desc: "Surclassement en U9. Tournoi compliqué.", com: "Forte adversité physique face à des gabarits supérieurs. A eu du mal à lâcher son ballon rapidement." },
-            { id: "p5", date: '18/01', sport: 'Handball', name: 'Suresnes (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", desc: "Victoire de l'équipe sur ce tournoi interclub.", com: "Évolution très positive sur sa vision du jeu. Capable de lever la tête et de trouver de bonnes passes." },
-            { id: "p6", date: '11/01', sport: 'Judo', name: 'Amilly (45)', result: '1ER', adv: 2, matches: "3 combats", desc: "Tournoi de rentrée 2026 bien maîtrisé.", com: "Domination sur les prises de hanche (Tai-Otoshi)." },
-            
-            { isHeader: true, month: "Décembre 2025", sport: 'ALL' },
-            { id: "p7", date: '07/12', sport: 'Judo', name: 'Paris Sorbier (75)', result: '1ER', adv: 4, matches: "3 combats", desc: "Termine 1er au global malgré sa seule défaite de l'année.", com: "Défaite subie par Ippon sur un Ippon Seoi Nage adverse. Excellente attitude de résilience." },
-            
-            { isHeader: true, month: "Novembre 2025", sport: 'ALL' },
-            { id: "p8", date: '29/11', sport: 'Handball', name: 'Issy (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", desc: "Meilleur marqueur de la compétition avec 12 buts.", com: "Très performant face aux enfants de son âge grâce à sa vitesse. Excellent esprit d'équipe." },
-            { id: "p9", date: '16/11', sport: 'Judo', name: 'Drancy (93)', result: '1ER', adv: 3, matches: "3 combats", desc: "Tournoi parfaitement géré niveau mental et concentration.", com: "1er combat: Tai-Otoshi. 2ème: Ippon Seoi Nage. 3ème: enchainement debout-sol." },
-            
-            { isHeader: true, month: "Octobre 2025", sport: 'ALL' },
-            { id: "p10", date: '12/10', sport: 'Judo', name: 'Pithiviers (45)', result: '1ER', adv: 1, matches: "2 combats", desc: "1er tournoi de la saison, peu d'adversité.", com: "1er et 2ème combat remportés par le même mix : Harai Goshi puis Tai-Otoshi." }
+          // --- 4. DATA: CALENDRIER STRUCTURE FONCTIONNELLE ---
+          // Structure stable : tableau de mois avec `events` dedans
+          const pastEvents = [
+            { month: "Mars 2026", events: [
+              { id: "p_n2903", date: '29/03', sport: 'Natation', name: 'J2 Avenirs (92)', result: '3ÈME (Bronze)', adv: 3, matches: "2 courses", 
+                desc: "Records personnels explosés sur 25m Dos (25.38s) et 25m Crawl (27.32s). Superbe 3ème place de sa catégorie en dos.", com: "Meilleure gestion globale. Attention à l'entrée en piqué au plongeon et à la respiration en 2 temps en crawl qui déséquilibre la nage." },
+              { id: "p_h2803", date: '28/03', sport: 'Handball', name: 'Interclub #5 U7 (Fontenay)', result: '1ER', adv: 1, matches: "2 matchs", 
+                desc: "Superbe performance collective. Léo continue de dominer par sa vitesse en contre-attaque.", com: "Très bonne vision du jeu et passes précises. Adversité faible sur ce plateau." },
+              { id: "p_c2203", date: '22/03', sport: 'Judo', name: 'Coignières (78)', result: '1ER', adv: 3, matches: "3 combats", 
+                desc: "Tournoi accroché. Forte progression mentale sous pression avec 3 victoires par Ippon.", com: "Meilleure gestion du kumi-kata. Harai-Goshi très propre. Liaison debout-sol déterminante (Yoko-Shiho-Gatame)." },
+              { id: "p_h1403", date: '14/03', sport: 'Handball', name: 'Interclub #4 U7 (Issy)', result: '3ÈME', adv: 3, matches: "Plusieurs matchs", 
+                desc: "Termine sur le podium (3ème place) de l'interclub.", com: "Engagement constant et toujours une grosse solidité défensive." },
+              { id: "p0", date: '07/03', sport: 'Judo', name: 'Nogent le Rotrou (28)', result: '1ER', adv: 2, matches: "3 combats", 
+                desc: "Tournoi parfaitement maîtrisé avec 3 victoires par Ippon.", com: "Excellente posture verticale (fin du 'plongeon'). Utilisation très efficace du balayage (De-Ashi-Barai) et du crochetage (Ko-Soto-Gari)." }
+            ]},
+            { month: "Février 2026", events: [
+              { id: "p1", date: '21/02', sport: 'Judo', name: 'Magny-en-Vexin (95)', result: '1ER', adv: 1, matches: "3 combats", 
+                desc: "Niveau global faible. Tournoi maîtrisé du début à la fin avec 3 victoires expéditives.", com: "Le 3ème combat marque un tournant technique avec une attaque en jambe explosive parfaitement exécutée (Ko-Soto-Gari)." },
+              { id: "p2", date: '08/02', sport: 'Judo', name: 'Saint-Arnoult-en-Yv. (78)', result: '1ER', adv: 2, matches: "3 combats", 
+                desc: "Très bonne gestion des combats sur un tournoi de niveau modéré.", com: "Belles liaisons debout-sol et confirmation des acquis." },
+              { id: "p3", date: '07/02', sport: 'Natation', name: 'Suresnes (92)', result: 'DSQ', adv: 3, matches: "1 course", 
+                desc: "Disqualification sur 25m dos pour retournement sur le ventre.", com: "Erreur technique de repère spatial avant de toucher le mur. Chrono d'entraînement (28.46s) validant le niveau." }
+            ]},
+            { month: "Janvier 2026", events: [
+              { id: "p4", date: '24/01', sport: 'Handball', name: 'Issy (92) - U9', result: 'NC', adv: 4, matches: "Plusieurs matchs", 
+                desc: "Surclassement en U9. Tournoi compliqué.", com: "Forte adversité physique face à des gabarits supérieurs. A eu du mal à lâcher son ballon rapidement." },
+              { id: "p5", date: '18/01', sport: 'Handball', name: 'Suresnes (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", 
+                desc: "Victoire de l'équipe sur ce tournoi interclub.", com: "Évolution très positive sur sa vision du jeu. Capable de lever la tête et de trouver de bonnes passes." },
+              { id: "p6", date: '11/01', sport: 'Judo', name: 'Amilly (45)', result: '1ER', adv: 2, matches: "3 combats", 
+                desc: "Tournoi de rentrée 2026 bien maîtrisé.", com: "Domination sur les prises de hanche (Tai-Otoshi)." }
+            ]},
+            { month: "Décembre 2025", events: [
+              { id: "p7", date: '07/12', sport: 'Judo', name: 'Paris Sorbier (75)', result: '1ER', adv: 4, matches: "3 combats", 
+                desc: "Termine 1er au global malgré sa seule défaite de l'année.", com: "Défaite subie par Ippon sur un Ippon Seoi Nage adverse. Excellente attitude de résilience." }
+            ]},
+            { month: "Novembre 2025", events: [
+              { id: "p8", date: '29/11', sport: 'Handball', name: 'Issy (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", 
+                desc: "Meilleur marqueur de la compétition avec 12 buts.", com: "Très performant face aux enfants de son âge grâce à sa vitesse. Excellent esprit d'équipe." },
+              { id: "p9", date: '16/11', sport: 'Judo', name: 'Drancy (93)', result: '1ER', adv: 3, matches: "3 combats", 
+                desc: "Tournoi parfaitement géré niveau mental et concentration.", com: "1er combat: Tai-Otoshi. 2ème: Ippon Seoi Nage. 3ème: enchainement debout-sol." }
+            ]},
+            { month: "Octobre 2025", events: [
+              { id: "p10", date: '12/10', sport: 'Judo', name: 'Pithiviers (45)', result: '1ER', adv: 1, matches: "2 combats", 
+                desc: "1er tournoi de la saison, peu d'adversité.", com: "1er et 2ème combat remportés par le même mix : Harai Goshi puis Tai-Otoshi." }
+            ]}
           ];
 
-          const rawFutureEvents = [
-            { isHeader: true, month: "Avril 2026", sport: 'ALL' },
-            { id: "f_judo_avr1", date: '05/04', sport: 'Judo', name: "Coupe des p'tits samouraïs (78)", time: '14h00-17h00', drive: '0h30 de route', address: 'Guyancourt', inscrit: true },
-            { id: "f_judo_avr2", date: '25/04', sport: 'Judo', name: 'Tournoi de Plaisir (78)', time: '09h00-12h00', drive: '0h30 de route', address: 'Plaisir', inscrit: true },
-            { id: "f6", date: '25/04', sport: 'Natation', name: 'J2 Avenirs (92)', time: 'À définir', drive: '-', address: 'Sur le département 92', inscrit: false },
-            
-            { isHeader: true, month: "Mai 2026", sport: 'ALL' },
-            { id: "f7", date: '09/05', sport: 'Judo', name: 'Tournoi de Maurepas (78)', time: '13h30-14h00', drive: '0h45 de route', address: 'Gymnase de la Malmedone, 78310', inscrit: false },
-            { id: "f8", date: '24/05', sport: 'Handball', name: 'Tournoi des Étoiles', time: '08h00-18h00', drive: '0h45 de route', address: 'Sur Herbe (Lieu à confirmer)', inscrit: false },
-            { id: "f_nat3", date: '30/05', sport: 'Natation', name: 'J3 Avenirs (92)', time: 'À définir', drive: 'À définir', address: 'Sur le département 92', inscrit: false },
-            { id: "f9", date: '31/05', sport: 'Judo', name: 'Tournoi Sully sur Loire (45)', time: 'À définir', drive: '2h00 de route', address: 'Complexe Lionel Jourdain, 45600', inscrit: false },
-            
-            { isHeader: true, month: "Juin 2026", sport: 'ALL' },
-            { id: "f11", date: '07/06', sport: 'Judo', name: 'Challenge Petits Tigres (75)', time: '11h15-11h45', drive: '0h15 de route', address: 'INJ, 21 av de la Porte de Chatillon', inscrit: false },
-            { id: "f12", date: '20/06', sport: 'Natation', name: 'J4 Avenirs (92)', time: 'À définir', drive: 'À définir', address: 'Sur le département 92', inscrit: false }
+          const futureEvents = [
+            { month: "Avril 2026", events: [
+              { id: "f_judo_avr1", date: '05/04', sport: 'Judo', name: "Coupe des p'tits samouraïs", inscrit: true, time: '14h00-17h00', drive: '0h30 de route', address: 'Guyancourt (78)' },
+              { id: "f_judo_moissy", date: '11/04', sport: 'Judo', name: "Tournoi de Moissy (77)", inscrit: false, time: 'À définir', drive: '1h00 de route', address: 'Moissy-Cramayel (77)' },
+              { id: "f_judo_avr2", date: '25/04', sport: 'Judo', name: 'Tournoi de Plaisir', inscrit: true, time: '09h00-12h00', drive: '0h30 de route', address: 'Plaisir (78)' }
+            ]},
+            { month: "Mai 2026", events: [
+              { id: "f7", date: '09/05', sport: 'Judo', name: 'Tournoi de Maurepas (78)', inscrit: false, time: '13h30-14h00', drive: '0h45 de route', address: 'Gymnase de la Malmedone, 78310' },
+              { id: "f8", date: '24/05', sport: 'Handball', name: 'Tournoi des Étoiles', inscrit: false, time: '08h00-18h00', drive: '0h45 de route', address: 'Sur Herbe (Lieu à confirmer)' },
+              { id: "f_nat3", date: '30/05', sport: 'Natation', name: 'J3 Avenirs (92)', inscrit: false, time: 'À définir', drive: 'À définir', address: 'Sur le département 92' },
+              { id: "f9", date: '31/05', sport: 'Judo', name: 'Tournoi Sully sur Loire (45)', inscrit: false, time: 'À définir', drive: '2h00 de route', address: 'Complexe Lionel Jourdain, 45600' }
+            ]},
+            { month: "Juin 2026", events: [
+              { id: "f11", date: '07/06', sport: 'Judo', name: 'Challenge Petits Tigres (75)', inscrit: false, time: '11h15-11h45', drive: '0h15 de route', address: 'INJ, 21 av de la Porte de Chatillon' },
+              { id: "f12", date: '20/06', sport: 'Natation', name: 'J4 Avenirs (92)', inscrit: false, time: 'À définir', drive: 'À définir', address: 'Sur le département 92' }
+            ]}
           ];
 
-          // Filtrage robuste évitant d'isoler des headers vides
-          const filteredPastEvents = rawPastEvents.filter(ev => {
-              if (ev.isHeader) return true;
-              return pastFilter === 'ALL' || ev.sport === pastFilter;
-          }).filter((ev, index, array) => {
-              if (ev.isHeader) {
-                  const nextEv = array[index + 1];
-                  if (!nextEv || nextEv.isHeader) return false; // Retire les mois vides
-              }
-              return true;
-          });
+          // Filtrage sécurisé selon la structure stable
+          const filteredPastEvents = pastEvents.map(monthGrp => ({
+              ...monthGrp,
+              events: monthGrp.events.filter(ev => pastFilter === 'ALL' || ev.sport === pastFilter)
+          })).filter(monthGrp => monthGrp.events.length > 0);
 
-          const filteredFutureEvents = rawFutureEvents.filter(ev => {
-              if (ev.isHeader) return true;
-              return futureFilter === 'ALL' || ev.sport === futureFilter;
-          }).filter((ev, index, array) => {
-              if (ev.isHeader) {
-                  const nextEv = array[index + 1];
-                  if (!nextEv || nextEv.isHeader) return false; 
-              }
-              return true;
-          });
+          const filteredFutureEvents = futureEvents.map(monthGrp => ({
+              ...monthGrp,
+              events: monthGrp.events.filter(ev => futureFilter === 'ALL' || ev.sport === futureFilter)
+          })).filter(monthGrp => monthGrp.events.length > 0);
 
           // --- Utilitaires de rendu ---
           const Card = ({ children, title, icon: IconCmp, className = "" }) => (
@@ -364,7 +370,7 @@
           return (
             <div className="min-h-screen font-sans p-4 md:p-8">
               
-              {/* HEADER */}
+              {/* HEADER COMPLETEMENT REVU */}
               <header className="max-w-7xl mx-auto mb-8 bg-white dark:bg-slate-900 rounded-[2rem] p-8 border-l-8 border-l-indigo-600 shadow-lg shadow-slate-200/50 dark:shadow-none transition-colors relative z-20">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                   <div>
@@ -399,10 +405,14 @@
                             <div className="flex gap-0.5">{[...Array(2)].map((_, i) => <TrophyIcon key={`h-${i}`} size={14} className="text-yellow-500 fill-yellow-500" />)}</div>
                           </div>
                           <span className="w-px h-5 bg-slate-300 dark:bg-slate-600 mx-2"></span>
-                          <div className="flex items-center gap-1.5 opacity-50">
+                          <div className="flex items-center gap-1.5 opacity-100">
                             <Waves size={14} className="text-blue-500 dark:text-blue-400"/>
                             <span className="text-xs font-black text-slate-700 dark:text-slate-300 mr-1 hidden sm:block">NAT</span>
-                            <span className="text-sm font-black text-slate-500 dark:text-slate-400">0</span>
+                            <div className="flex gap-0.5">
+                               {/* Trophée de Bronze */}
+                               <TrophyIcon size={14} className="text-amber-700 fill-amber-700" />
+                            </div>
+                            <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 ml-1">1</span>
                           </div>
                         </div>
                     </div>
@@ -439,7 +449,7 @@
                         <div className="bg-green-100 dark:bg-green-800/50 p-3 rounded-full text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform"><Calendar size={24}/></div>
                         <div>
                           <p className="text-[11px] font-black uppercase text-green-600 dark:text-green-400 tracking-widest">Prochaine Échéance Sportive</p>
-                          <p className="text-sm md:text-base font-bold text-green-900 dark:text-green-100 mt-1">05/04/2026 - Coupe des p'tits samouraïs (78) (Judo)</p>
+                          <p className="text-sm md:text-base font-bold text-green-900 dark:text-green-100 mt-1">05/04/2026 - Coupe des p'tits samouraïs (Judo)</p>
                         </div>
                       </div>
                       <span className="px-4 py-1.5 bg-green-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow">Inscription Validée</span>
@@ -743,8 +753,8 @@
                              <p className="text-[10px] font-black uppercase text-blue-500 mb-3 flex items-center gap-2"><Brain size={14}/> Diagnostic Technique</p>
                              <ul className="text-xs text-blue-900/80 dark:text-blue-100/80 space-y-2 list-disc pl-4 font-medium leading-relaxed">
                                <li><strong className="text-slate-800 dark:text-white">Glisse & Posture</strong> : Bassin légèrement bas en dos. Entrée dans l'eau en piqué en crawl provoquant une perte de vitesse.</li>
-                               <li><strong className="text-slate-800 dark:text-white">Mouvements</strong> : Trajectoires de bras approximatives en crawl (croisées). Respiration en 2 temps déséquilibrante.</li>
-                               <li><strong className="text-slate-800 dark:text-white">Compensation</strong> : Endurance aérobie et fréquence motrice très élevées, ce qui compense la technique perfectible.</li>
+                               <li><strong className="text-slate-800 dark:text-white">Plongeon / Départ</strong> : Réactivité lente au signal, fait perdre le bénéfice de la vitesse de nage.</li>
+                               <li><strong className="text-slate-800 dark:text-white">Arrivée Mur</strong> : Manque de repères spatiaux (cf. disqualification pour s'être retourné trop tôt).</li>
                              </ul>
                           </div>
 
@@ -826,46 +836,44 @@
                       <div className="space-y-4">
                         {filteredPastEvents.length === 0 ? (
                            <p className="text-sm text-slate-400 font-medium text-center py-4">Aucun événement passé pour ce filtre.</p>
-                        ) : filteredPastEvents.map((ev, i) => {
-                          if (ev.isHeader) {
-                            return (
-                              <div key={`head-${i}`} className="flex items-center gap-3 pt-2 pb-1">
-                                 <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">{ev.month}</h4>
-                                 <div className="flex-1 border-b border-slate-200 dark:border-slate-800"></div>
-                              </div>
-                            );
-                          }
-
-                          const isExp = expandedPastId === ev.id;
-                          const EvIcon = getSportIcon(ev.sport);
-                          const iconColorClass = getSportColorClass(ev.sport);
-
-                          return (
-                            <div key={ev.id} className="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-800/30 hover:border-slate-300 dark:hover:border-slate-600 transition-colors shadow-sm">
-                              <div className="p-4 flex items-center justify-between cursor-pointer" onClick={() => setExpandedPastId(isExp ? null : ev.id)}>
-                                <div className="flex items-center gap-4">
-                                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${iconColorClass}`}><EvIcon size={18} /></div>
-                                  <div><p className="text-sm font-black text-slate-800 dark:text-white">{ev.name}</p><p className="text-[10px] font-bold text-slate-500 uppercase mt-0.5">{ev.date} • {ev.sport}</p></div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap hidden sm:block ${ev.result === '1ER' || ev.result.includes('1er') || ev.result === '3ÈME' || ev.result === 'RECORDS' ? 'border-yellow-400 text-yellow-700 bg-yellow-50 dark:bg-yellow-900/30 dark:text-yellow-400' : ev.result === 'DSQ' || ev.result === 'NC' ? 'border-red-400 text-red-600 bg-red-50 dark:bg-red-900/30 dark:text-red-400' : 'border-slate-200 text-slate-600 bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300'}`}>{ev.result}</span>
-                                  <div className="bg-white dark:bg-slate-800 p-1 rounded-full border border-slate-200 dark:border-slate-700">{isExp ? <ChevronUp size={16} className="text-slate-400"/> : <ChevronDown size={16} className="text-slate-400"/>}</div>
-                                </div>
-                              </div>
-                              <div className="px-4 pb-3 sm:hidden text-right block border-t border-slate-100 dark:border-slate-700 pt-2">
-                                 <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap ${ev.result === '1ER' || ev.result.includes('1er') || ev.result === '3ÈME' || ev.result === 'RECORDS' ? 'border-yellow-400 text-yellow-700 bg-yellow-50 dark:bg-yellow-900/30 dark:text-yellow-400' : ev.result === 'DSQ' || ev.result === 'NC' ? 'border-red-400 text-red-600 bg-red-50 dark:bg-red-900/30 dark:text-red-400' : 'border-slate-200 text-slate-600 bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300'}`}>{ev.result}</span>
-                              </div>
-                              {isExp && (
-                                <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-inner grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Adversité</p>{renderStars(ev.adv)}</div>
-                                  <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Volume</p><p className="text-xs font-bold text-slate-700 dark:text-slate-300">{ev.matches}</p></div>
-                                  <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Résumé</p><p className="text-xs font-medium text-slate-600 dark:text-slate-400 leading-relaxed">{ev.desc}</p></div>
-                                  <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Commentaire Technique</p><p className="text-xs font-medium text-slate-600 dark:text-slate-400 leading-relaxed italic border-l-2 border-slate-200 dark:border-slate-700 pl-2">{ev.com}</p></div>
-                                </div>
-                              )}
+                        ) : filteredPastEvents.map((monthGrp, mIdx) => (
+                          <div key={mIdx} className="space-y-3">
+                            <div className="flex items-center gap-3 pt-2 pb-1">
+                               <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">{monthGrp.month}</h4>
+                               <div className="flex-1 border-b border-slate-200 dark:border-slate-800"></div>
                             </div>
-                          );
-                        })}
+                            {monthGrp.events.map((ev) => {
+                              const isExp = expandedPastId === ev.id;
+                              const EvIcon = getSportIcon(ev.sport);
+                              const iconColorClass = getSportColorClass(ev.sport);
+
+                              return (
+                              <div key={ev.id} className="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-800/30 hover:border-slate-300 dark:hover:border-slate-600 transition-colors shadow-sm">
+                                <div className="p-4 flex items-center justify-between cursor-pointer" onClick={() => setExpandedPastId(isExp ? null : ev.id)}>
+                                  <div className="flex items-center gap-4">
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${iconColorClass}`}><EvIcon size={18} /></div>
+                                    <div><p className="text-sm font-black text-slate-800 dark:text-white">{ev.name}</p><p className="text-[10px] font-bold text-slate-500 uppercase mt-0.5">{ev.date} • {ev.sport}</p></div>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap hidden sm:block ${ev.result === '1ER' || ev.result.includes('1er') || ev.result.includes('3ÈME') || ev.result === 'RECORDS' ? 'border-yellow-400 text-yellow-700 bg-yellow-50 dark:bg-yellow-900/30 dark:text-yellow-400' : ev.result === 'DSQ' || ev.result === 'NC' ? 'border-red-400 text-red-600 bg-red-50 dark:bg-red-900/30 dark:text-red-400' : 'border-slate-200 text-slate-600 bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300'}`}>{ev.result}</span>
+                                    <div className="bg-white dark:bg-slate-800 p-1 rounded-full border border-slate-200 dark:border-slate-700">{isExp ? <ChevronUp size={16} className="text-slate-400"/> : <ChevronDown size={16} className="text-slate-400"/>}</div>
+                                  </div>
+                                </div>
+                                <div className="px-4 pb-3 sm:hidden text-right block border-t border-slate-100 dark:border-slate-700 pt-2">
+                                   <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap ${ev.result === '1ER' || ev.result.includes('1er') || ev.result.includes('3ÈME') || ev.result === 'RECORDS' ? 'border-yellow-400 text-yellow-700 bg-yellow-50 dark:bg-yellow-900/30 dark:text-yellow-400' : ev.result === 'DSQ' || ev.result === 'NC' ? 'border-red-400 text-red-600 bg-red-50 dark:bg-red-900/30 dark:text-red-400' : 'border-slate-200 text-slate-600 bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300'}`}>{ev.result}</span>
+                                </div>
+                                {isExp && (
+                                  <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-inner grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Adversité</p>{renderStars(ev.adv)}</div>
+                                    <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Volume</p><p className="text-xs font-bold text-slate-700 dark:text-slate-300">{ev.matches}</p></div>
+                                    <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Résumé</p><p className="text-xs font-medium text-slate-600 dark:text-slate-400 leading-relaxed">{ev.desc}</p></div>
+                                    <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Commentaire Technique</p><p className="text-xs font-medium text-slate-600 dark:text-slate-400 leading-relaxed italic border-l-2 border-slate-200 dark:border-slate-700 pl-2">{ev.com}</p></div>
+                                  </div>
+                                )}
+                              </div>
+                            )})}
+                          </div>
+                        ))}
                       </div>
                     </Card>
 
@@ -883,45 +891,43 @@
                       <div className="space-y-4">
                         {filteredFutureEvents.length === 0 ? (
                            <p className="text-sm text-slate-400 font-medium text-center py-4">Aucun événement à venir pour ce filtre.</p>
-                        ) : filteredFutureEvents.map((ev, i) => {
-                          if (ev.isHeader) {
-                            return (
-                              <div key={`head-${i}`} className="flex items-center gap-3 pt-2 pb-1">
-                                 <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">{ev.month}</h4>
-                                 <div className="flex-1 border-b border-slate-200 dark:border-slate-800"></div>
-                              </div>
-                            );
-                          }
-
-                          const isExp = expandedFutureId === ev.id;
-                          const EvIcon = getSportIcon(ev.sport);
-                          const iconColorClass = getSportColorClass(ev.sport);
-
-                          return (
-                            <div key={ev.id} className="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-800/30 hover:border-slate-300 dark:hover:border-slate-600 transition-colors shadow-sm">
-                              <div className="p-4 flex items-center justify-between cursor-pointer" onClick={() => setExpandedFutureId(isExp ? null : ev.id)}>
-                                <div className="flex items-center gap-4">
-                                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${iconColorClass}`}><EvIcon size={18} /></div>
-                                  <div><p className="text-sm font-black text-slate-800 dark:text-white">{ev.name}</p><p className="text-[10px] font-bold text-slate-500 uppercase mt-0.5">{ev.date} • {ev.sport}</p></div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap hidden sm:block ${ev.inscrit ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:border-green-800 dark:text-green-400' : 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:border-orange-800 dark:text-orange-400'}`}>{ev.inscrit ? 'Confirmé' : 'À Confirmer'}</span>
-                                  <div className="bg-white dark:bg-slate-800 p-1 rounded-full border border-slate-200 dark:border-slate-700">{isExp ? <ChevronUp size={16} className="text-slate-400"/> : <ChevronDown size={16} className="text-slate-400"/>}</div>
-                                </div>
-                              </div>
-                              <div className="px-4 pb-3 sm:hidden text-right block border-t border-slate-100 dark:border-slate-700 pt-2">
-                                 <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap ${ev.inscrit ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:border-green-800 dark:text-green-400' : 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:border-orange-800 dark:text-orange-400'}`}>{ev.inscrit ? 'Confirmé' : 'À Confirmer'}</span>
-                              </div>
-                              {isExp && (
-                                <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-inner grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Horaires</p><p className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1"><Clock size={12}/>{ev.time}</p></div>
-                                  <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Logistique</p><p className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">🚗 {ev.drive}</p></div>
-                                  <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Lieu Exact</p><p className="text-xs font-medium text-slate-600 dark:text-slate-400 flex items-start gap-1"><MapPin size={12} className="shrink-0 mt-0.5"/>{ev.address}</p></div>
-                                </div>
-                              )}
+                        ) : filteredFutureEvents.map((monthGrp, mIdx) => (
+                          <div key={mIdx} className="space-y-3">
+                            <div className="flex items-center gap-3 pt-2 pb-1">
+                               <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">{monthGrp.month}</h4>
+                               <div className="flex-1 border-b border-slate-200 dark:border-slate-800"></div>
                             </div>
-                          );
-                        })}
+                            {monthGrp.events.map((ev) => {
+                              const isExp = expandedFutureId === ev.id;
+                              const EvIcon = getSportIcon(ev.sport);
+                              const iconColorClass = getSportColorClass(ev.sport);
+
+                              return (
+                              <div key={ev.id} className="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-800/30 hover:border-slate-300 dark:hover:border-slate-600 transition-colors shadow-sm">
+                                <div className="p-4 flex items-center justify-between cursor-pointer" onClick={() => setExpandedFutureId(isExp ? null : ev.id)}>
+                                  <div className="flex items-center gap-4">
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${iconColorClass}`}><EvIcon size={18} /></div>
+                                    <div><p className="text-sm font-black text-slate-800 dark:text-white">{ev.name}</p><p className="text-[10px] font-bold text-slate-500 uppercase mt-0.5">{ev.date} • {ev.sport}</p></div>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap hidden sm:block ${ev.inscrit ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:border-green-800 dark:text-green-400' : 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:border-orange-800 dark:text-orange-400'}`}>{ev.inscrit ? 'Confirmé' : 'À Confirmer'}</span>
+                                    <div className="bg-white dark:bg-slate-800 p-1 rounded-full border border-slate-200 dark:border-slate-700">{isExp ? <ChevronUp size={16} className="text-slate-400"/> : <ChevronDown size={16} className="text-slate-400"/>}</div>
+                                  </div>
+                                </div>
+                                <div className="px-4 pb-3 sm:hidden text-right block border-t border-slate-100 dark:border-slate-700 pt-2">
+                                   <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap ${ev.inscrit ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:border-green-800 dark:text-green-400' : 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:border-orange-800 dark:text-orange-400'}`}>{ev.inscrit ? 'Confirmé' : 'À Confirmer'}</span>
+                                </div>
+                                {isExp && (
+                                  <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-inner grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Horaires</p><p className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1"><Clock size={12}/>{ev.time}</p></div>
+                                    <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Logistique</p><p className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">🚗 {ev.drive}</p></div>
+                                    <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Lieu Exact</p><p className="text-xs font-medium text-slate-600 dark:text-slate-400 flex items-start gap-1"><MapPin size={12} className="shrink-0 mt-0.5"/>{ev.address}</p></div>
+                                  </div>
+                                )}
+                              </div>
+                            )})}
+                          </div>
+                        ))}
                       </div>
                     </Card>
                   </div>
