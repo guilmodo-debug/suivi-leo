@@ -34,13 +34,13 @@
         .custom-tooltip-container { position: relative; display: inline-flex; align-items: center; cursor: help; z-index: 40; }
         .custom-tooltip-content { 
             visibility: hidden; opacity: 0; position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%); 
-            width: max-content; max-width: 250px; background-color: #0f172a; color: white; text-align: center; 
+            width: max-content; max-width: 250px; background-color: #1e293b; color: white; text-align: center; 
             border-radius: 8px; padding: 10px; font-size: 11px; z-index: 99999; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
             white-space: normal; line-height: 1.4; transition: all 0.2s ease; pointer-events: none; font-weight: 500;
         }
         .custom-tooltip-content::after { 
             content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); 
-            border-width: 6px; border-style: solid; border-color: #0f172a transparent transparent transparent; 
+            border-width: 6px; border-style: solid; border-color: #1e293b transparent transparent transparent; 
         }
         .custom-tooltip-container:hover .custom-tooltip-content { visibility: visible; opacity: 1; bottom: 140%; }
         
@@ -120,11 +120,11 @@
         const App = () => {
           const [activeTab, setActiveTab] = useState('synthesis');
           
-          // Etats calendrier
+          // Etats calendrier (ID uniques)
           const [expandedPastId, setExpandedPastId] = useState(null);
           const [expandedFutureId, setExpandedFutureId] = useState(null);
           
-          // Filtres
+          // Filtres du Calendrier
           const [pastFilter, setPastFilter] = useState('ALL');
           const [futureFilter, setFutureFilter] = useState('ALL');
           
@@ -137,9 +137,9 @@
 
           // --- 1. DATA: IDENTITÉ & KPIs ---
           const identity = {
-            name: "Léo", age: "6 ans 9 mois", category: "U9 / Pré-Poussin",
+            name: "Léo", age: "6 ans 10 mois", category: "U9 / Pré-Poussin",
             morphology: {
-              current: { height: 125.5, weight: 25.7, imc: 14.4 },
+              current: { height: 127.0, weight: 25.7, imc: 15.9 },
               average: { height: 123.0, weight: 23.5, imc: 15.6 }
             },
             details: "Envergure: 122 cm | Taille assise: 68 cm",
@@ -162,6 +162,7 @@
             { mois: 'Déc', Judo: 11, Natation: 7.5, Handball: 3.75, Multisport: 5, TOTAL: 27.25 },
             { mois: 'Jan', Judo: 12, Natation: 10, Handball: 5.75, Multisport: 6, TOTAL: 33.75 },
             { mois: 'Fév', Judo: 8, Natation: 8.5, Handball: 5, Multisport: 4, TOTAL: 25.5 },
+            { mois: 'Mars', Judo: 12, Natation: 15, Handball: 3, Multisport: 6, TOTAL: 36 },
           ];
 
           const athleticRadar = [
@@ -207,10 +208,10 @@
             club: "ACBB (92)",
             debut: "Sept. 2024 (1.5 an)",
             kpis: [
-              { label: 'Heures cumulées', value: "118h", sub: 'Depuis 2024' },
-              { label: 'KM parcourus', value: "36", sub: 'Cumul estimé' },
-              { label: 'Courses Off.', value: "1", sub: 'Saison 25-26' },
-              { label: 'Chrono 25m', value: "28.46s", sub: 'Validé' },
+              { label: 'Heures cumulées', value: "133h", sub: 'Depuis 2024' },
+              { label: 'KM parcourus', value: "42", sub: 'Cumul estimé' },
+              { label: 'Courses Off.', value: "3", sub: 'Saison 25-26' },
+              { label: 'Record 25m Dos', value: "25.38s", sub: 'Validé (-3s)' },
             ]
           };
 
@@ -218,16 +219,18 @@
             club: "Issy Paris Hand (92)",
             debut: "Sept. 2024 (1.5 an)",
             kpis: [
-              { label: 'Heures cumulées', value: "66h", sub: 'Depuis 2024' },
-              { label: 'Matchs Joués', value: "20", sub: 'Saison 25-26' },
-              { label: 'Tournois', value: "7", sub: 'Saison 25-26' },
-              { label: 'Podiums', value: "3", sub: 'Dont 2 victoires' },
+              { label: 'Heures cumulées', value: "69h", sub: 'Depuis 2024' },
+              { label: 'Matchs Joués', value: "23", sub: 'Saison 25-26' },
+              { label: 'Tournois', value: "8", sub: 'Saison 25-26' },
+              { label: 'Podiums', value: "4", sub: 'Dont 3 victoires' },
             ]
           };
 
           // --- 4. DATA: CALENDRIER BRUT FLAT ---
           const rawPastEvents = [
             { isHeader: true, month: "Mars 2026", sport: 'ALL' },
+            { id: "p_n2903", date: '29/03', sport: 'Natation', name: 'J2 Avenirs (92)', result: 'RECORDS', adv: 3, matches: "2 courses", desc: "Nouveaux records personnels explosés sur 25m Dos (25.38s) et 25m Crawl (27.32s).", com: "Meilleure gestion globale. Attention à l'entrée en piqué au plongeon et à la respiration en 2 temps en crawl qui déséquilibre la nage." },
+            { id: "p_h2803", date: '28/03', sport: 'Handball', name: 'Interclub #5 U7 (Fontenay)', result: '1ER', adv: 3, matches: "3 matchs", desc: "Superbe performance collective. Léo continue de dominer par sa vitesse en contre-attaque.", com: "Très bonne vision du jeu et passes précises. L'engagement défensif est resté au top." },
             { id: "p_c2203", date: '22/03', sport: 'Judo', name: 'Coignières (78)', result: '1ER', adv: 3, matches: "3 combats", desc: "Tournoi accroché. Forte progression mentale sous pression avec 3 victoires par Ippon.", com: "Meilleure gestion du kumi-kata. Harai-Goshi très propre. Liaison debout-sol déterminante (Yoko-Shiho-Gatame)." },
             { id: "p_h1403", date: '14/03', sport: 'Handball', name: 'Interclub #4 U7 (Issy)', result: '3ÈME', adv: 3, matches: "Plusieurs matchs", desc: "Termine sur le podium (3ème place) de l'interclub.", com: "Engagement constant et toujours une grosse solidité défensive." },
             { id: "p0", date: '07/03', sport: 'Judo', name: 'Nogent le Rotrou (28)', result: '1ER', adv: 2, matches: "3 combats", desc: "Tournoi parfaitement maîtrisé avec 3 victoires par Ippon.", com: "Excellente posture verticale (fin du 'plongeon'). Utilisation très efficace du balayage (De-Ashi-Barai) et du crochetage (Ko-Soto-Gari)." },
@@ -254,10 +257,6 @@
           ];
 
           const rawFutureEvents = [
-            { isHeader: true, month: "Mars 2026", sport: 'ALL' },
-            { id: "f5", date: '28/03', sport: 'Handball', name: 'Interclub #5 U7 (Fontenay)', time: '13h30-16h00', drive: '0h25 de route', address: 'Fontenay-aux-roses', inscrit: true },
-            { id: "f_nat2", date: '29/03', sport: 'Natation', name: 'J2 Avenirs (92)', time: '13h00-16h30', drive: '0h25 de route', address: '92035 LA GARENNE-COLOMBES', inscrit: true },
-            
             { isHeader: true, month: "Avril 2026", sport: 'ALL' },
             { id: "f_judo_avr1", date: '05/04', sport: 'Judo', name: "Coupe des p'tits samouraïs (78)", time: '14h00-17h00', drive: '0h30 de route', address: 'Guyancourt', inscrit: true },
             { id: "f_judo_avr2", date: '25/04', sport: 'Judo', name: 'Tournoi de Plaisir (78)', time: '09h00-12h00', drive: '0h30 de route', address: 'Plaisir', inscrit: true },
@@ -302,7 +301,7 @@
             <div className={`bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm relative card-container ${className}`}>
               {/* Div permettant de cacher d'éventuels fonds décoratifs sans couper l'infobulle */}
               <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none z-0"></div>
-              <div className="relative z-10 h-full">
+              <div className="relative z-10 h-full flex flex-col">
                 {title && (
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center gap-2">
@@ -440,7 +439,7 @@
                         <div className="bg-green-100 dark:bg-green-800/50 p-3 rounded-full text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform"><Calendar size={24}/></div>
                         <div>
                           <p className="text-[11px] font-black uppercase text-green-600 dark:text-green-400 tracking-widest">Prochaine Échéance Sportive</p>
-                          <p className="text-sm md:text-base font-bold text-green-900 dark:text-green-100 mt-1">28/03/2026 - Interclub #5 U7 (Fontenay-aux-roses)</p>
+                          <p className="text-sm md:text-base font-bold text-green-900 dark:text-green-100 mt-1">05/04/2026 - Coupe des p'tits samouraïs (78) (Judo)</p>
                         </div>
                       </div>
                       <span className="px-4 py-1.5 bg-green-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow">Inscription Validée</span>
@@ -522,10 +521,10 @@
                           </ResponsiveContainer>
                         </div>
                         <div className="grid grid-cols-4 gap-2">
-                           <div className="bg-slate-100 dark:bg-slate-800 rounded text-center py-2 border border-slate-200 dark:border-slate-700"><p className="text-[9px] font-black uppercase text-slate-600 dark:text-slate-400 mb-1">Judo</p><p className="text-sm font-bold text-slate-900 dark:text-slate-100">62.5h</p></div>
-                           <div className="bg-blue-50 dark:bg-blue-900/30 rounded text-center py-2 border border-blue-100 dark:border-blue-800"><p className="text-[9px] font-black uppercase text-blue-600 dark:text-blue-400 mb-1">Nat</p><p className="text-sm font-bold text-blue-900 dark:text-blue-100">53.5h</p></div>
-                           <div className="bg-orange-50 dark:bg-orange-900/30 rounded text-center py-2 border border-orange-100 dark:border-orange-800"><p className="text-[9px] font-black uppercase text-orange-600 dark:text-orange-400 mb-1">Hand</p><p className="text-sm font-bold text-orange-900 dark:text-orange-100">28.2h</p></div>
-                           <div className="bg-green-50 dark:bg-green-900/30 rounded text-center py-2 border border-green-100 dark:border-green-800"><p className="text-[9px] font-black uppercase text-green-600 dark:text-green-400 mb-1">Multi</p><p className="text-sm font-bold text-green-900 dark:text-green-100">31.0h</p></div>
+                           <div className="bg-slate-100 dark:bg-slate-800 rounded text-center py-2 border border-slate-200 dark:border-slate-700"><p className="text-[9px] font-black uppercase text-slate-600 dark:text-slate-400 mb-1">Judo</p><p className="text-sm font-bold text-slate-900 dark:text-slate-100">74.5h</p></div>
+                           <div className="bg-blue-50 dark:bg-blue-900/30 rounded text-center py-2 border border-blue-100 dark:border-blue-800"><p className="text-[9px] font-black uppercase text-blue-600 dark:text-blue-400 mb-1">Nat</p><p className="text-sm font-bold text-blue-900 dark:text-blue-100">68.5h</p></div>
+                           <div className="bg-orange-50 dark:bg-orange-900/30 rounded text-center py-2 border border-orange-100 dark:border-orange-800"><p className="text-[9px] font-black uppercase text-orange-600 dark:text-orange-400 mb-1">Hand</p><p className="text-sm font-bold text-orange-900 dark:text-orange-100">31.2h</p></div>
+                           <div className="bg-green-50 dark:bg-green-900/30 rounded text-center py-2 border border-green-100 dark:border-green-800"><p className="text-[9px] font-black uppercase text-green-600 dark:text-green-400 mb-1">Multi</p><p className="text-sm font-bold text-green-900 dark:text-green-100">37.0h</p></div>
                         </div>
                       </Card>
                     </div>
@@ -570,7 +569,7 @@
                         </div>
                         <div className="space-y-4">
                           {mentalData.map((item, i) => (
-                            <div key={i}>
+                            <div key={i} className="card-container">
                               <div className="flex justify-between text-[11px] font-bold mb-1.5 uppercase tracking-wide">
                                 <div className="flex items-center">
                                   <span className="text-slate-600 dark:text-slate-300 mr-1">{item.name}</span>
@@ -743,20 +742,20 @@
                           <div className="p-5 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/30 rounded-2xl flex-1">
                              <p className="text-[10px] font-black uppercase text-blue-500 mb-3 flex items-center gap-2"><Brain size={14}/> Diagnostic Technique</p>
                              <ul className="text-xs text-blue-900/80 dark:text-blue-100/80 space-y-2 list-disc pl-4 font-medium leading-relaxed">
-                               <li><strong className="text-slate-800 dark:text-white">Glisse & Posture</strong> : Excellent alignement du corps, nage très fluide en endurance.</li>
-                               <li><strong className="text-slate-800 dark:text-white">Plongeon / Départ</strong> : Réactivité lente au signal, fait perdre le bénéfice de la vitesse de nage.</li>
-                               <li><strong className="text-slate-800 dark:text-white">Arrivée Mur</strong> : Manque de repères spatiaux (cf. disqualification pour s'être retourné trop tôt).</li>
+                               <li><strong className="text-slate-800 dark:text-white">Glisse & Posture</strong> : Bassin légèrement bas en dos. Entrée dans l'eau en piqué en crawl provoquant une perte de vitesse.</li>
+                               <li><strong className="text-slate-800 dark:text-white">Mouvements</strong> : Trajectoires de bras approximatives en crawl (croisées). Respiration en 2 temps déséquilibrante.</li>
+                               <li><strong className="text-slate-800 dark:text-white">Compensation</strong> : Endurance aérobie et fréquence motrice très élevées, ce qui compense la technique perfectible.</li>
                              </ul>
                           </div>
 
                           <div className="grid grid-cols-2 gap-4 mt-2">
                             <div className="p-4 bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-800/30 rounded-xl">
                               <p className="text-[10px] font-black uppercase text-green-600 mb-1">Points Forts</p>
-                              <p className="text-xs font-medium text-green-800 dark:text-green-200 leading-relaxed">Résilience mentale face à l'échec. Endurance aérobie excellente.</p>
+                              <p className="text-xs font-medium text-green-800 dark:text-green-200 leading-relaxed">Fréquence motrice. 2 records personnels pulvérisés récemment (-3s en Dos).</p>
                             </div>
                             <div className="p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl">
                               <p className="text-[10px] font-black uppercase text-amber-600 mb-1">Points Faibles</p>
-                              <p className="text-xs font-medium text-amber-800 dark:text-amber-200 leading-relaxed">Réactivité au départ (-0.4s). Gestion de l'espace à l'approche du mur.</p>
+                              <p className="text-xs font-medium text-amber-800 dark:text-amber-200 leading-relaxed">Alignement tête-bassin. Plongeon trop en "piqué". Respiration trop fréquente.</p>
                             </div>
                           </div>
                         </div>
@@ -849,12 +848,12 @@
                                   <div><p className="text-sm font-black text-slate-800 dark:text-white">{ev.name}</p><p className="text-[10px] font-bold text-slate-500 uppercase mt-0.5">{ev.date} • {ev.sport}</p></div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap hidden sm:block ${ev.result === '1ER' || ev.result.includes('1er') || ev.result === '3ÈME' ? 'border-yellow-400 text-yellow-700 bg-yellow-50 dark:bg-yellow-900/30 dark:text-yellow-400' : ev.result === 'DSQ' || ev.result === 'NC' ? 'border-red-400 text-red-600 bg-red-50 dark:bg-red-900/30 dark:text-red-400' : 'border-slate-200 text-slate-600 bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300'}`}>{ev.result}</span>
+                                  <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap hidden sm:block ${ev.result === '1ER' || ev.result.includes('1er') || ev.result === '3ÈME' || ev.result === 'RECORDS' ? 'border-yellow-400 text-yellow-700 bg-yellow-50 dark:bg-yellow-900/30 dark:text-yellow-400' : ev.result === 'DSQ' || ev.result === 'NC' ? 'border-red-400 text-red-600 bg-red-50 dark:bg-red-900/30 dark:text-red-400' : 'border-slate-200 text-slate-600 bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300'}`}>{ev.result}</span>
                                   <div className="bg-white dark:bg-slate-800 p-1 rounded-full border border-slate-200 dark:border-slate-700">{isExp ? <ChevronUp size={16} className="text-slate-400"/> : <ChevronDown size={16} className="text-slate-400"/>}</div>
                                 </div>
                               </div>
                               <div className="px-4 pb-3 sm:hidden text-right block border-t border-slate-100 dark:border-slate-700 pt-2">
-                                 <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap ${ev.result === '1ER' || ev.result.includes('1er') || ev.result === '3ÈME' ? 'border-yellow-400 text-yellow-700 bg-yellow-50 dark:bg-yellow-900/30 dark:text-yellow-400' : ev.result === 'DSQ' || ev.result === 'NC' ? 'border-red-400 text-red-600 bg-red-50 dark:bg-red-900/30 dark:text-red-400' : 'border-slate-200 text-slate-600 bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300'}`}>{ev.result}</span>
+                                 <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap ${ev.result === '1ER' || ev.result.includes('1er') || ev.result === '3ÈME' || ev.result === 'RECORDS' ? 'border-yellow-400 text-yellow-700 bg-yellow-50 dark:bg-yellow-900/30 dark:text-yellow-400' : ev.result === 'DSQ' || ev.result === 'NC' ? 'border-red-400 text-red-600 bg-red-50 dark:bg-red-900/30 dark:text-red-400' : 'border-slate-200 text-slate-600 bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300'}`}>{ev.result}</span>
                               </div>
                               {isExp && (
                                 <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-inner grid grid-cols-1 md:grid-cols-2 gap-4">
