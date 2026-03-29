@@ -30,8 +30,8 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; transition: background-color 0.3s; }
         
-        /* Système d'infobulles optimisé pour ne pas être coupé */
-        .custom-tooltip-container { position: relative; display: inline-flex; align-items: center; cursor: help; z-index: 40; }
+        /* Système d'infobulles optimisé pour sortir des cartes */
+        .custom-tooltip-container { position: relative; display: inline-flex; align-items: center; cursor: help; z-index: 50; }
         .custom-tooltip-content { 
             visibility: hidden; opacity: 0; position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%); 
             width: max-content; max-width: 250px; background-color: #1e293b; color: white; text-align: center; 
@@ -124,7 +124,7 @@
           const [expandedPastId, setExpandedPastId] = useState(null);
           const [expandedFutureId, setExpandedFutureId] = useState(null);
           
-          // Filtres
+          // Filtres du Calendrier
           const [pastFilter, setPastFilter] = useState('ALL');
           const [futureFilter, setFutureFilter] = useState('ALL');
           
@@ -230,65 +230,60 @@
           // Format strict et stable : Tableau de mois (garantit 0% plantage)
           const pastEvents = [
             { month: "Mars 2026", events: [
-              { date: '29/03', sport: 'Natation', name: 'J2 Avenirs (92)', result: '3ÈME (Bronze)', adv: 3, matches: "2 courses", 
+              { id: "p_n2903", date: '29/03', sport: 'Natation', name: 'J2 Avenirs (92)', result: '3ÈME (Bronze)', adv: 3, matches: "2 courses", 
                 desc: "Records personnels explosés sur 25m Dos (25.38s) et 25m Crawl (27.32s). Superbe 3ème place de sa catégorie d'âge (2018-2019) en dos.", com: "Meilleure gestion globale. Attention à l'entrée en piqué au plongeon et à la respiration en 2 temps en crawl qui déséquilibre la nage." },
-              { date: '28/03', sport: 'Handball', name: 'Interclub #5 U7 (Fontenay)', result: '1ER', adv: 1, matches: "2 matchs", 
+              { id: "p_h2803", date: '28/03', sport: 'Handball', name: 'Interclub #5 U7 (Fontenay)', result: '1ER', adv: 1, matches: "2 matchs", 
                 desc: "Superbe performance collective. Léo continue de dominer par sa vitesse en contre-attaque.", com: "Très bonne vision du jeu et passes précises. L'adversité était faible sur ce plateau." },
-              { date: '22/03', sport: 'Judo', name: 'Coignières (78)', result: '1ER', adv: 3, matches: "3 combats", 
+              { id: "p_c2203", date: '22/03', sport: 'Judo', name: 'Coignières (78)', result: '1ER', adv: 3, matches: "3 combats", 
                 desc: "Tournoi accroché. Forte progression mentale sous pression avec 3 victoires par Ippon.", com: "Meilleure gestion du kumi-kata. Harai-Goshi très propre. Liaison debout-sol déterminante (Yoko-Shiho-Gatame)." },
-              { date: '14/03', sport: 'Handball', name: 'Interclub #4 U7 (Issy)', result: '3ÈME', adv: 3, matches: "Plusieurs matchs", 
+              { id: "p_h1403", date: '14/03', sport: 'Handball', name: 'Interclub #4 U7 (Issy)', result: '3ÈME', adv: 3, matches: "Plusieurs matchs", 
                 desc: "Termine sur le podium (3ème place) de l'interclub.", com: "Engagement constant et toujours une grosse solidité défensive." },
-              { date: '07/03', sport: 'Judo', name: 'Nogent le Rotrou (28)', result: '1ER', adv: 2, matches: "3 combats", 
+              { id: "p0", date: '07/03', sport: 'Judo', name: 'Nogent le Rotrou (28)', result: '1ER', adv: 2, matches: "3 combats", 
                 desc: "Tournoi parfaitement maîtrisé avec 3 victoires par Ippon.", com: "Excellente posture verticale (fin du 'plongeon'). Utilisation très efficace du balayage (De-Ashi-Barai) et du crochetage (Ko-Soto-Gari)." }
             ]},
             { month: "Février 2026", events: [
-              { date: '21/02', sport: 'Judo', name: 'Magny-en-Vexin (95)', result: '1ER', adv: 1, matches: "3 combats", 
+              { id: "p1", date: '21/02', sport: 'Judo', name: 'Magny-en-Vexin (95)', result: '1ER', adv: 1, matches: "3 combats", 
                 desc: "Niveau global faible. Tournoi maîtrisé du début à la fin avec 3 victoires expéditives.", com: "Le 3ème combat marque un tournant avec une attaque en jambe explosive parfaitement exécutée (Ko-Soto-Gari)." },
-              { date: '08/02', sport: 'Judo', name: 'Saint-Arnoult-en-Yv. (78)', result: '1ER', adv: 2, matches: "3 combats", 
+              { id: "p2", date: '08/02', sport: 'Judo', name: 'Saint-Arnoult-en-Yv. (78)', result: '1ER', adv: 2, matches: "3 combats", 
                 desc: "Très bonne gestion des combats sur un tournoi de niveau modéré.", com: "Belles liaisons debout-sol et confirmation des acquis." },
-              { date: '07/02', sport: 'Natation', name: 'Suresnes (92)', result: 'DSQ', adv: 3, matches: "1 course", 
+              { id: "p3", date: '07/02', sport: 'Natation', name: 'Suresnes (92)', result: 'DSQ', adv: 3, matches: "1 course", 
                 desc: "Disqualification sur 25m dos pour retournement sur le ventre.", com: "Erreur technique de repère spatial avant de toucher le mur. Chrono d'entraînement (28.46s) validant le niveau." }
             ]},
             { month: "Janvier 2026", events: [
-              { date: '24/01', sport: 'Handball', name: 'Issy (92) - U9', result: 'NC', adv: 4, matches: "Plusieurs matchs", 
+              { id: "p4", date: '24/01', sport: 'Handball', name: 'Issy (92) - U9', result: 'NC', adv: 4, matches: "Plusieurs matchs", 
                 desc: "Surclassement en U9. Tournoi compliqué.", com: "Forte adversité physique face à des gabarits supérieurs. A eu du mal à lâcher son ballon rapidement." },
-              { date: '18/01', sport: 'Handball', name: 'Suresnes (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", 
+              { id: "p5", date: '18/01', sport: 'Handball', name: 'Suresnes (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", 
                 desc: "Victoire de l'équipe sur ce tournoi interclub.", com: "Évolution très positive sur sa vision du jeu. Capable de lever la tête et de trouver de bonnes passes." },
-              { date: '11/01', sport: 'Judo', name: 'Amilly (45)', result: '1ER', adv: 2, matches: "3 combats", 
+              { id: "p6", date: '11/01', sport: 'Judo', name: 'Amilly (45)', result: '1ER', adv: 2, matches: "3 combats", 
                 desc: "Tournoi de rentrée 2026 bien maîtrisé.", com: "Domination sur les prises de hanche (Tai-Otoshi)." }
             ]},
             { month: "Décembre 2025", events: [
-              { date: '07/12', sport: 'Judo', name: 'Paris Sorbier (75)', result: '1ER', adv: 4, matches: "3 combats", 
+              { id: "p7", date: '07/12', sport: 'Judo', name: 'Paris Sorbier (75)', result: '1ER', adv: 4, matches: "3 combats", 
                 desc: "Termine 1er au global malgré sa seule défaite de l'année.", com: "Défaite subie par Ippon sur un Ippon Seoi Nage adverse. Excellente attitude de résilience." }
             ]},
             { month: "Novembre 2025", events: [
-              { date: '29/11', sport: 'Handball', name: 'Issy (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", 
+              { id: "p8", date: '29/11', sport: 'Handball', name: 'Issy (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", 
                 desc: "Meilleur marqueur de la compétition avec 12 buts.", com: "Très performant face aux enfants de son âge grâce à sa vitesse. Excellent esprit d'équipe." },
-              { date: '16/11', sport: 'Judo', name: 'Drancy (93)', result: '1ER', adv: 3, matches: "3 combats", 
+              { id: "p9", date: '16/11', sport: 'Judo', name: 'Drancy (93)', result: '1ER', adv: 3, matches: "3 combats", 
                 desc: "Tournoi parfaitement géré niveau mental et concentration.", com: "1er combat: Tai-Otoshi. 2ème: Ippon Seoi Nage. 3ème: enchainement debout-sol." }
             ]},
             { month: "Octobre 2025", events: [
-              { date: '12/10', sport: 'Judo', name: 'Pithiviers (45)', result: '1ER', adv: 1, matches: "2 combats", 
+              { id: "p10", date: '12/10', sport: 'Judo', name: 'Pithiviers (45)', result: '1ER', adv: 1, matches: "2 combats", 
                 desc: "1er tournoi de la saison, peu d'adversité.", com: "1er et 2ème combat remportés par le même mix : Harai Goshi puis Tai-Otoshi." }
             ]}
           ];
 
           const futureEvents = [
             { month: "Avril 2026", events: [
-              { date: '05/04', sport: 'Judo', name: "Coupe des p'tits samouraïs", status: 'INSCRIT', time: '14h00-17h00', drive: '0h30 de route', address: 'Guyancourt (78)' },
-              { date: '11/04', sport: 'Judo', name: "Tournoi de Moissy (77)", status: 'À CONFIRMER', time: 'À définir', drive: '1h00 de route', address: 'Moissy-Cramayel (77)' },
-              { date: '25/04', sport: 'Judo', name: 'Tournoi de Plaisir', status: 'INSCRIT', time: '09h00-12h00', drive: '0h40 de route', address: 'Plaisir (78)' },
-              { date: '25/04', sport: 'Natation', name: 'J2 Avenirs (92)', status: 'À CONFIRMER', time: 'À définir', drive: '-', address: 'Sur le département 92' }
+              { id: "f_moissy", date: '11/04', sport: 'Judo', name: "Tournoi de Moissy (77)", status: 'À CONFIRMER', time: 'À définir', drive: '1h00 de route', address: 'Moissy-Cramayel (77)' }
             ]},
             { month: "Mai 2026", events: [
-              { date: '09/05', sport: 'Judo', name: 'Tournoi de Maurepas (78)', status: 'À CONFIRMER', time: '13h30-14h00', drive: '0h45 de route', address: 'Gymnase de la Malmedone, 78310' },
-              { date: '24/05', sport: 'Handball', name: 'Tournoi des Étoiles', status: 'À CONFIRMER', time: '08h00-18h00', drive: '0h45 de route', address: 'Sur Herbe (Lieu à confirmer)' },
-              { date: '30/05', sport: 'Natation', name: 'J3 Avenirs (92)', status: 'À CONFIRMER', time: 'À définir', drive: 'À définir', address: 'Sur le département 92' },
-              { date: '31/05', sport: 'Judo', name: 'Tournoi Sully sur Loire (45)', status: 'À CONFIRMER', time: 'À définir', drive: '2h00 de route', address: 'Complexe Lionel Jourdain, 45600' }
+              { id: "f8", date: '24/05', sport: 'Handball', name: 'Tournoi des Étoiles', status: 'À CONFIRMER', time: '08h00-18h00', drive: '0h45 de route', address: 'Sur Herbe (Lieu à confirmer)' },
+              { id: "f_nat3", date: '30/05', sport: 'Natation', name: 'J3 Avenirs (92)', status: 'À CONFIRMER', time: 'À définir', drive: 'À définir', address: 'Sur le département 92' }
             ]},
             { month: "Juin 2026", events: [
-              { date: '07/06', sport: 'Judo', name: 'Challenge Petits Tigres (75)', status: 'À CONFIRMER', time: '11h15-11h45', drive: '0h15 de route', address: 'INJ, 21 av de la Porte de Chatillon' },
-              { date: '20/06', sport: 'Natation', name: 'J4 Avenirs (92)', status: 'À CONFIRMER', time: 'À définir', drive: 'À définir', address: 'Sur le département 92' }
+              { id: "f11", date: '07/06', sport: 'Judo', name: 'Challenge Petits Tigres (75)', status: 'À CONFIRMER', time: '11h15-11h45', drive: '0h15 de route', address: 'INJ, 21 av de la Porte de Chatillon' },
+              { id: "f12", date: '20/06', sport: 'Natation', name: 'J4 Avenirs (92)', status: 'À CONFIRMER', time: 'À définir', drive: 'À définir', address: 'Sur le département 92' }
             ]}
           ];
 
@@ -304,16 +299,19 @@
           })).filter(monthGrp => monthGrp.events.length > 0);
 
           // --- Utilitaires de rendu ---
-          const Card = ({ children, title, icon: IconCmp, className = "" }) => (
+          const Card = ({ children, title, icon: IconCmp, rightContent, className = "" }) => (
             <div className={`bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm relative card-container ${className}`}>
               {/* Div permettant de cacher d'éventuels fonds décoratifs sans couper l'infobulle */}
               <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none z-0"></div>
               <div className="relative z-10 h-full flex flex-col">
-                {title && (
+                {(title || rightContent) && (
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                      {IconCmp && <IconCmp size={18} className="text-indigo-500" />} {title}
-                    </h3>
+                    {title && (
+                      <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                        {IconCmp && <IconCmp size={18} className="text-indigo-500" />} {title}
+                      </h3>
+                    )}
+                    {rightContent && rightContent}
                   </div>
                 )}
                 {children}
@@ -403,7 +401,7 @@
                           <div className="flex items-center gap-1.5">
                             <BallIcon size={14} className="text-orange-500 dark:text-orange-400"/>
                             <span className="text-xs font-black text-slate-700 dark:text-slate-300 mr-1 hidden sm:block">HAND</span>
-                            <div className="flex gap-0.5">{[...Array(2)].map((_, i) => <TrophyIcon key={`h-${i}`} size={14} className="text-yellow-500 fill-yellow-500" />)}</div>
+                            <div className="flex gap-0.5">{[...Array(3)].map((_, i) => <TrophyIcon key={`h-${i}`} size={14} className="text-yellow-500 fill-yellow-500" />)}</div>
                           </div>
                           <span className="w-px h-5 bg-slate-300 dark:bg-slate-600 mx-2"></span>
                           <div className="flex items-center gap-1.5 opacity-100">
@@ -413,7 +411,6 @@
                                {/* Trophée de Bronze */}
                                <TrophyIcon size={14} className="text-amber-700 fill-amber-700" />
                             </div>
-                            <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 ml-1">1</span>
                           </div>
                         </div>
                     </div>
@@ -445,21 +442,24 @@
                 {activeTab === 'synthesis' && (
                   <div className="space-y-6 animate-in fade-in duration-500">
                     
-                    <div onClick={() => setActiveTab('calendar')} className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-2xl p-4 md:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm cursor-pointer hover:shadow-md transition-all group">
+                    <div onClick={() => setActiveTab('calendar')} className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-2xl p-4 md:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm cursor-pointer hover:shadow-md transition-all group">
                       <div className="flex items-center gap-4">
-                        <div className="bg-green-100 dark:bg-green-800/50 p-3 rounded-full text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform"><Calendar size={24}/></div>
+                        <div className="bg-orange-100 dark:bg-orange-800/50 p-3 rounded-full text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform"><Calendar size={24}/></div>
                         <div>
-                          <p className="text-[11px] font-black uppercase text-green-600 dark:text-green-400 tracking-widest">Prochaine Échéance Sportive</p>
-                          <p className="text-sm md:text-base font-bold text-green-900 dark:text-green-100 mt-1">05/04/2026 - Coupe des p'tits samouraïs (Judo)</p>
+                          <p className="text-[11px] font-black uppercase text-orange-600 dark:text-orange-400 tracking-widest">Prochaine Échéance Sportive</p>
+                          <p className="text-sm md:text-base font-bold text-orange-900 dark:text-orange-100 mt-1">11/04/2026 - Tournoi de Moissy (77) (Judo)</p>
                         </div>
                       </div>
-                      <span className="px-4 py-1.5 bg-green-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow">Inscription Validée</span>
+                      <span className="px-4 py-1.5 bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow">À Confirmer</span>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                       {advancedKPIs.map((kpi, i) => (
-                        <div key={i} className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm relative overflow-hidden group">
-                          <div className={`absolute -right-6 -top-6 w-24 h-24 bg-current opacity-5 rounded-full transition-transform group-hover:scale-150 z-0 ${kpi.color}`}></div>
+                        <div key={i} className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm relative group card-container">
+                          {/* Contournement du overflow-hidden pour que le tooltip sorte */}
+                          <div className="absolute inset-0 overflow-hidden rounded-3xl z-0 pointer-events-none">
+                            <div className={`absolute -right-6 -top-6 w-24 h-24 bg-current opacity-5 rounded-full transition-transform group-hover:scale-150 ${kpi.color}`}></div>
+                          </div>
                           <div className="flex items-center justify-between mb-2 relative z-10">
                             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{kpi.label}</p>
                             {kpi.info && <Tooltip text={kpi.info}><InfoIcon size={14} className="text-slate-300 dark:text-slate-600 hover:text-indigo-500 cursor-help" /></Tooltip>}
@@ -515,7 +515,11 @@
                         </div>
                       </Card>
 
-                      <Card title="Volume Horaire Mensuel - Saison 2025/2026" icon={Activity}>
+                      <Card 
+                          title="Volume Horaire Mensuel - Saison 2025/2026" 
+                          icon={Activity}
+                          rightContent={<div className="text-right"><span className="text-xl font-black text-indigo-600 dark:text-indigo-400">211.2h</span><span className="text-[9px] font-black uppercase text-slate-400 block">Total Saison</span></div>}
+                      >
                         <div className="h-[250px] w-full mb-4 mt-2">
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={volumeMensuel} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
@@ -580,7 +584,7 @@
                         </div>
                         <div className="space-y-4">
                           {mentalData.map((item, i) => (
-                            <div key={i} className="card-container">
+                            <div key={i}>
                               <div className="flex justify-between text-[11px] font-bold mb-1.5 uppercase tracking-wide">
                                 <div className="flex items-center">
                                   <span className="text-slate-600 dark:text-slate-300 mr-1">{item.name}</span>
