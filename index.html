@@ -102,7 +102,6 @@
         const SunIcon = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>' />;
         const BallIcon = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20M2 12a14.5 14.5 0 0 0 20 0"/>' />;
         const JudoIcon = (p) => <Icon {...p} path='<rect x="3" y="10" width="18" height="4" rx="1"/><path d="M12 14v5M10 14l-2 4M14 14l2 4"/>' />;
-        const Waves = (p) => <Icon {...p} path='<path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.6 2 5 2 2.3 0 2.3-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.6 2 5 2 2.3 0 2.3-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.6 2 5 2 2.3 0 2.3-2 5-2 1.3 0 1.9.5 2.5 1"/>' />;
 
         // --- COMPOSANTS UTILES ---
         const Tooltip = ({ text, children }) => (
@@ -125,7 +124,7 @@
         // --- MAIN APP ---
         const App = () => {
           const [activeTab, setActiveTab] = useState('cockpit');
-          const [viewMode, setViewMode] = useState('expert'); // 'expert' ou 'parent'
+          const [viewMode, setViewMode] = useState('expert'); 
           
           const [expandedPastId, setExpandedPastId] = useState(null);
           const [expandedFutureId, setExpandedFutureId] = useState(null);
@@ -188,8 +187,23 @@
             { subject: 'Souplesse', val: 30 }, { subject: 'Stabilité (Core)', val: 70 },
           ];
 
+          const extendedPhysicalTests = [
+            { cat: 'Vitesse', tests: [{ name: 'Sprint 20m', val: '4.69 s', evo: '-11%' }, { name: 'Slalom 10m', val: '3.31 s', evo: '+1%' }, { name: 'Vitesse moy 200m', val: '2.85 m/s' }] },
+            { cat: 'Explosivité', tests: [{ name: 'Saut sans élan', val: '162 cm', evo: '+1.2%' }, { name: 'Saut avec élan', val: '236 cm', evo: '+2.1%' }, { name: 'Saut vertical', val: '22 cm', evo: '' }, { name: 'Ratio Explo Horizontale', val: '1.89', evo: '' }] },
+            { cat: 'Aérobie & Motricité', tests: [{ name: 'Test 6 min', val: '900 m', evo: '-10%' }, { name: 'VMA Estimée', val: '9 km/h', evo: '' }, { name: '200m', val: '1 min 10', evo: '' }, { name: 'Lancer balle', val: '16 m', evo: '' }] },
+            { cat: 'Neuromusculaire', tests: [{ name: 'Réflexes Main D', val: '7/10', evo: '' }, { name: 'Réflexes Main G', val: '8/10', evo: '' }, { name: 'Souplesse', val: '-1 cm', alert: true, evo: '-4cm' }] },
+          ];
+
+          const mentalData = [
+            { name: 'Plaisir', score: 100, color: '#10b981', info: "Motivation intrinsèque maximale, aucune contrainte ressentie par l'enfant." }, 
+            { name: 'Orient. Tâche', score: 95, color: '#6d28d9', info: "Focalisation saine sur la maîtrise de ses propres gestes plutôt que la comparaison aux autres." },
+            { name: 'Compétence', score: 90, color: '#8b5cf6', info: "Confiance en ses capacités, favorisée par l'excellence des résultats sportifs." }, 
+            { name: 'Résilience', score: 85, color: '#f59e0b', info: "Capacité à rebondir après un échec (excellente réaction post-DSQ natation)." },
+            { name: 'Autonomie', score: 75, color: '#3b82f6', info: "Autonomie logistique franchie : prépare son sac, écoute sans aide parentale." },
+          ];
+
           // ==========================================
-          // DATA: SPÉCIALITÉS NOUVEAUX METRICS
+          // DATA: SPÉCIALITÉS
           // ==========================================
           const judoAdvancedStats = {
             club: "Dojo Grenelle (75)", grade: "Ceinture Jaune 2 Barrettes",
@@ -228,7 +242,7 @@
           };
 
           // ==========================================
-          // DATA: CALENDRIER FLAT SECURISE
+          // DATA: CALENDRIER FLAT STRUCTURE
           // ==========================================
           const rawPastEvents = [
             { isHeader: true, month: "Mars 2026", sport: 'ALL' },
@@ -256,23 +270,21 @@
 
           const rawFutureEvents = [
             { isHeader: true, month: "Avril 2026", sport: 'ALL' },
-            { id: "f_judo_avr1", date: '05/04', sport: 'Judo', name: "Coupe des p'tits samouraïs (78)", time: '14h00-17h00', drive: '0h30 de route', address: 'Guyancourt', inscrit: true },
-            { id: "f_moissy", date: '11/04', sport: 'Judo', name: "Tournoi de Moissy (77)", time: 'À définir', drive: '1h00 de route', address: 'Moissy-Cramayel', inscrit: false },
-            { id: "f_judo_avr2", date: '25/04', sport: 'Judo', name: 'Tournoi de Plaisir (78)', time: '09h00-12h00', drive: '0h40 de route', address: 'Plaisir', inscrit: true },
-            
-            { isHeader: true, month: "Mai 2026", sport: 'ALL' },
+            { id: "f_moissy", date: '11/04', sport: 'Judo', name: "Tournoi de Moissy (77)", time: 'À définir', drive: '1h00 de route', address: 'Moissy-Cramayel (77)', inscrit: false },
+            { id: "f_etoiles", date: '24/05', sport: 'Handball', name: "Tournoi des Étoiles", time: '08h00-18h00', drive: '0h45 de route', address: 'Triel sur Seine (78)', inscrit: false },
             { id: "f_nat3", date: '30/05', sport: 'Natation', name: 'J3 Avenirs (92)', time: 'À définir', drive: 'À définir', address: 'Sur le département 92', inscrit: false },
-            
-            { isHeader: true, month: "Juin 2026", sport: 'ALL' },
+            { id: "f11", date: '07/06', sport: 'Judo', name: 'Challenge Petits Tigres (75)', time: '11h15-11h45', drive: '0h15 de route', address: 'INJ, 21 av de la Porte de Chatillon', inscrit: false },
             { id: "f12", date: '20/06', sport: 'Natation', name: 'J4 Avenirs (92)', time: 'À définir', drive: 'À définir', address: 'Sur le département 92', inscrit: false }
           ];
 
           const filteredPastEvents = rawPastEvents.filter(ev => ev.isHeader || pastFilter === 'ALL' || ev.sport === pastFilter).filter((ev, i, arr) => ev.isHeader ? arr[i+1] && !arr[i+1].isHeader : true);
           const filteredFutureEvents = rawFutureEvents.filter(ev => ev.isHeader || futureFilter === 'ALL' || ev.sport === futureFilter).filter((ev, i, arr) => ev.isHeader ? arr[i+1] && !arr[i+1].isHeader : true);
 
-          // --- Utilitaires ---
+          // --- Utilitaires de rendu ---
           const Card = ({ children, title, icon: IconCmp, rightContent, className = "" }) => (
             <div className={`bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm relative card-container ${className}`}>
+              {/* Le overflow hidden est encapsulé pour ne pas couper le tooltip des éléments enfants qui utilisent z-index */}
+              <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none z-0"></div>
               <div className="relative z-10 h-full flex flex-col">
                 {(title || rightContent) && (
                   <div className="flex items-center justify-between mb-6">
@@ -288,7 +300,6 @@
           const getSportIcon = (sport) => sport === 'Judo' ? JudoIcon : sport === 'Handball' ? BallIcon : Waves;
           const getSportColorClass = (sport) => sport === 'Judo' ? 'text-slate-900 dark:text-white bg-slate-200 dark:bg-slate-700' : sport === 'Handball' ? 'text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/30' : 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30';
           const renderStars = (count) => <div className="flex items-center gap-0.5">{[...Array(count)].map((_, i) => <StarIcon key={i} size={12} className="text-yellow-500 fill-yellow-500" />)}</div>;
-          const safeBarLabel = (p) => (!p || !p.payload || p.payload.TOTAL === undefined) ? null : <text x={p.x+p.width/2} y={p.y-5} fill={isDark ? "#94a3b8" : "#64748b"} fontSize="10px" fontWeight="bold" textAnchor="middle">{p.payload.TOTAL}h</text>;
 
           return (
             <div className="min-h-screen font-sans p-4 md:p-8">
@@ -299,7 +310,7 @@
                   <div>
                     <div className="flex items-center gap-3 mb-2">
                       <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded-md text-[10px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-800">Cockpit Décisionnel • Güllich Model</span>
-                      <span className="text-xs font-bold text-slate-400 flex items-center gap-1"><Clock size={12}/> MAJ: Mars 2026</span>
+                      <span className="text-xs font-bold text-slate-400 flex items-center gap-1"><Clock size={12}/> MAJ: Fin Mars 2026</span>
                     </div>
                     <h1 className="text-4xl font-black tracking-tight flex items-center gap-3 text-slate-900 dark:text-white">
                       LÉO <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-emerald-400">| INTELLIGENCE SPORTIVE</span>
@@ -312,7 +323,7 @@
                   
                   {/* PANNEAU DROIT */}
                   <div className="flex flex-col items-end w-full lg:w-auto gap-4">
-                    <button onClick={() => setIsDark(!isDark)} className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700">
+                    <button onClick={() => setIsDark(!isDark)} className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer">
                         {isDark ? <SunIcon size={18} /> : <MoonIcon size={18} />}
                     </button>
 
@@ -339,7 +350,7 @@
                 </div>
               </header>
 
-              {/* NAVIGATION */}
+              {/* NAVIGATION TABS */}
               <nav className="max-w-7xl mx-auto flex gap-2 mb-8 overflow-x-auto no-scrollbar pb-2 relative z-10">
                 {[
                   { id: 'cockpit', label: '1. Cockpit & Décisions', icon: Target },
@@ -359,21 +370,21 @@
               <main className="max-w-7xl mx-auto pb-20 relative z-0">
                 
                 {/* =========================================================
-                    TAB 1: COCKPIT DECISIONNEL (NOUVEAU)
+                    TAB 1: COCKPIT DECISIONNEL
                 ========================================================= */}
                 {activeTab === 'cockpit' && viewMode === 'expert' && (
                   <div className="space-y-6 animate-in fade-in duration-500">
                     
                     {/* Alerte Prochaine Echéance */}
-                    <div onClick={() => setActiveTab('calendar')} className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-2xl p-4 md:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm cursor-pointer hover:shadow-md transition-all group">
+                    <div onClick={() => setActiveTab('calendar')} className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-2xl p-4 md:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm cursor-pointer hover:shadow-md transition-all group">
                       <div className="flex items-center gap-4">
-                        <div className="bg-indigo-100 dark:bg-indigo-800/50 p-3 rounded-full text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform"><Calendar size={24}/></div>
+                        <div className="bg-orange-100 dark:bg-orange-800/50 p-3 rounded-full text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform"><Calendar size={24}/></div>
                         <div>
-                          <p className="text-[11px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-widest">Action Requise : Prochaine Échéance</p>
-                          <p className="text-sm md:text-base font-bold text-indigo-900 dark:text-indigo-100 mt-1">05/04/2026 - Coupe des p'tits samouraïs (Judo)</p>
+                          <p className="text-[11px] font-black uppercase text-orange-600 dark:text-orange-400 tracking-widest">Prochaine Échéance Sportive</p>
+                          <p className="text-sm md:text-base font-bold text-orange-900 dark:text-orange-100 mt-1">11/04/2026 - Tournoi de Moissy (77) (Judo)</p>
                         </div>
                       </div>
-                      <span className="px-4 py-1.5 bg-green-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow">Inscription Validée</span>
+                      <span className="px-4 py-1.5 bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow">À Confirmer</span>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -425,15 +436,19 @@
                         </div>
                     </div>
 
-                    {/* KPIs Avancés */}
+                    {/* KPIs Avancés (Le background circle est encapsulé dans un div caché, mais pas le parent entier) */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-4">
                       {advancedKPIs.map((kpi, i) => (
-                        <div key={i} className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm relative group overflow-visible">
-                          <div className="flex items-center justify-between mb-2 relative z-10">
+                        <div key={i} className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm relative group z-10 hover:z-50 transition-all">
+                          {/* Circle Background */}
+                          <div className="absolute inset-0 overflow-hidden rounded-3xl z-0 pointer-events-none">
+                            <div className={`absolute -right-6 -top-6 w-24 h-24 opacity-5 rounded-full transition-transform group-hover:scale-150 ${kpi.color}`}></div>
+                          </div>
+                          <div className="flex items-center justify-between mb-2 relative z-20">
                             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{kpi.label}</p>
                             {kpi.info && <Tooltip text={kpi.info}><InfoIcon size={14} className="text-slate-300 dark:text-slate-600 hover:text-indigo-500 cursor-help" /></Tooltip>}
                           </div>
-                          <div className="flex items-baseline gap-3 mb-2 relative z-10">
+                          <div className="flex items-baseline gap-3 mb-2 relative z-20">
                             <span className={`text-3xl font-black ${kpi.color}`}>{kpi.value}</span>
                             <span className="text-xs font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">{kpi.trend}</span>
                           </div>
@@ -495,10 +510,10 @@
                           <p className="text-sm text-slate-600 dark:text-slate-300">Léo grandit vite ! Il a perdu un tout petit peu en souplesse. Pensez à faire 5 minutes d'étirements en jouant le soir pour protéger ses genoux de la croissance.</p>
                       </Card>
 
-                      <div className="bg-indigo-600 text-white rounded-3xl p-6 text-center shadow-lg">
-                          <h3 className="text-sm font-black uppercase tracking-widest text-indigo-200 mb-2">Prochain rendez-vous</h3>
-                          <p className="text-xl font-black">Dimanche 5 Avril</p>
-                          <p className="text-indigo-100 mt-1">Coupe de Judo à Guyancourt</p>
+                      <div className="bg-orange-500 text-white rounded-3xl p-6 text-center shadow-lg">
+                          <h3 className="text-sm font-black uppercase tracking-widest text-orange-200 mb-2">Prochain rendez-vous</h3>
+                          <p className="text-xl font-black">11/04/2026</p>
+                          <p className="text-orange-100 mt-1">Tournoi de Judo à Moissy (À confirmer)</p>
                       </div>
                   </div>
                 )}
@@ -564,7 +579,13 @@
                               <Bar dataKey="Judo" stackId="a" fill={isDark ? "#94a3b8" : "#0f172a"} radius={[0,0,0,0]} />
                               <Bar dataKey="Natation" stackId="a" fill="#3b82f6" />
                               <Bar dataKey="Handball" stackId="a" fill="#f97316" />
-                              <Bar dataKey="Multisport" stackId="a" fill="#10b981" radius={[4,4,0,0]} label={renderCustomBarLabel} />
+                              <Bar dataKey="Multisport" stackId="a" fill="#10b981" radius={[4,4,0,0]} 
+                                label={(props) => {
+                                  if (!props || !props.payload || props.payload.TOTAL === undefined) return null;
+                                  const { x, y, width, payload } = props;
+                                  return <text x={x + width / 2} y={y - 5} fill={isDark ? "#94a3b8" : "#64748b"} fontSize="10px" fontWeight="bold" textAnchor="middle">{payload.TOTAL}h</text>;
+                                }} 
+                              />
                             </BarChart>
                           </ResponsiveContainer>
                         </div>
@@ -784,9 +805,9 @@
                           <div className="p-5 bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-800/30 rounded-2xl flex-1">
                              <p className="text-[10px] font-black uppercase text-orange-500 mb-3 flex items-center gap-2"><Brain size={14}/> Diagnostic Technique</p>
                              <ul className="text-xs text-orange-900/80 dark:text-orange-100/80 space-y-2 list-disc pl-4 font-medium leading-relaxed">
-                               <li><strong className="text-slate-800 dark:text-white">Ratio Passe / Tir (1.5)</strong> : Léo a une vision de jeu naissante très forte, il privilégie souvent la passe décisive.</li>
-                               <li><strong className="text-slate-800 dark:text-white">Défense</strong> : Agressivité et placement excellents. Appuis très solides (transfert direct du judo).</li>
-                               <li><strong className="text-slate-800 dark:text-white">Prise d'info</strong> : Vision du jeu bonne, mais tendance à libérer la balle trop tard face aux gros gabarits U9 sous pression.</li>
+                               <li><strong className="text-slate-800 dark:text-white">Défense</strong> : Agressivité et placement excellents. Appuis très solides (transfert du judo).</li>
+                               <li><strong className="text-slate-800 dark:text-white">Tir / Finition</strong> : Très explosif en contre-attaque. Bon bras dominant.</li>
+                               <li><strong className="text-slate-800 dark:text-white">Prise d'info</strong> : Vision du jeu naissante, mais libère la balle trop tard face aux gros gabarits (U9).</li>
                              </ul>
                           </div>
 
@@ -825,44 +846,46 @@
                       <div className="space-y-4">
                         {filteredPastEvents.length === 0 ? (
                            <p className="text-sm text-slate-400 font-medium text-center py-4">Aucun événement passé pour ce filtre.</p>
-                        ) : filteredPastEvents.map((monthGrp, mIdx) => (
-                          <div key={mIdx} className="space-y-3">
-                            <div className="flex items-center gap-3 pt-2 pb-1">
-                               <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">{monthGrp.month}</h4>
-                               <div className="flex-1 border-b border-slate-200 dark:border-slate-800"></div>
-                            </div>
-                            {monthGrp.events.map((ev) => {
-                              const isExp = expandedPastId === ev.id;
-                              const EvIcon = getSportIcon(ev.sport);
-                              const iconColorClass = getSportColorClass(ev.sport);
-
-                              return (
-                              <div key={ev.id} className="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-800/30 hover:border-slate-300 dark:hover:border-slate-600 transition-colors shadow-sm">
-                                <div className="p-4 flex items-center justify-between cursor-pointer" onClick={() => setExpandedPastId(isExp ? null : ev.id)}>
-                                  <div className="flex items-center gap-4">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${iconColorClass}`}><EvIcon size={18} /></div>
-                                    <div><p className="text-sm font-black text-slate-800 dark:text-white">{ev.name}</p><p className="text-[10px] font-bold text-slate-500 uppercase mt-0.5">{ev.date} • {ev.sport}</p></div>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap hidden sm:block ${ev.result === '1ER' || ev.result.includes('1er') || ev.result.includes('3ÈME') || ev.result === 'RECORDS' ? 'border-yellow-400 text-yellow-700 bg-yellow-50 dark:bg-yellow-900/30 dark:text-yellow-400' : ev.result === 'DSQ' || ev.result === 'NC' ? 'border-red-400 text-red-600 bg-red-50 dark:bg-red-900/30 dark:text-red-400' : 'border-slate-200 text-slate-600 bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300'}`}>{ev.result}</span>
-                                    <div className="bg-white dark:bg-slate-800 p-1 rounded-full border border-slate-200 dark:border-slate-700">{isExp ? <ChevronUp size={16} className="text-slate-400"/> : <ChevronDown size={16} className="text-slate-400"/>}</div>
-                                  </div>
-                                </div>
-                                <div className="px-4 pb-3 sm:hidden text-right block border-t border-slate-100 dark:border-slate-700 pt-2">
-                                   <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap ${ev.result === '1ER' || ev.result.includes('1er') || ev.result.includes('3ÈME') || ev.result === 'RECORDS' ? 'border-yellow-400 text-yellow-700 bg-yellow-50 dark:bg-yellow-900/30 dark:text-yellow-400' : ev.result === 'DSQ' || ev.result === 'NC' ? 'border-red-400 text-red-600 bg-red-50 dark:bg-red-900/30 dark:text-red-400' : 'border-slate-200 text-slate-600 bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300'}`}>{ev.result}</span>
-                                </div>
-                                {isExp && (
-                                  <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-inner grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Adversité</p>{renderStars(ev.adv)}</div>
-                                    <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Volume</p><p className="text-xs font-bold text-slate-700 dark:text-slate-300">{ev.matches}</p></div>
-                                    <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Résumé</p><p className="text-xs font-medium text-slate-600 dark:text-slate-400 leading-relaxed">{ev.desc}</p></div>
-                                    <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Commentaire Technique</p><p className="text-xs font-medium text-slate-600 dark:text-slate-400 leading-relaxed italic border-l-2 border-slate-200 dark:border-slate-700 pl-2">{ev.com}</p></div>
-                                  </div>
-                                )}
+                        ) : filteredPastEvents.map((ev, i) => {
+                          if (ev.isHeader) {
+                            return (
+                              <div key={`head-${i}`} className="flex items-center gap-3 pt-2 pb-1">
+                                 <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">{ev.month}</h4>
+                                 <div className="flex-1 border-b border-slate-200 dark:border-slate-800"></div>
                               </div>
-                            )})}
-                          </div>
-                        ))}
+                            );
+                          }
+
+                          const isExp = expandedPastId === ev.id;
+                          const EvIcon = getSportIcon(ev.sport);
+                          const iconColorClass = getSportColorClass(ev.sport);
+
+                          return (
+                            <div key={ev.id} className="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-800/30 hover:border-slate-300 dark:hover:border-slate-600 transition-colors shadow-sm">
+                              <div className="p-4 flex items-center justify-between cursor-pointer" onClick={() => setExpandedPastId(isExp ? null : ev.id)}>
+                                <div className="flex items-center gap-4">
+                                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${iconColorClass}`}><EvIcon size={18} /></div>
+                                  <div><p className="text-sm font-black text-slate-800 dark:text-white">{ev.name}</p><p className="text-[10px] font-bold text-slate-500 uppercase mt-0.5">{ev.date} • {ev.sport}</p></div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap hidden sm:block ${ev.result === '1ER' || ev.result.includes('1er') || ev.result.includes('3ÈME') || ev.result === 'RECORDS' ? 'border-yellow-400 text-yellow-700 bg-yellow-50 dark:bg-yellow-900/30 dark:text-yellow-400' : ev.result === 'DSQ' || ev.result === 'NC' ? 'border-red-400 text-red-600 bg-red-50 dark:bg-red-900/30 dark:text-red-400' : 'border-slate-200 text-slate-600 bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300'}`}>{ev.result}</span>
+                                  <div className="bg-white dark:bg-slate-800 p-1 rounded-full border border-slate-200 dark:border-slate-700">{isExp ? <ChevronUp size={16} className="text-slate-400"/> : <ChevronDown size={16} className="text-slate-400"/>}</div>
+                                </div>
+                              </div>
+                              <div className="px-4 pb-3 sm:hidden text-right block border-t border-slate-100 dark:border-slate-700 pt-2">
+                                 <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap ${ev.result === '1ER' || ev.result.includes('1er') || ev.result.includes('3ÈME') || ev.result === 'RECORDS' ? 'border-yellow-400 text-yellow-700 bg-yellow-50 dark:bg-yellow-900/30 dark:text-yellow-400' : ev.result === 'DSQ' || ev.result === 'NC' ? 'border-red-400 text-red-600 bg-red-50 dark:bg-red-900/30 dark:text-red-400' : 'border-slate-200 text-slate-600 bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300'}`}>{ev.result}</span>
+                              </div>
+                              {isExp && (
+                                <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-inner grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Adversité</p>{renderStars(ev.adv)}</div>
+                                  <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Volume</p><p className="text-xs font-bold text-slate-700 dark:text-slate-300">{ev.matches}</p></div>
+                                  <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Résumé</p><p className="text-xs font-medium text-slate-600 dark:text-slate-400 leading-relaxed">{ev.desc}</p></div>
+                                  <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Commentaire Technique</p><p className="text-xs font-medium text-slate-600 dark:text-slate-400 leading-relaxed italic border-l-2 border-slate-200 dark:border-slate-700 pl-2">{ev.com}</p></div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </Card>
 
@@ -880,44 +903,45 @@
                       <div className="space-y-4">
                         {filteredFutureEvents.length === 0 ? (
                            <p className="text-sm text-slate-400 font-medium text-center py-4">Aucun événement à venir pour ce filtre.</p>
-                        ) : filteredFutureEvents.map((monthGrp, mIdx) => (
-                          <div key={mIdx} className="space-y-3">
-                            <div className="flex items-center gap-3 pt-2 pb-1">
-                               <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">{monthGrp.month}</h4>
-                               <div className="flex-1 border-b border-slate-200 dark:border-slate-800"></div>
-                            </div>
-                            {monthGrp.events.map((ev) => {
-                              const isExp = expandedFutureId === ev.id;
-                              const EvIcon = getSportIcon(ev.sport);
-                              const iconColorClass = getSportColorClass(ev.sport);
-
-                              return (
-                              <div key={ev.id} className="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-800/30 hover:border-slate-300 dark:hover:border-slate-600 transition-colors shadow-sm">
-                                <div className="p-4 flex items-center justify-between cursor-pointer" onClick={() => setExpandedFutureId(isExp ? null : ev.id)}>
-                                  <div className="flex items-center gap-4">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${iconColorClass}`}><EvIcon size={18} /></div>
-                                    <div><p className="text-sm font-black text-slate-800 dark:text-white">{ev.name}</p><p className="text-[10px] font-bold text-slate-500 uppercase mt-0.5">{ev.date} • {ev.sport}</p></div>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap hidden sm:block ${ev.inscrit ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:border-green-800 dark:text-green-400' : 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:border-orange-800 dark:text-orange-400'}`}>{ev.inscrit ? 'Confirmé' : 'À Confirmer'}</span>
-                                    <div className="bg-white dark:bg-slate-800 p-1 rounded-full border border-slate-200 dark:border-slate-700">{isExp ? <ChevronUp size={16} className="text-slate-400"/> : <ChevronDown size={16} className="text-slate-400"/>}</div>
-                                  </div>
-                                </div>
-                                <div className="px-4 pb-3 sm:hidden text-right block border-t border-slate-100 dark:border-slate-700 pt-2">
-                                   <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap ${ev.inscrit ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:border-green-800 dark:text-green-400' : 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:border-orange-800 dark:text-orange-400'}`}>{ev.inscrit ? 'Confirmé' : 'À Confirmer'}</span>
-                                </div>
-                                {isExp && (
-                                  <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-inner grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Horaires</p><p className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1"><Clock size={12}/>{ev.time}</p></div>
-                                    <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Logistique</p><p className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">🚗 {ev.drive}</p></div>
-                                    <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Lieu Exact</p><p className="text-xs font-medium text-slate-600 dark:text-slate-400 flex items-start gap-1"><MapPin size={12} className="shrink-0 mt-0.5"/>{ev.address}</p></div>
-                                  </div>
-                                )}
+                        ) : filteredFutureEvents.map((ev, i) => {
+                          if (ev.isHeader) {
+                            return (
+                              <div key={`head-${i}`} className="flex items-center gap-3 pt-2 pb-1">
+                                 <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">{ev.month}</h4>
+                                 <div className="flex-1 border-b border-slate-200 dark:border-slate-800"></div>
                               </div>
                             );
-                          })}
-                          </div>
-                        ))}
+                          }
+
+                          const isExp = expandedFutureId === ev.id;
+                          const EvIcon = getSportIcon(ev.sport);
+                          const iconColorClass = getSportColorClass(ev.sport);
+
+                          return (
+                            <div key={ev.id} className="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-800/30 hover:border-slate-300 dark:hover:border-slate-600 transition-colors shadow-sm">
+                              <div className="p-4 flex items-center justify-between cursor-pointer" onClick={() => setExpandedFutureId(isExp ? null : ev.id)}>
+                                <div className="flex items-center gap-4">
+                                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${iconColorClass}`}><EvIcon size={18} /></div>
+                                  <div><p className="text-sm font-black text-slate-800 dark:text-white">{ev.name}</p><p className="text-[10px] font-bold text-slate-500 uppercase mt-0.5">{ev.date} • {ev.sport}</p></div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap hidden sm:block ${ev.inscrit ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:border-green-800 dark:text-green-400' : 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:border-orange-800 dark:text-orange-400'}`}>{ev.inscrit ? 'Confirmé' : 'À Confirmer'}</span>
+                                  <div className="bg-white dark:bg-slate-800 p-1 rounded-full border border-slate-200 dark:border-slate-700">{isExp ? <ChevronUp size={16} className="text-slate-400"/> : <ChevronDown size={16} className="text-slate-400"/>}</div>
+                                </div>
+                              </div>
+                              <div className="px-4 pb-3 sm:hidden text-right block border-t border-slate-100 dark:border-slate-700 pt-2">
+                                 <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap ${ev.inscrit ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:border-green-800 dark:text-green-400' : 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:border-orange-800 dark:text-orange-400'}`}>{ev.inscrit ? 'Confirmé' : 'À Confirmer'}</span>
+                              </div>
+                              {isExp && (
+                                <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-inner grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Horaires</p><p className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1"><Clock size={12}/>{ev.time}</p></div>
+                                  <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Logistique</p><p className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">🚗 {ev.drive}</p></div>
+                                  <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Lieu Exact</p><p className="text-xs font-medium text-slate-600 dark:text-slate-400 flex items-start gap-1"><MapPin size={12} className="shrink-0 mt-0.5"/>{ev.address}</p></div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </Card>
                   </div>
