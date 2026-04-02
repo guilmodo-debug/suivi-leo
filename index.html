@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Léo | Cockpit de Pilotage Sportif</title>
     
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS avec config Dark Mode -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -30,13 +30,13 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; transition: background-color 0.3s; }
         
-        /* Infobulles robustes pour passer au-dessus de TOUT */
-        .custom-tooltip-container { position: relative; display: inline-flex; align-items: center; cursor: help; }
+        /* Système d'infobulles 100% hors-cadre */
+        .custom-tooltip-container { position: relative; display: inline-flex; align-items: center; cursor: help; z-index: 50; }
         .custom-tooltip-content { 
             visibility: hidden; opacity: 0; position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%); 
-            width: max-content; max-width: 280px; background-color: #1e293b; color: white; text-align: center; 
-            border-radius: 8px; padding: 12px; font-size: 11px; z-index: 999999; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
-            white-space: normal; line-height: 1.5; transition: all 0.2s ease; pointer-events: none; font-weight: 500;
+            width: max-content; max-width: 250px; background-color: #1e293b; color: white; text-align: center; 
+            border-radius: 8px; padding: 10px; font-size: 11px; z-index: 99999; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
+            white-space: normal; line-height: 1.4; transition: all 0.2s ease; pointer-events: none; font-weight: 500;
         }
         .custom-tooltip-content::after { 
             content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); 
@@ -44,21 +44,14 @@
         }
         .custom-tooltip-container:hover .custom-tooltip-content { visibility: visible; opacity: 1; bottom: 140%; }
         
-        /* Structure de cartes modifiée pour laisser l'infobulle sortir librement */
-        .kpi-card { position: relative; border-radius: 1.5rem; padding: 1.5rem; z-index: 10; transition: z-index 0.2s; }
-        .kpi-card:hover { z-index: 50; }
-        .kpi-bg { position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; border-radius: 1.5rem; z-index: -1; }
-        
         .card-container { overflow: visible !important; }
-        .alert-pulse { animation: softPulse 2s infinite; }
-        @keyframes softPulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
     </style>
 </head>
 <body class="bg-[#f4f7f9] dark:bg-slate-950 text-slate-900 dark:text-slate-100">
     
     <div id="root">
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; color: #4f46e5;">
-            <p style="font-weight: bold; font-family: sans-serif;">Initialisation du Moteur de Décision Léo Analytics...</p>
+            <p style="font-weight: bold; font-family: sans-serif;">Chargement du tableau de bord Léo Analytics...</p>
         </div>
     </div>
 
@@ -67,21 +60,28 @@
             constructor(props) { super(props); this.state = { hasError: false, error: null }; }
             static getDerivedStateFromError(error) { return { hasError: true, error }; }
             render() {
-                if (this.state.hasError) return <div className="p-8 text-red-500 bg-red-50 min-h-screen"><h1 className="text-2xl font-bold mb-4">Erreur système :</h1><pre className="bg-white p-4 rounded shadow overflow-auto text-sm">{this.state.error.toString()}</pre></div>;
+                if (this.state.hasError) {
+                    return (
+                        <div className="p-8 text-red-500 bg-red-50 min-h-screen">
+                            <h1 className="text-2xl font-bold mb-4">Une erreur est survenue :</h1>
+                            <pre className="bg-white p-4 rounded shadow overflow-auto text-sm">{this.state.error.toString()}</pre>
+                        </div>
+                    );
+                }
                 return this.props.children;
             }
         }
 
         const { useState, useEffect } = React;
-        const { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip: RechartsTooltip, ResponsiveContainer, BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend } = window.Recharts;
+        const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip: RechartsTooltip, ResponsiveContainer, BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend } = window.Recharts;
 
-        // --- ICONES SYSTEME ---
-        const Icon = ({ path, size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} dangerouslySetInnerHTML={{ __html: path }} />;
-        
+        // --- ICONES GLOBALES ---
+        const Icon = ({ path, size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} dangerouslySetInnerHTML={{ __html: path }} />
+        );
         const Activity = (p) => <Icon {...p} path='<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>' />;
         const Target = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>' />;
         const AlertCircle = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>' />;
-        const ShieldAlert = (p) => <Icon {...p} path='<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>' />;
         const Award = (p) => <Icon {...p} path='<circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>' />;
         const Waves = (p) => <Icon {...p} path='<path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.6 2 5 2 2.3 0 2.3-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.6 2 5 2 2.3 0 2.3-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.6 2 5 2 2.3 0 2.3-2 5-2 1.3 0 1.9.5 2.5 1"/>' />;
         const User = (p) => <Icon {...p} path='<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>' />;
@@ -90,6 +90,7 @@
         const Compass = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>' />;
         const Zap = (p) => <Icon {...p} path='<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>' />;
         const TrophyIcon = (p) => <Icon {...p} path='<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0v-7z"/>' />;
+        const Flag = (p) => <Icon {...p} path='<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>' />;
         const MapPin = (p) => <Icon {...p} path='<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>' />;
         const Clock = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' />;
         const ArrowRight = (p) => <Icon {...p} path='<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>' />;
@@ -98,12 +99,13 @@
         const ChevronUp = (p) => <Icon {...p} path='<polyline points="18 15 12 9 6 15"/>' />;
         const Crosshair = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/>' />;
         const InfoIcon = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>' />;
-        const TrendingUp = (p) => <Icon {...p} path='<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>' />;
         const StarIcon = (p) => <Icon {...p} path='<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>' />;
         
-        // Icônes Dark Mode & Sports
+        // Mode Sombre
         const MoonIcon = (p) => <Icon {...p} path='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>' />;
         const SunIcon = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>' />;
+
+        // Icônes spécifiques
         const BallIcon = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20M2 12a14.5 14.5 0 0 0 20 0"/>' />;
         const JudoIcon = (p) => <Icon {...p} path='<rect x="3" y="10" width="18" height="4" rx="1"/><path d="M12 14v5M10 14l-2 4M14 14l2 4"/>' />;
 
@@ -115,56 +117,33 @@
             </div>
         );
 
-        const Gauge = ({ label, value, colorClass, bgClass, desc }) => (
-            <div>
-                <div className="flex justify-between text-xs font-bold mb-1.5"><span className="text-slate-600 dark:text-slate-300">{label}</span><span className={colorClass.replace('bg-', 'text-')}>{value}%</span></div>
-                <div className={`h-2.5 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700`}>
-                    <div className={`h-full rounded-full transition-all duration-1000 ${bgClass}`} style={{ width: `${value}%` }}></div>
-                </div>
-                {desc && <p className="text-[9px] text-slate-400 mt-1">{desc}</p>}
-            </div>
-        );
-
-        // --- MAIN APP ---
         const App = () => {
-          const [activeTab, setActiveTab] = useState('cockpit');
-          const [viewMode, setViewMode] = useState('expert'); 
+          const [activeTab, setActiveTab] = useState('synthesis');
           
+          // Etats calendrier (ID uniques)
           const [expandedPastId, setExpandedPastId] = useState(null);
           const [expandedFutureId, setExpandedFutureId] = useState(null);
+          
+          // Filtres du Calendrier
           const [pastFilter, setPastFilter] = useState('ALL');
           const [futureFilter, setFutureFilter] = useState('ALL');
           
+          // Etat Mode Sombre
           const [isDark, setIsDark] = useState(false);
           useEffect(() => {
               if (isDark) document.documentElement.classList.add('dark');
               else document.documentElement.classList.remove('dark');
           }, [isDark]);
 
-          // ==========================================
-          // DATA: MOTEUR DE DÉCISION & PRÉDICTIF
-          // ==========================================
-          const decisionEngine = {
-              alerte: { type: 'danger', titre: 'Risque Blessure / Souplesse', texte: 'Perte de souplesse (-1cm) et poussée de croissance en cours. Indice de risque structurel modéré. Assouplissements obligatoires.' },
-              prioritePhysique: { titre: 'Mobilité & Relâchement', texte: 'Remplacer 15min de multi-sport par des étirements ischio/psoas quotidiens.' },
-              prioriteTechnique: { titre: 'Départs & Prise d\'info', texte: 'Focus sur l\'angle d\'entrée dans l\'eau au plongeon et la levée de tête au Handball.' },
-              contrainte: { titre: 'Plafonnement Volume', texte: 'Ne pas dépasser 8h de sport structuré hebdomadaire (Principes de Güllich).' }
-          };
-
-          const predictiveData = [
-              { mois: 'Oct', reel: 70, opti: 72 }, { mois: 'Nov', reel: 74, opti: 74 },
-              { mois: 'Déc', reel: 75, opti: 76 }, { mois: 'Jan', reel: 79, opti: 78 },
-              { mois: 'Fév', reel: 82, opti: 80 }, { mois: 'Mar', reel: 84, opti: 82 },
-              { mois: 'Avr', reel: null, opti: 84 }, { mois: 'Mai', reel: null, opti: 86 }
-          ];
-
-          // ==========================================
-          // DATA: IDENTITÉ & KPIs
-          // ==========================================
+          // --- 1. DATA: IDENTITÉ & KPIs ---
           const identity = {
             name: "Léo", age: "6 ans 10 mois", category: "U9 / Pré-Poussin",
-            morphology: { current: { height: 127.0, weight: 25.7, imc: 15.9 }, average: { height: 123.0, weight: 23.5, imc: 15.6 } },
-            details: "Envergure: 122 cm | Taille assise: 68 cm", projection: "185 cm / 78 kg", type: "Longiligne en construction",
+            morphology: {
+              current: { height: 127.0, weight: 25.7, imc: 15.9 },
+              average: { height: 123.0, weight: 23.5, imc: 15.6 }
+            },
+            details: "Envergure: 122 cm | Taille assise: 68 cm",
+            projection: "185 cm / 78 kg", type: "Longiligne en construction",
             status: "Multisport Structuré (7-8h hebdo)"
           };
 
@@ -175,6 +154,7 @@
             { label: "Indice Stabilité Méc.", value: "6.5/10", trend: "Fragile", color: "text-amber-500 dark:text-amber-400", desc: "Hanche intermittente sous pression", info: "Capacité à maintenir sa posture de force (Shisei) et sa verticalité face à l'agressivité de l'adversaire." },
           ];
 
+          // --- 2. DATA: VOLUME & TESTS ---
           const volumeMensuel = [
             { mois: 'Sept', Judo: 11, Natation: 11, Handball: 5, Multisport: 5, TOTAL: 32 },
             { mois: 'Oct', Judo: 8, Natation: 6.5, Handball: 3.75, Multisport: 5, TOTAL: 23.25 },
@@ -188,7 +168,7 @@
           const athleticRadar = [
             { subject: 'Vitesse', val: 95 }, { subject: 'Explosivité', val: 95 },
             { subject: 'Coordination', val: 88 }, { subject: 'Endurance', val: 80 },
-            { subject: 'Souplesse', val: 30 }, { subject: 'Stabilité (Core)', val: 70 },
+            { subject: 'Souplesse', val: 30 }, { subject: 'Rotation', val: 65 },
           ];
 
           const extendedPhysicalTests = [
@@ -206,14 +186,13 @@
             { name: 'Autonomie', score: 75, color: '#3b82f6', info: "Autonomie logistique franchie : prépare son sac, écoute sans aide parentale." },
           ];
 
-          // ==========================================
-          // DATA: SPÉCIALITÉS NOUVEAUX METRICS
-          // ==========================================
+          // --- 3. DATA: SPÉCIALITÉS ---
           const judoAdvancedStats = {
-            club: "Dojo Grenelle (75)", grade: "Ceinture Jaune 2 Barrettes",
+            club: "Dojo Grenelle (75)",
+            grade: "Ceinture Jaune 2 Barrettes", debut: "Sept. 2023 (2.5 ans)",
             kpis: [
               { label: 'Heures cumulées', value: "191h", sub: 'Depuis 2023' }, 
-              { label: 'Indice Diversité', value: "4.2", sub: 'Techniques fortes' },
+              { label: 'Randoris', value: "575", sub: 'Cumul (3/h)' },
               { label: 'Combats', value: "22", sub: 'Saison 25-26' }, 
               { label: 'Victoires', value: "21", sub: 'Dont 3 Ne-Waza' },
             ],
@@ -227,78 +206,103 @@
 
           const natationStats = {
             club: "ACBB (92)",
+            debut: "Sept. 2024 (1.5 an)",
             kpis: [
-              { label: 'Efficacité (DPS)', value: "1.38m", sub: 'Distance/Cycle' },
-              { label: 'Cycles / 25m', value: "18", sub: 'Crawl (Moyenne)' },
-              { label: 'Record 25m Dos', value: "25.38s", sub: 'Validé (-3s)' },
-              { label: 'Gain Départ', value: "-0.4s", sub: 'Alerte technique' },
+              { label: 'Heures cumulées', value: "133h", sub: 'Depuis 2024' },
+              { label: 'KM parcourus', value: "42", sub: 'Cumul estimé' },
+              { label: 'Courses Off.', value: "3", sub: 'Saison 25-26' },
+              { label: 'Record 25m', value: "25.38s", sub: 'Dos (Nouveau)' },
             ]
           };
 
           const handballStats = {
             club: "Issy Paris Hand (92)",
+            debut: "Sept. 2024 (1.5 an)",
             kpis: [
-              { label: 'Ratio Passe/Tir', value: "1.5", sub: 'QI Sportif (Haut)' },
+              { label: 'Heures cumulées', value: "69h", sub: 'Depuis 2024' },
               { label: 'Matchs Joués', value: "20", sub: 'Saison 25-26' },
-              { label: 'Impact Défensif', value: "Fort", sub: 'Appuis / Engagement' },
+              { label: 'Tournois', value: "7", sub: 'Saison 25-26' },
               { label: 'Podiums', value: "4", sub: 'Dont 3 victoires' },
             ]
           };
 
-          // ==========================================
-          // DATA: CALENDRIER (FORMAT FLAT)
-          // ==========================================
-          const pastEventsList = [
-            { id: "p_n2903", month: "Mars 2026", date: '29/03', sport: 'Natation', name: 'J2 Avenirs (92)', result: '3ÈME (Bronze)', adv: 3, matches: "2 courses", desc: "Records personnels explosés sur 25m Dos (25.38s) et 25m Crawl (27.32s). Superbe 3ème place (cat. 2018-2019) en dos.", com: "Meilleure gestion globale. Attention à l'entrée en piqué au plongeon et à la respiration en 2 temps en crawl." },
-            { id: "p_h2803", month: "Mars 2026", date: '28/03', sport: 'Handball', name: 'Interclub #5 U7 (Fontenay)', result: '1ER', adv: 1, matches: "2 matchs", desc: "Superbe performance collective. Léo continue de dominer par sa vitesse.", com: "Très bonne vision du jeu et passes précises. L'adversité était faible sur ce plateau." },
-            { id: "p_c2203", month: "Mars 2026", date: '22/03', sport: 'Judo', name: 'Coignières (78)', result: '1ER', adv: 3, matches: "3 combats", desc: "Tournoi accroché. Forte progression mentale sous pression avec 3 victoires par Ippon.", com: "Meilleure gestion du kumi-kata. Harai-Goshi propre. Liaison debout-sol déterminante (Yoko-Shiho-Gatame)." },
-            { id: "p_h1403", month: "Mars 2026", date: '14/03', sport: 'Handball', name: 'Interclub #4 U7 (Issy)', result: '3ÈME', adv: 3, matches: "Plusieurs matchs", desc: "Termine sur le podium (3ème place) de l'interclub.", com: "Engagement constant et toujours une grosse solidité défensive." },
-            { id: "p0", month: "Mars 2026", date: '07/03', sport: 'Judo', name: 'Nogent le Rotrou (28)', result: '1ER', adv: 2, matches: "3 combats", desc: "Tournoi parfaitement maîtrisé avec 3 victoires par Ippon.", com: "Excellente posture verticale (fin du 'plongeon'). Utilisation très efficace du balayage (De-Ashi-Barai)." },
-            
-            { id: "p1", month: "Février 2026", date: '21/02', sport: 'Judo', name: 'Magny-en-Vexin (95)', result: '1ER', adv: 1, matches: "3 combats", desc: "Niveau global faible. Tournoi maîtrisé du début à la fin.", com: "Attaque en jambe explosive parfaitement exécutée (Ko-Soto-Gari)." },
-            { id: "p2", month: "Février 2026", date: '08/02', sport: 'Judo', name: 'Saint-Arnoult-en-Yv. (78)', result: '1ER', adv: 2, matches: "3 combats", desc: "Très bonne gestion des combats sur un tournoi de niveau modéré.", com: "Belles liaisons debout-sol et confirmation des acquis." },
-            { id: "p3", month: "Février 2026", date: '07/02', sport: 'Natation', name: 'Suresnes (92)', result: 'DSQ', adv: 3, matches: "1 course", desc: "Disqualification sur 25m dos pour retournement sur le ventre.", com: "Chrono d'entraînement (28.46s) validant le niveau." },
-            
-            { id: "p4", month: "Janvier 2026", date: '24/01', sport: 'Handball', name: 'Issy (92) - U9', result: 'NC', adv: 4, matches: "Plusieurs matchs", desc: "Surclassement en U9. Tournoi compliqué face à des gabarits supérieurs.", com: "A eu du mal à lâcher son ballon rapidement." },
-            { id: "p5", month: "Janvier 2026", date: '18/01', sport: 'Handball', name: 'Suresnes (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", desc: "Victoire de l'équipe sur ce tournoi interclub.", com: "Évolution très positive sur sa vision du jeu. Capable de lever la tête." },
-            { id: "p6", month: "Janvier 2026", date: '11/01', sport: 'Judo', name: 'Amilly (45)', result: '1ER', adv: 2, matches: "3 combats", desc: "Tournoi de rentrée 2026 bien maîtrisé.", com: "Domination sur les prises de hanche (Tai-Otoshi)." },
-            
-            { id: "p7", month: "Décembre 2025", date: '07/12', sport: 'Judo', name: 'Paris Sorbier (75)', result: '1ER', adv: 4, matches: "3 combats", desc: "Termine 1er au global malgré sa seule défaite de l'année.", com: "Excellente attitude de résilience." },
-            
-            { id: "p8", month: "Novembre 2025", date: '29/11', sport: 'Handball', name: 'Issy (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", desc: "Meilleur marqueur de la compétition avec 12 buts.", com: "Très performant face aux enfants de son âge." },
-            { id: "p9", month: "Novembre 2025", date: '16/11', sport: 'Judo', name: 'Drancy (93)', result: '1ER', adv: 3, matches: "3 combats", desc: "Tournoi parfaitement géré niveau mental et concentration.", com: "1er combat: Tai-Otoshi. 2ème: Ippon Seoi Nage." },
-            
-            { id: "p10", month: "Octobre 2025", date: '12/10', sport: 'Judo', name: 'Pithiviers (45)', result: '1ER', adv: 1, matches: "2 combats", desc: "1er tournoi de la saison, peu d'adversité.", com: "1er et 2ème combat remportés par le même mix : Harai Goshi puis Tai-Otoshi." }
+          // --- 4. DATA: CALENDRIER (FORMAT FLAT STRICT) ---
+          const pastEvents = [
+            { month: "Mars 2026", events: [
+              { id: "p_n2903", date: '29/03', sport: 'Natation', name: 'J2 Avenirs (92)', result: '3ÈME (Bronze)', adv: 3, matches: "2 courses", 
+                desc: "Records personnels explosés sur 25m Dos (25.38s) et 25m Crawl (27.32s). Superbe 3ème place de sa catégorie d'âge (2018-2019) en dos.", com: "Meilleure gestion globale. Attention à l'entrée en piqué au plongeon et à la respiration en 2 temps en crawl qui déséquilibre la nage." },
+              { id: "p_h2803", date: '28/03', sport: 'Handball', name: 'Interclub #5 U7 (Fontenay)', result: '1ER', adv: 1, matches: "2 matchs", 
+                desc: "Superbe performance collective. Léo continue de dominer par sa vitesse en contre-attaque.", com: "Très bonne vision du jeu et passes précises. L'adversité était faible sur ce plateau." },
+              { id: "p_c2203", date: '22/03', sport: 'Judo', name: 'Coignières (78)', result: '1ER', adv: 3, matches: "3 combats", 
+                desc: "Tournoi accroché. Forte progression mentale sous pression avec 3 victoires par Ippon.", com: "Meilleure gestion du kumi-kata. Harai-Goshi très propre. Liaison debout-sol déterminante (Yoko-Shiho-Gatame)." },
+              { id: "p_h1403", date: '14/03', sport: 'Handball', name: 'Interclub #4 U7 (Issy)', result: '3ÈME', adv: 3, matches: "Plusieurs matchs", 
+                desc: "Termine sur le podium (3ème place) de l'interclub.", com: "Engagement constant et toujours une grosse solidité défensive." },
+              { id: "p0", date: '07/03', sport: 'Judo', name: 'Nogent le Rotrou (28)', result: '1ER', adv: 2, matches: "3 combats", 
+                desc: "Tournoi parfaitement maîtrisé avec 3 victoires par Ippon.", com: "Excellente posture verticale (fin du 'plongeon'). Utilisation très efficace du balayage (De-Ashi-Barai) et du crochetage (Ko-Soto-Gari)." }
+            ]},
+            { month: "Février 2026", events: [
+              { id: "p1", date: '21/02', sport: 'Judo', name: 'Magny-en-Vexin (95)', result: '1ER', adv: 1, matches: "3 combats", 
+                desc: "Niveau global faible. Tournoi maîtrisé du début à la fin avec 3 victoires expéditives.", com: "Le 3ème combat marque un tournant technique avec une attaque en jambe explosive parfaitement exécutée (Ko-Soto-Gari)." },
+              { id: "p2", date: '08/02', sport: 'Judo', name: 'Saint-Arnoult-en-Yv. (78)', result: '1ER', adv: 2, matches: "3 combats", 
+                desc: "Très bonne gestion des combats sur un tournoi de niveau modéré.", com: "Belles liaisons debout-sol et confirmation des acquis." },
+              { id: "p3", date: '07/02', sport: 'Natation', name: 'Suresnes (92)', result: 'DSQ', adv: 3, matches: "1 course", 
+                desc: "Disqualification sur 25m dos pour retournement sur le ventre.", com: "Erreur technique de repère spatial avant de toucher le mur. Chrono d'entraînement (28.46s) validant le niveau." }
+            ]},
+            { month: "Janvier 2026", events: [
+              { id: "p4", date: '24/01', sport: 'Handball', name: 'Issy (92) - U9', result: 'NC', adv: 4, matches: "Plusieurs matchs", 
+                desc: "Surclassement en U9. Tournoi compliqué.", com: "Forte adversité physique face à des gabarits supérieurs. A eu du mal à lâcher son ballon rapidement." },
+              { id: "p5", date: '18/01', sport: 'Handball', name: 'Suresnes (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", 
+                desc: "Victoire de l'équipe sur ce tournoi interclub.", com: "Évolution très positive sur sa vision du jeu. Capable de lever la tête et de trouver de bonnes passes." },
+              { id: "p6", date: '11/01', sport: 'Judo', name: 'Amilly (45)', result: '1ER', adv: 2, matches: "3 combats", 
+                desc: "Tournoi de rentrée 2026 bien maîtrisé.", com: "Domination sur les prises de hanche (Tai-Otoshi)." }
+            ]},
+            { month: "Décembre 2025", events: [
+              { id: "p7", date: '07/12', sport: 'Judo', name: 'Paris Sorbier (75)', result: '1ER', adv: 4, matches: "3 combats", 
+                desc: "Termine 1er au global malgré sa seule défaite de l'année.", com: "Défaite subie par Ippon sur un Ippon Seoi Nage adverse. Excellente attitude de résilience." }
+            ]},
+            { month: "Novembre 2025", events: [
+              { id: "p8", date: '29/11', sport: 'Handball', name: 'Issy (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", 
+                desc: "Meilleur marqueur de la compétition avec 12 buts.", com: "Très performant face aux enfants de son âge grâce à sa vitesse. Excellent esprit d'équipe." },
+              { id: "p9", date: '16/11', sport: 'Judo', name: 'Drancy (93)', result: '1ER', adv: 3, matches: "3 combats", 
+                desc: "Tournoi parfaitement géré niveau mental et concentration.", com: "1er combat: Tai-Otoshi. 2ème: Ippon Seoi Nage. 3ème: enchainement debout-sol." }
+            ]},
+            { month: "Octobre 2025", events: [
+              { id: "p10", date: '12/10', sport: 'Judo', name: 'Pithiviers (45)', result: '1ER', adv: 1, matches: "2 combats", 
+                desc: "1er tournoi de la saison, peu d'adversité.", com: "1er et 2ème combat remportés par le même mix : Harai Goshi puis Tai-Otoshi." }
+            ]}
           ];
 
-          const futureEventsList = [
-            { id: "f_moissy", month: "Avril 2026", date: '11/04', sport: 'Judo', name: "Tournoi de Moissy (77)", time: 'À définir', drive: '1h00 de route', address: 'Moissy-Cramayel (77)', inscrit: false },
+          const futureEvents = [
+            { month: "Avril 2026", events: [
+              { id: "f_moissy", date: '11/04', sport: 'Judo', name: "Tournoi de Moissy (77)", status: 'À CONFIRMER', time: 'À définir', drive: '1h00 de route', address: 'Moissy-Cramayel (77)' }
+            ]}
           ];
 
-          // Filtrage et Groupement des événements
-          const filteredPast = pastEventsList.filter(ev => pastFilter === 'ALL' || ev.sport === pastFilter);
-          const groupedPast = filteredPast.reduce((acc, ev) => {
-              if (!acc[ev.month]) acc[ev.month] = [];
-              acc[ev.month].push(ev);
-              return acc;
-          }, {});
+          // Filtrage sécurisé
+          const filteredPastEvents = pastEvents.map(monthGrp => ({
+              ...monthGrp,
+              events: monthGrp.events.filter(ev => pastFilter === 'ALL' || ev.sport === pastFilter)
+          })).filter(monthGrp => monthGrp.events.length > 0);
 
-          const filteredFuture = futureEventsList.filter(ev => futureFilter === 'ALL' || ev.sport === futureFilter);
-          const groupedFuture = filteredFuture.reduce((acc, ev) => {
-              if (!acc[ev.month]) acc[ev.month] = [];
-              acc[ev.month].push(ev);
-              return acc;
-          }, {});
+          const filteredFutureEvents = futureEvents.map(monthGrp => ({
+              ...monthGrp,
+              events: monthGrp.events.filter(ev => futureFilter === 'ALL' || ev.sport === futureFilter)
+          })).filter(monthGrp => monthGrp.events.length > 0);
 
           // --- Utilitaires de rendu ---
           const Card = ({ children, title, icon: IconCmp, rightContent, className = "" }) => (
             <div className={`bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm relative card-container ${className}`}>
+              {/* Le z-index négatif sur l'animation de fond évite de masquer les tooltips */}
               <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none z-0"></div>
               <div className="relative z-10 h-full flex flex-col">
                 {(title || rightContent) && (
                   <div className="flex items-center justify-between mb-6">
-                    {title && <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center gap-2">{IconCmp && <IconCmp size={18} className="text-indigo-500" />} {title}</h3>}
-                    {rightContent}
+                    {title && (
+                      <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                        {IconCmp && <IconCmp size={18} className="text-indigo-500" />} {title}
+                      </h3>
+                    )}
+                    {rightContent && rightContent}
                   </div>
                 )}
                 {children}
@@ -306,13 +310,11 @@
             </div>
           );
 
-          // Règle de couleur : Sprint/Slalom = plus bas est mieux. Distance = plus haut est mieux.
           const getEvoClass = (testName, evo) => {
             if (!evo) return 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400';
             const isNegative = evo.includes('-');
             const name = testName.toLowerCase();
             const lowerIsBetter = name.includes('sprint') || name.includes('slalom');
-            
             if (lowerIsBetter) {
                 return isNegative ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
             } else {
@@ -343,47 +345,51 @@
           };
 
           return (
-            <div className="min-h-screen font-sans p-4 md:p-8">
+            <div className="min-h-screen font-sans p-4 md:p-8 relative">
               
-              {/* HEADER COCKPIT */}
+              {/* HEADER COMPLETEMENT REVU */}
               <header className="max-w-7xl mx-auto mb-8 bg-white dark:bg-slate-900 rounded-[2rem] p-8 border-l-8 border-l-indigo-600 shadow-lg shadow-slate-200/50 dark:shadow-none transition-colors relative z-20">
-                <div className="flex flex-col lg:flex-row justify-between items-start gap-6">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                   <div>
                     <div className="flex items-center gap-3 mb-2">
-                      <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded-md text-[10px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-800">Cockpit Décisionnel • Güllich Model</span>
-                      <span className="text-xs font-bold text-slate-400 flex items-center gap-1"><Clock size={12}/> MAJ: Fin Mars 2026</span>
+                      <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded-md text-[10px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-800">Dossier Sportif Avenir</span>
+                      <span className="text-xs font-bold text-slate-400 flex items-center gap-1"><Calendar size={12}/> MAJ GLOBALE: Avril 2026</span>
                     </div>
                     <h1 className="text-4xl font-black tracking-tight flex items-center gap-3 text-slate-900 dark:text-white">
-                      LÉO <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-emerald-400">| INTELLIGENCE SPORTIVE</span>
+                      LÉO <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-blue-500">| PERFORMANCE TRACKER</span>
                     </h1>
-                    <div className="mt-4 flex items-center gap-4">
-                      <button onClick={() => setViewMode('expert')} className={`text-xs font-bold px-4 py-2 rounded-full border transition-colors ${viewMode === 'expert' ? 'bg-slate-800 text-white border-slate-800 dark:bg-indigo-600 dark:border-indigo-600' : 'bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800 dark:border-slate-700'}`}>Vue Expert (Data)</button>
-                      <button onClick={() => setViewMode('parent')} className={`text-xs font-bold px-4 py-2 rounded-full border transition-colors ${viewMode === 'parent' ? 'bg-slate-800 text-white border-slate-800 dark:bg-indigo-600 dark:border-indigo-600' : 'bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800 dark:border-slate-700'}`}>Vue Parent (Simplifiée)</button>
-                    </div>
+                    <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-2">Saison 2025-2026 • Catégorie U9</p>
                   </div>
                   
                   {/* PANNEAU DROIT (Trophées + Dark Mode) */}
-                  <div className="flex flex-col items-end w-full lg:w-auto gap-4">
-                    <button onClick={() => setIsDark(!isDark)} className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer">
+                  <div className="flex flex-col items-end w-full md:w-auto gap-4">
+                    <button onClick={() => setIsDark(!isDark)} className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors self-end md:self-auto border border-slate-200 dark:border-slate-700 cursor-pointer">
                         {isDark ? <SunIcon size={18} /> : <MoonIcon size={18} />}
                     </button>
 
-                    <div className="w-full">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2 text-right">Salle des Trophées</p>
-                        <div className="flex items-center justify-between lg:justify-end gap-3 bg-slate-50 dark:bg-slate-800/50 px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner">
-                          <div className="flex items-center gap-1">
-                            <JudoIcon size={14} className="text-slate-900 dark:text-slate-100 mr-1"/>
-                            {[...Array(8)].map((_, i) => <TrophyIcon key={`j-${i}`} size={12} className="text-yellow-500 fill-yellow-500" />)}
+                    <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2 md:text-right hidden md:block">Salle des Trophées</p>
+                        <div className="flex items-center justify-between md:justify-start gap-4 bg-slate-50 dark:bg-slate-800/50 px-5 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner w-full md:w-auto">
+                          <div className="flex items-center gap-1.5">
+                            <JudoIcon size={14} className="text-slate-900 dark:text-slate-100"/>
+                            <span className="text-xs font-black text-slate-700 dark:text-slate-300 mr-1 hidden sm:block">JUDO</span>
+                            <div className="flex gap-0.5">{[...Array(8)].map((_, i) => <TrophyIcon key={`j-${i}`} size={14} className="text-yellow-500 fill-yellow-500" />)}</div>
                           </div>
-                          <span className="w-px h-4 bg-slate-300 dark:bg-slate-600"></span>
-                          <div className="flex items-center gap-1">
-                            <BallIcon size={14} className="text-orange-500 dark:text-orange-400 mr-1"/>
-                            {[...Array(3)].map((_, i) => <TrophyIcon key={`h-${i}`} size={12} className="text-yellow-500 fill-yellow-500" />)}
+                          <span className="w-px h-5 bg-slate-300 dark:bg-slate-600 mx-2"></span>
+                          <div className="flex items-center gap-1.5">
+                            <BallIcon size={14} className="text-orange-500 dark:text-orange-400"/>
+                            <span className="text-xs font-black text-slate-700 dark:text-slate-300 mr-1 hidden sm:block">HAND</span>
+                            {/* 3 Coupes d'Or pour le hand */}
+                            <div className="flex gap-0.5">{[...Array(3)].map((_, i) => <TrophyIcon key={`h-${i}`} size={14} className="text-yellow-500 fill-yellow-500" />)}</div>
                           </div>
-                          <span className="w-px h-4 bg-slate-300 dark:bg-slate-600"></span>
-                          <div className="flex items-center gap-1">
-                            <Waves size={14} className="text-blue-500 dark:text-blue-400 mr-1"/>
-                            <TrophyIcon size={12} className="text-[#CD7F32] fill-[#CD7F32]" />
+                          <span className="w-px h-5 bg-slate-300 dark:bg-slate-600 mx-2"></span>
+                          <div className="flex items-center gap-1.5">
+                            <Waves size={14} className="text-blue-500 dark:text-blue-400"/>
+                            <span className="text-xs font-black text-slate-700 dark:text-slate-300 mr-1 hidden sm:block">NAT</span>
+                            <div className="flex gap-0.5">
+                               {/* Coupe de Bronze seule */}
+                               <TrophyIcon size={14} className="text-amber-700 fill-amber-700" />
+                            </div>
                           </div>
                         </div>
                     </div>
@@ -391,12 +397,12 @@
                 </div>
               </header>
 
-              {/* NAVIGATION TABS */}
+              {/* NAVIGATION */}
               <nav className="max-w-7xl mx-auto flex gap-2 mb-8 overflow-x-auto no-scrollbar pb-2 relative z-10">
                 {[
-                  { id: 'cockpit', label: '1. Cockpit & Décisions', icon: Target },
-                  { id: 'synthesis', label: '2. Suivi Biométrique', icon: Activity },
-                  { id: 'disciplines', label: '3. Modélisation Sports', icon: Brain },
+                  { id: 'synthesis', label: '1. Identité & Charge', icon: Activity },
+                  { id: 'biomental', label: '2. Tests Physiques & Mental', icon: Brain },
+                  { id: 'disciplines', label: '3. Analyse Disciplines', icon: TrophyIcon },
                   { id: 'calendar', label: '4. Calendrier & Résultats', icon: Calendar },
                   { id: 'strategy', label: '5. Stratégie Long Terme', icon: Compass },
                 ].map(tab => (
@@ -411,13 +417,10 @@
 
               <main className="max-w-7xl mx-auto pb-20 relative z-0">
                 
-                {/* =========================================================
-                    TAB 1: COCKPIT DECISIONNEL
-                ========================================================= */}
-                {activeTab === 'cockpit' && viewMode === 'expert' && (
+                {/* === ONGLET 1: IDENTITÉ & CHARGE === */}
+                {activeTab === 'synthesis' && (
                   <div className="space-y-6 animate-in fade-in duration-500">
                     
-                    {/* Alerte Prochaine Echéance */}
                     <div onClick={() => setActiveTab('calendar')} className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-2xl p-4 md:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm cursor-pointer hover:shadow-md transition-all group">
                       <div className="flex items-center gap-4">
                         <div className="bg-orange-100 dark:bg-orange-800/50 p-3 rounded-full text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform"><Calendar size={24}/></div>
@@ -429,147 +432,30 @@
                       <span className="px-4 py-1.5 bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow">À Confirmer</span>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* Moteur de décision */}
-                        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Card title="Génération Automatique des Priorités" icon={Brain} className="md:col-span-2">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-800/30 alert-pulse">
-                                        <div className="flex items-center gap-2 text-red-600 dark:text-red-400 mb-2">
-                                            <ShieldAlert size={16} /> <span className="text-[10px] font-black uppercase tracking-widest">Alerte Santé (Risque Blessure)</span>
-                                        </div>
-                                        <p className="text-sm font-bold text-slate-800 dark:text-white mb-1">{decisionEngine.alerte.titre}</p>
-                                        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{decisionEngine.alerte.texte}</p>
-                                    </div>
-                                    <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30">
-                                        <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 mb-2">
-                                            <Clock size={16} /> <span className="text-[10px] font-black uppercase tracking-widest">Contrainte Charge Globale</span>
-                                        </div>
-                                        <p className="text-sm font-bold text-slate-800 dark:text-white mb-1">{decisionEngine.contrainte.titre}</p>
-                                        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{decisionEngine.contrainte.texte}</p>
-                                    </div>
-                                    <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/30">
-                                        <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 mb-2">
-                                            <Crosshair size={16} /> <span className="text-[10px] font-black uppercase tracking-widest">Focus Technique Hebdo</span>
-                                        </div>
-                                        <p className="text-sm font-bold text-slate-800 dark:text-white mb-1">{decisionEngine.prioriteTechnique.titre}</p>
-                                        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{decisionEngine.prioriteTechnique.texte}</p>
-                                    </div>
-                                    <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800/30">
-                                        <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 mb-2">
-                                            <Activity size={16} /> <span className="text-[10px] font-black uppercase tracking-widest">Focus Physique Hebdo</span>
-                                        </div>
-                                        <p className="text-sm font-bold text-slate-800 dark:text-white mb-1">{decisionEngine.prioritePhysique.titre}</p>
-                                        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{decisionEngine.prioritePhysique.texte}</p>
-                                    </div>
-                                </div>
-                            </Card>
-                        </div>
-
-                        {/* Gauges d'état */}
-                        <div className="space-y-6">
-                            <Card title="État de Forme (Intelligence)" icon={Activity}>
-                                <div className="space-y-6">
-                                    <Gauge label="Indice de Risque (Blessure)" value={65} colorClass="text-amber-500" bgClass="bg-amber-500" desc="Calculé sur la croissance vs perte de souplesse mesurée (-1cm)." />
-                                    <Gauge label="Indice de Fatigue (SNC)" value={20} colorClass="text-emerald-500" bgClass="bg-emerald-500" desc="Derniers résultats excellents = adaptation nerveuse positive." />
-                                    <Gauge label="Indice Spécialisation (Güllich)" value={35} colorClass="text-blue-500" bgClass="bg-blue-500" desc="Sport principal (Judo) = 35% du temps total. Équilibre parfait." />
-                                </div>
-                            </Card>
-                        </div>
-                    </div>
-
-                    {/* KPIs Avancés (Le background circle est encapsulé dans un div caché, mais pas le parent entier) */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                       {advancedKPIs.map((kpi, i) => (
                         <div key={i} className="kpi-card bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm group">
-                          {/* Circle Background caché en overflow, indépendant */}
+                          {/* L'animation d'arrière-plan est contenue, l'infobulle (dans text-slate-400) peut sortir au-dessus de tout */}
                           <div className="kpi-bg">
-                            <div className={`absolute -right-6 -top-6 w-24 h-24 opacity-5 rounded-full transition-transform group-hover:scale-150 ${kpi.color}`}></div>
+                             <div className={`absolute -right-6 -top-6 w-24 h-24 bg-current opacity-5 rounded-full transition-transform group-hover:scale-150 ${kpi.color}`}></div>
                           </div>
                           <div className="flex items-center justify-between mb-2 relative z-20">
                             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{kpi.label}</p>
-                            {kpi.info && <Tooltip text={kpi.info}><InfoIcon size={14} className="text-slate-300 dark:text-slate-600 hover:text-indigo-500 cursor-help" /></Tooltip>}
+                            {kpi.info && (
+                                <Tooltip text={kpi.info}>
+                                    <div className="p-1"><InfoIcon size={14} className="text-slate-300 dark:text-slate-600 hover:text-indigo-500 cursor-help" /></div>
+                                </Tooltip>
+                            )}
                           </div>
                           <div className="flex items-baseline gap-3 mb-2 relative z-20">
                             <span className={`text-3xl font-black ${kpi.color}`}>{kpi.value}</span>
                             <span className="text-xs font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">{kpi.trend}</span>
                           </div>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium relative z-20">{kpi.desc}</p>
                         </div>
                       ))}
                     </div>
 
-                    {/* Prédictif */}
-                    <Card title="Modélisation Prédictive de Progression (Indice Global)" icon={TrendingUp}>
-                        <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
-                            <p className="text-xs text-slate-500 dark:text-slate-400">Comparaison de la trajectoire de Léo par rapport au modèle théorique optimal multisport de Güllich.</p>
-                        </div>
-                        <div className="h-[300px] w-full">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={predictiveData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                              <defs>
-                                <linearGradient id="colorReel" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3}/>
-                                  <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
-                                </linearGradient>
-                                <linearGradient id="colorOpti" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                                  <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                                </linearGradient>
-                              </defs>
-                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? "#334155" : "#e2e8f0"} />
-                              <XAxis dataKey="mois" tick={{ fontSize: 12, fill: isDark ? "#94a3b8" : "#64748b" }} axisLine={false} tickLine={false} />
-                              <YAxis domain={[60, 100]} tick={{ fontSize: 12, fill: isDark ? "#94a3b8" : "#64748b" }} axisLine={false} tickLine={false} />
-                              <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', backgroundColor: isDark ? '#1e293b' : '#fff', color: isDark ? '#fff' : '#000' }} />
-                              <Legend wrapperStyle={{ fontSize: '11px', fontWeight: 'bold' }} />
-                              <Area type="monotone" dataKey="opti" name="Trajectoire Optimale (Güllich)" stroke="#10b981" fillOpacity={1} fill="url(#colorOpti)" />
-                              <Area type="monotone" dataKey="reel" name="Progression Léo (Mesurée)" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorReel)" activeDot={{ r: 6 }} />
-                            </AreaChart>
-                          </ResponsiveContainer>
-                        </div>
-                        <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/30 rounded-2xl">
-                          <p className="text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
-                            <strong className="font-black">💡 Le Modèle de Güllich :</strong> Ce modèle scientifique valide que l'accès au Haut Niveau n'est pas favorisé par une spécialisation précoce, mais par l'<strong className="font-black">échantillonnage sportif (multisport)</strong>. Une pratique diversifiée crée un bagage moteur riche, réduit le risque de blessure de 40%, évite l'épuisement mental précoce, et favorise un transfert croisé de compétences pour une explosion des performances après 15 ans.
-                          </p>
-                        </div>
-                    </Card>
-                  </div>
-                )}
-
-                {/* VUE PARENT SIMPLIFIÉE */}
-                {activeTab === 'cockpit' && viewMode === 'parent' && (
-                  <div className="space-y-6 animate-in fade-in duration-500 max-w-3xl mx-auto">
-                      <div className="text-center mb-8">
-                          <h2 className="text-2xl font-black text-slate-800 dark:text-white mb-2">Bonjour ! Voici le résumé de Léo 🚀</h2>
-                          <p className="text-slate-500 dark:text-slate-400">Tout va super bien. Léo a explosé ses records en natation et a fait d'excellents tournois.</p>
-                      </div>
-
-                      <Card className="border-t-8 border-t-emerald-500 text-center">
-                          <div className="mx-auto w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-4">
-                              <Target size={32} />
-                          </div>
-                          <h3 className="text-xl font-black mb-2">En pleine forme !</h3>
-                          <p className="text-sm text-slate-600 dark:text-slate-300">Léo s'amuse, il est performant, et son temps de sport est parfaitement réparti pour qu'il ne se fatigue pas de façon excessive.</p>
-                      </Card>
-
-                      <Card className="border-t-8 border-t-amber-500 text-center">
-                          <div className="mx-auto w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center text-amber-600 dark:text-amber-400 mb-4">
-                              <Activity size={32} />
-                          </div>
-                          <h3 className="text-xl font-black mb-2">Petit point d'attention (Santé)</h3>
-                          <p className="text-sm text-slate-600 dark:text-slate-300">Léo grandit vite ! Il a perdu un tout petit peu en souplesse. Pensez à faire 5 minutes d'étirements en jouant le soir pour protéger ses genoux de la croissance.</p>
-                      </Card>
-
-                      <div className="bg-orange-500 text-white rounded-3xl p-6 text-center shadow-lg">
-                          <h3 className="text-sm font-black uppercase tracking-widest text-orange-200 mb-2">Prochain rendez-vous</h3>
-                          <p className="text-xl font-black">11/04/2026</p>
-                          <p className="text-orange-100 mt-1">Tournoi de Judo à Moissy (À confirmer)</p>
-                      </div>
-                  </div>
-                )}
-
-                {/* === ONGLET 2: SUIVI BIOMÉTRIQUE === */}
-                {activeTab === 'synthesis' && (
-                  <div className="space-y-6 animate-in fade-in duration-500">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <Card title="Identité & Évolution Morphologique" icon={User}>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -615,7 +501,12 @@
                       <Card 
                           title="Volume Horaire Mensuel - Saison 2025/2026" 
                           icon={Activity}
-                          rightContent={<div className="text-right"><span className="text-xl font-black text-indigo-600 dark:text-indigo-400">211.2h</span><span className="text-[9px] font-black uppercase text-slate-400 block">Total Saison</span></div>}
+                          rightContent={
+                              <div className="text-right border border-indigo-100 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1.5 rounded-xl">
+                                  <span className="text-xl font-black text-indigo-600 dark:text-indigo-400">211.2h</span>
+                                  <span className="text-[9px] font-black uppercase tracking-widest text-indigo-400 block mt-0.5">Total Saison</span>
+                              </div>
+                          }
                       >
                         <div className="h-[250px] w-full mb-4 mt-2">
                           <ResponsiveContainer width="100%" height="100%">
@@ -628,11 +519,12 @@
                               <Bar dataKey="Judo" stackId="a" fill={isDark ? "#94a3b8" : "#0f172a"} radius={[0,0,0,0]} />
                               <Bar dataKey="Natation" stackId="a" fill="#3b82f6" />
                               <Bar dataKey="Handball" stackId="a" fill="#f97316" />
+                              {/* Rendu des labels en interne sans faire planter */}
                               <Bar dataKey="Multisport" stackId="a" fill="#10b981" radius={[4,4,0,0]} 
-                                label={(props) => {
-                                  if (!props || props.x == null || props.y == null || !props.payload || props.payload.TOTAL == null) return null;
-                                  return <text x={props.x + props.width / 2} y={props.y - 5} fill={isDark ? "#94a3b8" : "#64748b"} fontSize="10px" fontWeight="bold" textAnchor="middle">{props.payload.TOTAL}h</text>;
-                                }} 
+                                  label={(props) => {
+                                      if (!props || props.x == null || props.y == null || !props.payload || props.payload.TOTAL == null) return null;
+                                      return <text x={props.x + props.width / 2} y={props.y - 5} fill={isDark ? "#94a3b8" : "#64748b"} fontSize="10px" fontWeight="bold" textAnchor="middle">{props.payload.TOTAL}h</text>;
+                                  }}
                               />
                             </BarChart>
                           </ResponsiveContainer>
@@ -651,6 +543,56 @@
                 {/* === ONGLET 2: BIO-MENTAL === */}
                 {activeTab === 'biomental' && (
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-in fade-in duration-500">
+                    <div className="lg:col-span-5 flex flex-col gap-6">
+                      <Card title="Équilibre Athlétique Global" icon={Zap}>
+                        <div className="flex justify-between items-center mb-2 px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 rounded-xl overflow-visible">
+                          <div className="flex items-center">
+                            <span className="text-xs font-black uppercase text-emerald-700 dark:text-emerald-400 mr-2">Note Globale Actuelle</span>
+                            <Tooltip text="Moyenne des 6 axes du développement moteur. Un score > 70/100 à cet âge indique une excellente précocité physique naturelle sans spécialisation précoce.">
+                              <InfoIcon size={14} className="text-emerald-500 cursor-help" />
+                            </Tooltip>
+                          </div>
+                          <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">75/100</span>
+                        </div>
+                        <div className="h-[250px] w-full mt-4">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <RadarChart cx="50%" cy="50%" outerRadius="65%" data={athleticRadar}>
+                              <PolarGrid stroke={isDark ? "#334155" : "#e2e8f0"} />
+                              <PolarAngleAxis dataKey="subject" tick={{ fill: isDark ? '#94a3b8' : '#64748b', fontSize: 10, fontWeight: 700 }} />
+                              <Radar name="Léo" dataKey="val" stroke="#10b981" strokeWidth={3} fill="#10b981" fillOpacity={0.3} />
+                              <RechartsTooltip contentStyle={{backgroundColor: isDark ? '#1e293b' : '#fff', border: 'none'}} />
+                            </RadarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </Card>
+
+                      <Card title="Score Mental (INSEP)" icon={Brain}>
+                        <div className="flex justify-between items-center mb-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-2xl border border-purple-100 dark:border-purple-800 overflow-visible">
+                          <div className="flex items-start gap-2">
+                            <div><p className="text-xs font-black uppercase text-purple-700 dark:text-purple-400">Score Actuel</p><p className="text-[10px] font-bold text-purple-500 dark:text-purple-300 mt-1">Cohérent et validé</p></div>
+                            <Tooltip text="Scores très élevés car l'enfant évolue dans un environnement ludique et multisport sans spécialisation précoce.">
+                              <InfoIcon size={14} className="text-purple-400 mt-0.5 cursor-help" />
+                            </Tooltip>
+                          </div>
+                          <div className="text-3xl font-black text-purple-600 dark:text-purple-400">86<span className="text-lg text-purple-400/50">/100</span></div>
+                        </div>
+                        <div className="space-y-4">
+                          {mentalData.map((item, i) => (
+                            <div key={i} className="card-container">
+                              <div className="flex justify-between text-[11px] font-bold mb-1.5 uppercase tracking-wide">
+                                <div className="flex items-center">
+                                  <span className="text-slate-600 dark:text-slate-300 mr-1">{item.name}</span>
+                                  {item.info && <Tooltip text={item.info}><InfoIcon size={12} className="text-slate-400 hover:text-purple-500 cursor-help" /></Tooltip>}
+                                </div>
+                                <span className="text-slate-400">{item.score}%</span>
+                              </div>
+                              <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${item.score}%`, backgroundColor: item.color }}></div></div>
+                            </div>
+                          ))}
+                        </div>
+                      </Card>
+                    </div>
+
                     <div className="lg:col-span-7 flex flex-col gap-6">
                       <Card title="Batterie de Tests Physiques (Février 2026)" icon={Crosshair} className="h-full">
                         <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl flex gap-4 items-start shadow-sm">
@@ -679,32 +621,31 @@
                           ))}
                         </div>
                       </Card>
-                    </div>
 
-                    <div className="lg:col-span-5 flex flex-col gap-6">
-                      <Card title="Score Mental (INSEP)" icon={Brain}>
-                        <div className="flex justify-between items-center mb-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-2xl border border-purple-100 dark:border-purple-800 overflow-visible">
-                          <div className="flex items-start gap-2">
-                            <div><p className="text-xs font-black uppercase text-purple-700 dark:text-purple-400">Stabilité Émotionnelle</p><p className="text-[10px] font-bold text-purple-500 dark:text-purple-300 mt-1">Excellent (Très peu de variations)</p></div>
-                            <Tooltip text="Scores très élevés car l'enfant évolue dans un environnement ludique et multisport sans spécialisation précoce.">
-                              <InfoIcon size={14} className="text-purple-400 mt-0.5 cursor-help" />
-                            </Tooltip>
+                      <Card title="Axes d'Amélioration & Exercices (Focus Actuel)" icon={Target}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
+                          <div className="p-4 bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 rounded-2xl">
+                             <p className="text-[10px] font-black uppercase text-indigo-600 dark:text-indigo-400 mb-2">Priorité 1 : La Souplesse Globale</p>
+                             <p className="text-xs text-indigo-800/80 dark:text-indigo-200/80 font-medium mb-3 leading-relaxed">
+                               Le déficit de souplesse (-1cm au Sit & Reach) freine l'explosivité rotatoire (Hanche/Judo) et favorise les tensions.
+                             </p>
+                             <ul className="text-xs text-indigo-900 dark:text-indigo-100 space-y-1.5 list-disc pl-4 font-bold">
+                               <li>Routine du soir : 5 min d'étirements actifs (ischios / psoas).</li>
+                               <li>Yoga ludique pour enfants (postures de l'arc, du chien).</li>
+                               <li>Mobilité des épaules pour l'amplitude en natation.</li>
+                             </ul>
                           </div>
-                          <div className="text-3xl font-black text-purple-600 dark:text-purple-400">86<span className="text-lg text-purple-400/50">/100</span></div>
-                        </div>
-                        <div className="space-y-4">
-                          {mentalData.map((item, i) => (
-                            <div key={i}>
-                              <div className="flex justify-between text-[11px] font-bold mb-1.5 uppercase tracking-wide">
-                                <div className="flex items-center">
-                                  <span className="text-slate-600 dark:text-slate-300 mr-1">{item.name}</span>
-                                  {item.info && <Tooltip text={item.info}><InfoIcon size={12} className="text-slate-400 hover:text-purple-500 cursor-help" /></Tooltip>}
-                                </div>
-                                <span className="text-slate-400">{item.score}%</span>
-                              </div>
-                              <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${item.score}%`, backgroundColor: item.color }}></div></div>
-                            </div>
-                          ))}
+                          <div className="p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/30 rounded-2xl">
+                             <p className="text-[10px] font-black uppercase text-blue-600 dark:text-blue-400 mb-2">Priorité 2 : Réactivité aux signaux</p>
+                             <p className="text-xs text-blue-800/80 dark:text-blue-200/80 font-medium mb-3 leading-relaxed">
+                               Nécessaire pour le départ Natation (-0.4s de perdus) et les interceptions au Handball.
+                             </p>
+                             <ul className="text-xs text-blue-900 dark:text-blue-100 space-y-1.5 list-disc pl-4 font-bold">
+                               <li>Jeux de réflexes (attraper la balle lâchée à l'aveugle).</li>
+                               <li>Départs en sprint sur signaux sonores variés.</li>
+                               <li>Sauts latéraux réactifs avec appuis stables.</li>
+                             </ul>
+                          </div>
                         </div>
                       </Card>
                     </div>
@@ -724,6 +665,11 @@
                             <h3 className="text-xl font-black uppercase text-slate-900 dark:text-white">Judo <span className="text-[10px] text-slate-500 font-bold ml-2 hidden sm:inline-block">— {judoAdvancedStats.club}</span></h3>
                             <p className="text-xs font-bold text-slate-500 mt-1">{judoAdvancedStats.grade} • Début: {judoAdvancedStats.debut}</p>
                           </div>
+                        </div>
+                        {/* RANKING ENCARTS */}
+                        <div className="flex flex-wrap gap-2 mt-4 md:mt-0">
+                            <span className="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800 text-[10px] font-black uppercase px-3 py-1.5 rounded-lg shadow-sm">🏆 TOP 3 Région (2018-2019)</span>
+                            <span className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-[10px] font-black uppercase px-3 py-1.5 rounded-lg shadow-sm">🇫🇷 TOP 10 National (2018-2019)</span>
                         </div>
                       </div>
                       
@@ -752,7 +698,7 @@
                             </div>
                           </div>
                           <div className="p-4 bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-800/30 rounded-xl">
-                            <p className="text-[10px] font-black uppercase text-green-600 mb-1">Points Forts (Indice de Diversité : 4.2)</p>
+                            <p className="text-[10px] font-black uppercase text-green-600 mb-1">Points Forts (Indice Diversité : 4.2)</p>
                             <p className="text-xs font-medium text-green-800 dark:text-green-200 leading-relaxed">Efficacité létale (21 victoires / 22 combats). Très forte progression mentale et tactique (liaison debout-sol). Variété d'attaques en hausse.</p>
                           </div>
                           <div className="p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl">
@@ -788,13 +734,18 @@
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                       {/* SECTION NATATION */}
                       <div className="bg-white dark:bg-slate-900 rounded-[2rem] border-t-8 border-t-blue-500 shadow-xl overflow-hidden flex flex-col">
-                        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-800/30">
+                        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-800/30">
                           <div className="flex items-center gap-4">
                             <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600"><Waves size={20}/></div>
                             <div>
                               <h3 className="text-lg font-black uppercase text-slate-800 dark:text-white">Natation <span className="text-[9px] text-slate-500 font-bold ml-1 hidden sm:inline-block">— {natationStats.club}</span></h3>
                               <p className="text-[10px] font-bold text-slate-500 mt-0.5">Début: {natationStats.debut}</p>
                             </div>
+                          </div>
+                          {/* RANKING ENCARTS */}
+                          <div className="flex flex-wrap md:flex-col gap-1.5 md:items-end">
+                              <span className="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800 text-[9px] font-black uppercase px-2 py-1 rounded shadow-sm">🏆 TOP 10 Région (1er 2019)</span>
+                              <span className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800 text-[9px] font-black uppercase px-2 py-1 rounded shadow-sm">🇫🇷 TOP 30 National (5ème 2019)</span>
                           </div>
                         </div>
                         <div className="p-6 space-y-5 flex-1 flex flex-col">
@@ -929,7 +880,8 @@
                                   </div>
                                 )}
                               </div>
-                            )})}
+                            );
+                          })}
                           </div>
                         ))}
                       </div>
@@ -1039,7 +991,34 @@
                       </Card>
                     </div>
 
+                    <Card title="Le Modèle Théorique de Güllich" icon={Brain}>
+                       <div className="flex items-start gap-4">
+                          <div className="hidden sm:block text-indigo-500"><Target size={40} /></div>
+                          <div>
+                            <p className="text-sm font-bold text-slate-800 dark:text-white mb-2">L'échantillonnage sportif plutôt que la spécialisation précoce</p>
+                            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
+                              Le modèle de Güllich démontre scientifiquement que la spécialisation tardive (post-15 ans) offre les meilleures probabilités d'atteindre le haut niveau sportif. La pratique multisport actuelle (Judo, Handball, Natation) permet à Léo de se constituer une "bibliothèque motrice" très riche et variée. 
+                            </p>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                               <div className="p-3 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl border border-emerald-100 dark:border-emerald-800/30">
+                                  <p className="text-[10px] font-black text-emerald-600 uppercase mb-1">Physique</p>
+                                  <p className="text-xs font-medium text-emerald-800 dark:text-emerald-200">Baisse de 40% des blessures de surmenage et meilleur profil moteur.</p>
+                               </div>
+                               <div className="p-3 bg-purple-50 dark:bg-purple-900/10 rounded-xl border border-purple-100 dark:border-purple-800/30">
+                                  <p className="text-[10px] font-black text-purple-600 uppercase mb-1">Mental</p>
+                                  <p className="text-xs font-medium text-purple-800 dark:text-purple-200">Évite la saturation psychologique et le burn-out avant 15 ans.</p>
+                               </div>
+                               <div className="p-3 bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-800/30">
+                                  <p className="text-[10px] font-black text-blue-600 uppercase mb-1">Transfert</p>
+                                  <p className="text-xs font-medium text-blue-800 dark:text-blue-200">Croisement des compétences (ex: appuis défensifs du Hand utiles au Judo).</p>
+                               </div>
+                            </div>
+                          </div>
+                       </div>
+                    </Card>
+
                     <Card title="Probabilités Statistiques d'Accès à l'Élite (Filtre Pyramidal)" icon={Target}>
+                       <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">Indicateurs théoriques moyens du parcours d'accès au Haut Niveau (basés sur le volume de licenciés fédéraux). Justifie la stratégie de ne pas spécialiser un athlète avant 12 ans pour ne pas brûler les étapes.</p>
                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                           <div className="p-5 border border-slate-200 dark:border-slate-700 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-center">
                              <div className="w-10 h-10 bg-slate-200 dark:bg-slate-700 rounded-xl flex items-center justify-center text-slate-900 dark:text-white mx-auto mb-3"><JudoIcon size={20}/></div>
