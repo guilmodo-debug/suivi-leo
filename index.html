@@ -1261,19 +1261,19 @@ DONNÉES DU DASHBOARD — ${ctx.date}:
 
 Génère une analyse structurée en JSON STRICT (pas de markdown, pas de backticks, JSON pur) avec exactement ce format:
 {
-  "diagnostic": "Paragraphe de 3-4 phrases sur la situation globale de Léo aujourd'hui. Synthèse factuelle et contextualisée, comme un entraîneur expert parlant à un parent.",
+  "diagnostic": "3 phrases max sur la situation globale de Léo. Synthèse factuelle, ton entraîneur expert.",
   "questions_ct": [
-    {"q": "Question courte terme 1", "contexte": "Pourquoi cette question est cruciale maintenant"},
+    {"q": "Question", "contexte": "Contexte court"},
     {"q": "Question courte terme 2", "contexte": "Contexte"},
     {"q": "Question courte terme 3", "contexte": "Contexte"}
   ],
   "questions_mt": [
-    {"q": "Question moyen terme 1", "contexte": "Contexte"},
+    {"q": "Question", "contexte": "Contexte court"},
     {"q": "Question moyen terme 2", "contexte": "Contexte"},
     {"q": "Question moyen terme 3", "contexte": "Contexte"}
   ],
   "scenarios": [
-    {"titre": "Nom court du scénario", "description": "2-3 phrases", "forces": "Point fort principal", "risques": "Risque principal", "couleur": "cyan"},
+    {"titre": "Nom", "description": "2 phrases max", "forces": "Force principale", "risques": "Risque principal", "couleur": "cyan"},
     {"titre": "Nom court", "description": "2-3 phrases", "forces": "Force", "risques": "Risque", "couleur": "gold"},
     {"titre": "Nom court", "description": "2-3 phrases", "forces": "Force", "risques": "Risque", "couleur": "orange"}
   ],
@@ -1284,8 +1284,8 @@ Génère une analyse structurée en JSON STRICT (pas de markdown, pas de backtic
     {"q": "Question 4", "objectif": "Objectif"},
     {"q": "Question 5", "objectif": "Objectif"}
   ],
-  "signal_alerte": "Une phrase d'alerte prioritaire du moment, le truc le plus urgent à surveiller.",
-  "mot_coach": "Un encouragement factuel pour Léo, en 1-2 phrases, comme un coach qui le connaît bien."
+  "signal_alerte": "Une phrase, alerte prioritaire du moment.",
+  "mot_coach": "1 phrase encourageante pour Léo."
 }`;
   };
 
@@ -1308,7 +1308,7 @@ Génère une analyse structurée en JSON STRICT (pas de markdown, pas de backtic
         },
         body: JSON.stringify({
           model: 'claude-sonnet-4-5',
-          max_tokens: 1000,
+          max_tokens: 4000,
           messages: [{ role: 'user', content: buildPrompt() }]
         })
       });
