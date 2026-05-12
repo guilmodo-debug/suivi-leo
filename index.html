@@ -63,6 +63,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .nav-btn.active.cal::before{background:var(--success)}
 .nav-btn.active.tl::before{background:var(--neutral)}
 .nav-btn.active.bio::before{background:var(--amber)}
+.nav-btn.active.pilote::before{background:var(--success)}
 
 .nav-tooltip{position:absolute;left:calc(100% + 12px);top:50%;transform:translateY(-50%);
   background:var(--bg-card);border:1px solid var(--border-bright);color:var(--text-primary);
@@ -267,6 +268,12 @@ const I = {
   clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
   trending:'<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>',
   star:'<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+  brain:'<path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.16"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.16"/>',
+  send:'<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>',
+  save:'<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>',
+  refresh:'<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>',
+  user:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  msg:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
   chevDown:'<polyline points="6 9 12 15 18 9"/>',
   chevUp:'<polyline points="18 15 12 9 6 15"/>',
   bone:'<path d="M17 2a3 3 0 0 1 3 3 3 3 0 0 1-3 3H7a3 3 0 0 1-3-3 3 3 0 0 1 3-3zm0 14a3 3 0 0 0 3 3 3 3 0 0 0-3-3H7a3 3 0 0 0-3 3 3 3 0 0 0 3-3"/>',
@@ -506,11 +513,13 @@ const TABS = [
   { id: 'hand', label: 'HANDBALL', sub: 'Issy Paris Hand', icon: 'hand', aClass: 'hand' },
   { id: 'cal', label: 'CALENDRIER', sub: 'Résultats saison', icon: 'cal', aClass: 'cal' },
   { id: 'tl', label: 'TIMELINE', sub: 'Chronologie saison', icon: 'tl', aClass: 'tl' },
+  { id: 'pilote', label: 'PILOTE IA', sub: 'Aide à la décision', icon: 'brain', aClass: 'pilote' },
 ];
 const SECTION = {
   cockpit: 'COCKPIT DÉCISIONNEL', bio: 'SUIVI BIOMÉTRIQUE',
   judo: 'ANALYSE — JUDO', swim: 'ANALYSE — NATATION', hand: 'ANALYSE — HANDBALL',
   cal: 'CALENDRIER & RÉSULTATS', tl: 'TIMELINE SAISON 2025-2026',
+  pilote: 'PILOTE IA · AIDE À LA DÉCISION',
 };
 
 // ── COCKPIT ───────────────────────────────────────────────────────────────────
@@ -1171,6 +1180,486 @@ const TimelineTab = () => {
   );
 };
 
+// ── PILOTE IA ─────────────────────────────────────────────────────────────────
+const PiloteTab = () => {
+  const [phase, setPhase] = React.useState('idle'); // idle | loading | done | saving | saved | error
+  const [result, setResult] = React.useState(null);
+  const [leoAnswers, setLeoAnswers] = React.useState({});
+  const [parentNote, setParentNote] = React.useState('');
+  const [decisions, setDecisions] = React.useState('');
+  const [history, setHistory] = React.useState([]);
+  const [activeSection, setActiveSection] = React.useState('diagnostic');
+
+  const buildPrompt = () => {
+    const ctx = {
+      date: '13/05/2026',
+      age: '7 ans (né 2019)',
+      morpho: '127cm / 25.5kg — +3cm depuis sep 2025',
+      scoreGlobal: '84/100',
+      blessures: 'Cheville droite 3ème récidive (06/05/2026) — En cours. Historique: myosite tibias sep 2025, otite oct 2025, gêne cheville mar 2026, entorse cheville avr 2026.',
+      souplesse: 'Perte −4cm depuis sept 2025 (poussée croissance)',
+      risqueBlessure: '55%',
+      fatigueSNC: '28%',
+      specialisation: '34% judo — idéal Güllich < 50%',
+      volumeSaison: 'Judo 78.5h / Natation 74.5h / Handball 33.75h / Multi 41h — Total 228h',
+      volumeAvril: '16.5h (chute due cheville)',
+      judo: '22 victoires / 24 combats (91.7%) — Ceinture Jaune 2 barrettes — Alerte variété technique (Trilport 04/2026) — Harai-Goshi trop systématique',
+      natation: '5ème national 25m dos (cat 2019) — Record 25.38s (29/03/2026) — Faiblesses: coulée courte, bassin bas, respiration 2 temps crawl',
+      handball: '20 matchs, 7 tournois, 4 podiums — 7 buts + 8 passes en un tournoi (Fontenay avr 2026)',
+      prochainEvenement: 'J3 Avenirs Natation — 31/05/2026 (18 jours) — Non encore inscrit',
+      alertesPrincipales: [
+        'Cheville droite fragilisée — 3 récidives en 2 mois — chevillère obligatoire',
+        'Souplesse en baisse −4cm malgré croissance — étirements ischio/psoas urgents',
+        'Plafonnement Güllich 8h/sem — ne pas compenser le volume perdu d\'avril',
+        'J3 Avenirs 31/05 — priorité technique: alignement tête-bassin + coulée + respiration',
+      ],
+      mentalProfile: 'Plaisir 100% · Orientation tâche 95% · Compétence 90% · Résilience 88% · Autonomie 78%',
+      correlations: [
+        'Poussée croissance → perte souplesse → surveiller ischio/psoas',
+        'Surcharge sept → myosite (CPK élevés) → Güllich respecté depuis',
+        'Travail natation (gainage) → meilleure verticalité judo',
+        'Cheville D fragilisée ×3 → arrêts répétés + tournois annulés',
+      ],
+    };
+
+    return `Tu es un assistant expert en développement sportif de l'enfant (modèle multisport Güllich, développement à long terme de l'athlète, psychologie sportive jeune). Tu analyses la situation complète de Léo, 7 ans (né 2019), athlète multisport (judo, natation, handball).
+
+DONNÉES DU DASHBOARD — ${ctx.date}:
+- Âge: ${ctx.age} | Morpho: ${ctx.morpho}
+- Score global: ${ctx.scoreGlobal}
+- Volume saison: ${ctx.volumeSaison} | Avril: ${ctx.volumeAvril}
+- Judo: ${ctx.judo}
+- Natation: ${ctx.natation}
+- Handball: ${ctx.handball}
+- Blessures: ${ctx.blessures}
+- Souplesse: ${ctx.souplesse}
+- Indices: Risque blessure ${ctx.risqueBlessure} | Fatigue SNC ${ctx.fatigueSNC} | Spécialisation ${ctx.specialisation}
+- Profil mental: ${ctx.mentalProfile}
+- Prochain événement: ${ctx.prochainEvenement}
+- Alertes: ${ctx.alertesPrincipales.join(' | ')}
+- Corrélations détectées: ${ctx.correlations.join(' | ')}
+
+Génère une analyse structurée en JSON STRICT (pas de markdown, pas de backticks, JSON pur) avec exactement ce format:
+{
+  "diagnostic": "Paragraphe de 3-4 phrases sur la situation globale de Léo aujourd'hui. Synthèse factuelle et contextualisée, comme un entraîneur expert parlant à un parent.",
+  "questions_ct": [
+    {"q": "Question courte terme 1", "contexte": "Pourquoi cette question est cruciale maintenant"},
+    {"q": "Question courte terme 2", "contexte": "Contexte"},
+    {"q": "Question courte terme 3", "contexte": "Contexte"}
+  ],
+  "questions_mt": [
+    {"q": "Question moyen terme 1", "contexte": "Contexte"},
+    {"q": "Question moyen terme 2", "contexte": "Contexte"},
+    {"q": "Question moyen terme 3", "contexte": "Contexte"}
+  ],
+  "scenarios": [
+    {"titre": "Nom court du scénario", "description": "2-3 phrases", "forces": "Point fort principal", "risques": "Risque principal", "couleur": "cyan"},
+    {"titre": "Nom court", "description": "2-3 phrases", "forces": "Force", "risques": "Risque", "couleur": "gold"},
+    {"titre": "Nom court", "description": "2-3 phrases", "forces": "Force", "risques": "Risque", "couleur": "orange"}
+  ],
+  "questions_leo": [
+    {"q": "Question à poser directement à Léo (langage enfant 7 ans)", "objectif": "Ce qu'on cherche à comprendre"},
+    {"q": "Question 2", "objectif": "Objectif"},
+    {"q": "Question 3", "objectif": "Objectif"},
+    {"q": "Question 4", "objectif": "Objectif"},
+    {"q": "Question 5", "objectif": "Objectif"}
+  ],
+  "signal_alerte": "Une phrase d'alerte prioritaire du moment, le truc le plus urgent à surveiller.",
+  "mot_coach": "Un encouragement factuel pour Léo, en 1-2 phrases, comme un coach qui le connaît bien."
+}`;
+  };
+
+  const generate = async () => {
+    setPhase('loading');
+    setResult(null);
+    setLeoAnswers({});
+    setParentNote('');
+    setDecisions('');
+    setActiveSection('diagnostic');
+    try {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: buildPrompt() }]
+        })
+      });
+      const data = await resp.json();
+      if (data.error) throw new Error(data.error.message);
+      const raw = data.content.map(b => b.text || '').join('');
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(clean);
+      setResult(parsed);
+      setPhase('done');
+    } catch (e) {
+      console.error(e);
+      setPhase('error');
+    }
+  };
+
+  const saveToSheet = async () => {
+    setPhase('saving');
+    // Prépare les données pour affichage + feedback utilisateur
+    // L'enregistrement réel dans Google Sheets se fait via Claude (MCP) à la session suivante
+    // On construit un résumé exportable
+    const entry = {
+      date: new Date().toLocaleDateString('fr-FR'),
+      diagnostic: result?.diagnostic || '',
+      questions_ct: result?.questions_ct?.map(q => q.q).join(' | ') || '',
+      questions_mt: result?.questions_mt?.map(q => q.q).join(' | ') || '',
+      scenarios: result?.scenarios?.map(s => s.titre).join(' | ') || '',
+      questions_leo: result?.questions_leo?.map(q => q.q).join(' | ') || '',
+      reponses_leo: Object.values(leoAnswers).join(' | '),
+      decisions: decisions,
+      commentaire_parent: parentNote,
+      score_global: '84',
+      alertes: result?.signal_alerte || '',
+      source: 'Dashboard LéoOS v3 · ' + new Date().toLocaleDateString('fr-FR'),
+    };
+    const newHistory = [entry, ...history];
+    setHistory(newHistory);
+    setPhase('saved');
+  };
+
+  const colScenario = (c) => c === 'cyan' ? 'var(--swim-cyan)' : c === 'gold' ? 'var(--judo-gold)' : 'var(--hand-orange)';
+  const dimScenario = (c) => c === 'cyan' ? 'var(--swim-cyan-dim)' : c === 'gold' ? 'var(--judo-gold-dim)' : 'var(--hand-orange-dim)';
+
+  const sections = [
+    { id: 'diagnostic', label: 'DIAGNOSTIC', icon: I.cockpit },
+    { id: 'ct', label: 'COURT TERME', icon: I.zap },
+    { id: 'mt', label: 'MOYEN TERME', icon: I.trending },
+    { id: 'scenarios', label: 'SCÉNARIOS', icon: I.star },
+    { id: 'leo', label: 'VOIX DE LÉO', icon: I.user },
+    { id: 'historique', label: 'HISTORIQUE', icon: I.save },
+  ];
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+      {/* HEADER + GENERATE */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 20 }}>
+        <div>
+          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--success)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>Outil d'aide à la décision · IA</div>
+          <div style={{ fontFamily: 'Barlow Condensed', fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2, maxWidth: 500 }}>
+            Analyse globale de la situation de Léo, objectifs et scénarios — générée à partir des données actuelles du dashboard
+          </div>
+        </div>
+        <button
+          onClick={generate}
+          disabled={phase === 'loading' || phase === 'saving'}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 10, padding: '14px 24px',
+            background: phase === 'loading' ? 'var(--bg-card)' : 'linear-gradient(135deg, rgba(0,229,126,0.15), rgba(0,229,126,0.05))',
+            border: `1px solid ${phase === 'loading' ? 'var(--border)' : 'rgba(0,229,126,0.4)'}`,
+            borderRadius: 12, cursor: phase === 'loading' ? 'wait' : 'pointer',
+            color: phase === 'loading' ? 'var(--text-muted)' : 'var(--success)',
+            fontFamily: 'Barlow Condensed', fontSize: 16, fontWeight: 700, letterSpacing: 1,
+            flexShrink: 0, transition: 'all 0.2s'
+          }}>
+          <Ico d={phase === 'loading' ? I.refresh : I.brain} size={18} />
+          {phase === 'loading' ? 'ANALYSE EN COURS…' : phase === 'done' || phase === 'saved' ? 'RÉGÉNÉRER' : 'GÉNÉRER L\'ANALYSE'}
+        </button>
+      </div>
+
+      {/* ERROR */}
+      {phase === 'error' && (
+        <div style={{ background: 'rgba(255,62,62,0.08)', border: '1px solid rgba(255,62,62,0.3)', borderRadius: 12, padding: '16px 20px', color: 'var(--danger)', fontFamily: 'JetBrains Mono', fontSize: 12 }}>
+          Erreur lors de la génération. Vérifie la connexion et réessaie.
+        </div>
+      )}
+
+      {/* LOADING STATE */}
+      {phase === 'loading' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {['Lecture des données du dashboard…', 'Analyse situation blessures et charge…', 'Génération des scénarios carrière…', 'Formulation des questions pour Léo…'].map((msg, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border)', opacity: 0.6 + i * 0.1 }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--success)', animation: `pulse-dot ${1 + i * 0.3}s infinite` }} />
+              <span style={{ fontFamily: 'JetBrains Mono', fontSize: 11, color: 'var(--text-secondary)' }}>{msg}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* IDLE STATE */}
+      {phase === 'idle' && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+          {[
+            { icon: I.cockpit, titre: 'Diagnostic situationnel', desc: 'Synthèse de l\'état global de Léo — blessures, charge, momentum, prochaines échéances.' },
+            { icon: I.trending, titre: 'Questions de pilotage', desc: 'Court terme (J3 Avenirs, cheville) et moyen terme (saison prochaine, spécialisation).' },
+            { icon: I.star, titre: 'Scénarios carrière', desc: '3 trajectoires possibles pour les 2-5 prochaines années, avec forces et risques de chacune.' },
+            { icon: I.user, titre: 'Voix de Léo', desc: 'Questions à poser directement à Léo pour recueillir son ressenti sur le plaisir et sa vision.' },
+            { icon: I.save, titre: 'Historique', desc: 'Chaque analyse est archivable dans Data Léo (onglet Pilote IA) pour un suivi dans le temps.' },
+            { icon: I.msg, titre: 'Mot du coach IA', desc: 'Un retour synthétique et encourageant pour contextualiser l\'analyse.' },
+          ].map((f, i) => (
+            <div key={i} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ color: 'var(--success)', opacity: 0.7 }}><Ico d={f.icon} size={16} /></div>
+              <div style={{ fontFamily: 'Barlow Condensed', fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>{f.titre}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{f.desc}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* RESULTS */}
+      {(phase === 'done' || phase === 'saved') && result && (
+        <>
+          {/* SIGNAL + MOT COACH */}
+          {result.signal_alerte && (
+            <div style={{ display: 'flex', gap: 12 }}>
+              <div style={{ flex: 1, background: 'rgba(255,62,62,0.06)', border: '1px solid rgba(255,62,62,0.25)', borderRadius: 12, padding: '14px 18px', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                <Ico d={I.shield} size={16} />
+                <div>
+                  <div style={{ fontFamily: 'JetBrains Mono', fontSize: 9, color: 'var(--danger)', letterSpacing: 2, marginBottom: 4 }}>SIGNAL PRIORITAIRE</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.5 }}>{result.signal_alerte}</div>
+                </div>
+              </div>
+              <div style={{ flex: 1, background: 'rgba(0,229,126,0.05)', border: '1px solid rgba(0,229,126,0.2)', borderRadius: 12, padding: '14px 18px', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                <Ico d={I.star} size={16} />
+                <div>
+                  <div style={{ fontFamily: 'JetBrains Mono', fontSize: 9, color: 'var(--success)', letterSpacing: 2, marginBottom: 4 }}>MOT DU COACH</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.5 }}>{result.mot_coach}</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SECTION NAV */}
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {sections.map(s => (
+              <button key={s.id} onClick={() => setActiveSection(s.id)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px',
+                  background: activeSection === s.id ? 'var(--bg-card)' : 'transparent',
+                  border: `1px solid ${activeSection === s.id ? 'var(--border-bright)' : 'var(--border)'}`,
+                  borderRadius: 999, cursor: 'pointer',
+                  fontFamily: 'JetBrains Mono', fontSize: 10, fontWeight: 700, letterSpacing: 0.5,
+                  color: activeSection === s.id ? 'var(--text-primary)' : 'var(--text-muted)',
+                  transition: 'all 0.15s'
+                }}>
+                {s.label}
+              </button>
+            ))}
+          </div>
+
+          {/* DIAGNOSTIC */}
+          {activeSection === 'diagnostic' && (
+            <div className="card" style={{ borderLeft: '3px solid var(--success)' }}>
+              <SectionTitle>DIAGNOSTIC SITUATIONNEL</SectionTitle>
+              <div style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.8 }}>{result.diagnostic}</div>
+            </div>
+          )}
+
+          {/* COURT TERME */}
+          {activeSection === 'ct' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <SectionTitle>QUESTIONS COURT TERME (0-6 semaines)</SectionTitle>
+              {result.questions_ct?.map((item, i) => (
+                <div key={i} className="card" style={{ borderLeft: '3px solid var(--judo-gold)' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+                    <div style={{ fontFamily: 'Barlow Condensed', fontSize: 28, fontWeight: 900, color: 'var(--judo-gold)', lineHeight: 1, flexShrink: 0, marginTop: 2 }}>0{i + 1}</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontFamily: 'Barlow Condensed', fontSize: 17, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{item.q}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>{item.contexte}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* MOYEN TERME */}
+          {activeSection === 'mt' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <SectionTitle>QUESTIONS MOYEN TERME (3-6 mois)</SectionTitle>
+              {result.questions_mt?.map((item, i) => (
+                <div key={i} className="card" style={{ borderLeft: '3px solid var(--swim-cyan)' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+                    <div style={{ fontFamily: 'Barlow Condensed', fontSize: 28, fontWeight: 900, color: 'var(--swim-cyan)', lineHeight: 1, flexShrink: 0, marginTop: 2 }}>0{i + 1}</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontFamily: 'Barlow Condensed', fontSize: 17, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{item.q}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>{item.contexte}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* SCÉNARIOS */}
+          {activeSection === 'scenarios' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <SectionTitle>SCÉNARIOS DE CARRIÈRE (2-5 ans)</SectionTitle>
+              <div className="grid-3">
+                {result.scenarios?.map((sc, i) => (
+                  <div key={i} style={{ background: dimScenario(sc.couleur), border: `1px solid ${colScenario(sc.couleur)}40`, borderTop: `3px solid ${colScenario(sc.couleur)}`, borderRadius: 12, padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <div style={{ fontFamily: 'Barlow Condensed', fontSize: 19, fontWeight: 900, color: colScenario(sc.couleur), textTransform: 'uppercase', lineHeight: 1.1 }}>{sc.titre}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{sc.description}</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                        <span style={{ fontFamily: 'JetBrains Mono', fontSize: 9, color: 'var(--success)', background: 'rgba(0,229,126,0.1)', padding: '2px 6px', borderRadius: 4, flexShrink: 0, marginTop: 1 }}>FORCE</span>
+                        <span style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.4 }}>{sc.forces}</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                        <span style={{ fontFamily: 'JetBrains Mono', fontSize: 9, color: 'var(--danger)', background: 'rgba(255,62,62,0.1)', padding: '2px 6px', borderRadius: 4, flexShrink: 0, marginTop: 1 }}>RISQUE</span>
+                        <span style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.4 }}>{sc.risques}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* VOIX DE LÉO */}
+          {activeSection === 'leo' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <SectionTitle>VOIX DE LÉO — Questions à lui poser directement</SectionTitle>
+              <div style={{ background: 'rgba(0,212,255,0.04)', border: '1px solid rgba(0,212,255,0.15)', borderRadius: 10, padding: '10px 16px', fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--swim-cyan)', lineHeight: 1.6 }}>
+                Pose ces questions à Léo dans un moment calme, sans pression. Note ses réponses ci-dessous — elles seront sauvegardées dans Data Léo avec l'analyse.
+              </div>
+              {result.questions_leo?.map((item, i) => (
+                <div key={i} className="card" style={{ gap: 0 }}>
+                  <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
+                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <span style={{ fontFamily: 'Barlow Condensed', fontSize: 14, fontWeight: 900, color: 'var(--swim-cyan)' }}>{i + 1}</span>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontFamily: 'Barlow Condensed', fontSize: 17, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>« {item.q} »</div>
+                      <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--text-muted)' }}>Objectif : {item.objectif}</div>
+                    </div>
+                  </div>
+                  <textarea
+                    placeholder="Réponse de Léo…"
+                    value={leoAnswers[i] || ''}
+                    onChange={e => setLeoAnswers(prev => ({ ...prev, [i]: e.target.value }))}
+                    style={{
+                      width: '100%', minHeight: 60, background: 'var(--bg-surface)',
+                      border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px',
+                      color: 'var(--text-primary)', fontFamily: 'Barlow', fontSize: 13, lineHeight: 1.6,
+                      resize: 'vertical', outline: 'none', transition: 'border-color 0.15s'
+                    }}
+                    onFocus={e => e.target.style.borderColor = 'var(--border-bright)'}
+                    onBlur={e => e.target.style.borderColor = 'var(--border)'}
+                  />
+                </div>
+              ))}
+
+              {/* Notes parent + décisions */}
+              <div className="grid-2" style={{ gap: 12 }}>
+                <div className="card">
+                  <div style={{ fontFamily: 'JetBrains Mono', fontSize: 9, color: 'var(--amber)', letterSpacing: 2, marginBottom: 10 }}>DÉCISIONS PRISES</div>
+                  <textarea
+                    placeholder="Suite à cette analyse, on décide de… (ex: continuer handball, consulter kiné, inscrire J3…)"
+                    value={decisions}
+                    onChange={e => setDecisions(e.target.value)}
+                    style={{
+                      width: '100%', minHeight: 80, background: 'var(--bg-surface)',
+                      border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px',
+                      color: 'var(--text-primary)', fontFamily: 'Barlow', fontSize: 13, lineHeight: 1.6,
+                      resize: 'vertical', outline: 'none'
+                    }}
+                  />
+                </div>
+                <div className="card">
+                  <div style={{ fontFamily: 'JetBrains Mono', fontSize: 9, color: 'var(--neutral)', letterSpacing: 2, marginBottom: 10 }}>COMMENTAIRE PARENT</div>
+                  <textarea
+                    placeholder="Ton ressenti, contexte particulier, observations du moment…"
+                    value={parentNote}
+                    onChange={e => setParentNote(e.target.value)}
+                    style={{
+                      width: '100%', minHeight: 80, background: 'var(--bg-surface)',
+                      border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px',
+                      color: 'var(--text-primary)', fontFamily: 'Barlow', fontSize: 13, lineHeight: 1.6,
+                      resize: 'vertical', outline: 'none'
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* SAVE BUTTON */}
+              <button
+                onClick={saveToSheet}
+                disabled={phase === 'saving' || phase === 'saved'}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                  padding: '14px 24px', borderRadius: 12, cursor: phase === 'saved' ? 'default' : 'pointer',
+                  background: phase === 'saved' ? 'rgba(0,229,126,0.1)' : 'rgba(255,171,0,0.08)',
+                  border: `1px solid ${phase === 'saved' ? 'rgba(0,229,126,0.3)' : 'rgba(255,171,0,0.3)'}`,
+                  color: phase === 'saved' ? 'var(--success)' : 'var(--amber)',
+                  fontFamily: 'Barlow Condensed', fontSize: 16, fontWeight: 700, letterSpacing: 1,
+                  transition: 'all 0.2s'
+                }}>
+                <Ico d={phase === 'saved' ? I.star : I.save} size={18} />
+                {phase === 'saving' ? 'ARCHIVAGE…' : phase === 'saved' ? 'ARCHIVÉ — À COLLER DANS DATA LÉO' : 'ARCHIVER CETTE ANALYSE'}
+              </button>
+
+              {/* Résumé à copier si saved */}
+              {phase === 'saved' && history.length > 0 && (
+                <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 12, padding: 20 }}>
+                  <div style={{ fontFamily: 'JetBrains Mono', fontSize: 9, color: 'var(--success)', letterSpacing: 2, marginBottom: 12 }}>DONNÉES À COLLER DANS L'ONGLET "PILOTE IA" DE DATA LÉO</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '6px 16px', fontSize: 11 }}>
+                    {[
+                      ['Date', history[0].date],
+                      ['Diagnostic', history[0].diagnostic.slice(0, 120) + '…'],
+                      ['Questions CT', history[0].questions_ct],
+                      ['Questions MT', history[0].questions_mt],
+                      ['Scénarios', history[0].scenarios],
+                      ['Questions Léo', history[0].questions_leo],
+                      ['Réponses Léo', history[0].reponses_leo || '(à compléter)'],
+                      ['Décisions', history[0].decisions || '(à compléter)'],
+                      ['Commentaire', history[0].commentaire_parent || '(à compléter)'],
+                      ['Score moment', history[0].score_global],
+                      ['Alertes', history[0].alertes],
+                      ['Source', history[0].source],
+                    ].map(([k, v]) => (
+                      <React.Fragment key={k}>
+                        <span style={{ fontFamily: 'JetBrains Mono', fontSize: 9, color: 'var(--text-muted)', letterSpacing: 1, paddingTop: 1 }}>{k}</span>
+                        <span style={{ color: 'var(--text-secondary)', lineHeight: 1.4 }}>{v}</span>
+                      </React.Fragment>
+                    ))}
+                  </div>
+                  <div style={{ marginTop: 12, fontFamily: 'JetBrains Mono', fontSize: 9, color: 'var(--text-muted)', lineHeight: 1.6 }}>
+                    → Ouvre Data Léo → onglet "Pilote IA" → colle chaque valeur dans la colonne correspondante sur une nouvelle ligne.
+                    <br />→ Les réponses de Léo et tes décisions peuvent être complétées directement dans la Sheet après la conversation.
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* HISTORIQUE */}
+          {activeSection === 'historique' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <SectionTitle>HISTORIQUE DES ANALYSES</SectionTitle>
+              {history.length === 0 ? (
+                <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, padding: '32px', textAlign: 'center' }}>
+                  <div style={{ fontFamily: 'JetBrains Mono', fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.8 }}>
+                    Aucune analyse archivée dans cette session.<br />
+                    Génère une analyse puis clique sur "Archiver" pour commencer l'historique.<br />
+                    L'historique long terme vit dans l'onglet "Pilote IA" de Data Léo.
+                  </div>
+                </div>
+              ) : history.map((h, i) => (
+                <div key={i} className="card" style={{ borderLeft: '3px solid var(--success)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+                    <span style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--success)' }}>{h.date}</span>
+                    <span style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--text-muted)' }}>Score {h.score_global}/100</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{h.diagnostic.slice(0, 200)}…</div>
+                  {h.reponses_leo && <div style={{ marginTop: 8, fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--swim-cyan)' }}>Léo: {h.reponses_leo.slice(0, 100)}</div>}
+                  {h.decisions && <div style={{ marginTop: 4, fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--amber)' }}>Décisions: {h.decisions.slice(0, 100)}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+};
+
 // ── APP ───────────────────────────────────────────────────────────────────────
 const App = () => {
   const [tab, setTab] = useState('cockpit');
@@ -1185,6 +1674,7 @@ const App = () => {
       case 'hand': return <HandTab />;
       case 'cal': return <CalTab />;
       case 'tl': return <TimelineTab />;
+      case 'pilote': return <PiloteTab />;
       default: return <CockpitTab goTo={goTo} />;
     }
   };
