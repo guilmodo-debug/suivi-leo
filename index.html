@@ -1,1202 +1,1235 @@
 <!DOCTYPE html>
-<html lang="fr" class="light">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Léo | Cockpit de Pilotage Sportif</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: { extend: {} }
-        }
-    </script>
-    
-    <!-- Librairies React (Versions stables) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.8.1/prop-types.min.js"></script>
-    
-    <!-- Recharts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.12.0/Recharts.min.js"></script>
-    
-    <!-- Babel -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.10/babel.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LÉO · ATHLETE OS V3</title>
 
-    <style>
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; transition: background-color 0.3s; }
-        
-        /* Système d'infobulles optimisé pour sortir des cartes */
-        .custom-tooltip-container { position: relative; display: inline-flex; align-items: center; cursor: help; z-index: 50; }
-        .custom-tooltip-content { 
-            visibility: hidden; opacity: 0; position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%); 
-            width: max-content; max-width: 250px; background-color: #1e293b; color: white; text-align: center; 
-            border-radius: 8px; padding: 10px; font-size: 11px; z-index: 999999; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
-            white-space: normal; line-height: 1.4; transition: all 0.2s ease; pointer-events: none; font-weight: 500;
-        }
-        .custom-tooltip-content::after { 
-            content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); 
-            border-width: 6px; border-style: solid; border-color: #1e293b transparent transparent transparent; 
-        }
-        .custom-tooltip-container:hover .custom-tooltip-content { visibility: visible; opacity: 1; bottom: 140%; }
-        
-        .card-container { overflow: visible !important; }
-        .alert-pulse { animation: softPulse 2s infinite; }
-        @keyframes softPulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
-    </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,500;0,700;0,800;0,900;1,800&family=Barlow:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.12.0/Recharts.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.10/babel.min.js"></script>
+
+<style>
+:root {
+  --bg-base:#070a10; --bg-surface:#0d1117; --bg-card:#111827; --bg-card-hover:#161f2e;
+  --border:#1e2d3d; --border-bright:#2d3f55;
+  --text-primary:#f0f4f8; --text-secondary:#8fa3b8; --text-muted:#4a6070;
+  --judo-gold:#f5c518; --judo-gold-dim:rgba(245,197,24,0.12);
+  --swim-cyan:#00d4ff; --swim-cyan-dim:rgba(0,212,255,0.10);
+  --hand-orange:#ff6b2b; --hand-orange-dim:rgba(255,107,43,0.10);
+  --danger:#ff3e3e; --success:#00e57e; --neutral:#7c9cbf;
+  --amber:#ffab00;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg-base);color:var(--text-primary)}
+body{font-family:'Barlow',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg-base)}
+::-webkit-scrollbar-thumb{background:var(--border-bright);border-radius:2px}
+
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  opacity:0.025}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px)}
+#root{position:relative;z-index:1}
+
+/* LAYOUT */
+.os-layout{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:72px;min-height:100vh;background:var(--bg-surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;padding:24px 0;gap:6px;
+  position:fixed;left:0;top:0;z-index:100}
+.sidebar-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:14px;
+  letter-spacing:2px;color:var(--text-primary);writing-mode:vertical-rl;text-orientation:mixed;
+  transform:rotate(180deg);margin-bottom:20px;padding-bottom:20px;
+  border-bottom:1px solid var(--border);width:100%;display:flex;justify-content:center}
+
+.nav-btn{width:48px;height:48px;display:flex;align-items:center;justify-content:center;
+  border-radius:12px;border:1px solid transparent;cursor:pointer;transition:all 0.2s;
+  color:var(--text-muted);background:transparent;position:relative}
+.nav-btn:hover{color:var(--text-primary);background:var(--bg-card);border-color:var(--border)}
+.nav-btn.active{color:var(--text-primary);background:var(--bg-card);border-color:var(--border-bright)}
+.nav-btn.active::before{content:'';position:absolute;left:-1px;top:50%;transform:translateY(-50%);
+  width:3px;height:24px;border-radius:0 2px 2px 0;background:var(--judo-gold)}
+.nav-btn.active.swim::before{background:var(--swim-cyan)}
+.nav-btn.active.hand::before{background:var(--hand-orange)}
+.nav-btn.active.cal::before{background:var(--success)}
+.nav-btn.active.tl::before{background:var(--neutral)}
+.nav-btn.active.bio::before{background:var(--amber)}
+
+.nav-tooltip{position:absolute;left:calc(100% + 12px);top:50%;transform:translateY(-50%);
+  background:var(--bg-card);border:1px solid var(--border-bright);color:var(--text-primary);
+  padding:6px 12px;border-radius:8px;white-space:nowrap;
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;
+  pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:200}
+.nav-btn:hover .nav-tooltip{opacity:1}
+
+.main-content{margin-left:72px;flex:1;padding:28px 32px;min-height:100vh}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+.topbar-section-name{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;color:var(--text-muted)}
+.topbar-title{font-family:'Barlow Condensed',sans-serif;font-size:34px;font-weight:900;
+  letter-spacing:-0.5px;color:var(--text-primary);line-height:1;margin-top:2px}
+
+.status-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;
+  border:1px solid var(--border);color:var(--text-secondary)}
+.status-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* CARD */
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:24px;
+  position:relative;overflow:hidden;transition:border-color 0.2s}
+.card:hover{border-color:var(--border-bright)}
+.card-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;
+  letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
+.card-value{font-family:'Barlow Condensed',sans-serif;font-size:42px;font-weight:900;
+  letter-spacing:-1px;color:var(--text-primary);line-height:1}
+.card-value.mono{font-family:'JetBrains Mono',monospace;font-size:30px}
+.card-sub{font-size:12px;color:var(--text-secondary);margin-top:6px;font-weight:500}
+
+.card-glow-judo::after{content:'';position:absolute;top:-60px;right:-60px;width:160px;height:160px;
+  background:radial-gradient(circle,var(--judo-gold-dim) 0%,transparent 70%);pointer-events:none}
+.card-glow-swim::after{content:'';position:absolute;top:-60px;right:-60px;width:160px;height:160px;
+  background:radial-gradient(circle,var(--swim-cyan-dim) 0%,transparent 70%);pointer-events:none}
+.card-glow-hand::after{content:'';position:absolute;top:-60px;right:-60px;width:160px;height:160px;
+  background:radial-gradient(circle,var(--hand-orange-dim) 0%,transparent 70%);pointer-events:none}
+.card-glow-danger::after{content:'';position:absolute;top:-60px;right:-60px;width:160px;height:160px;
+  background:radial-gradient(circle,rgba(255,62,62,0.12) 0%,transparent 70%);pointer-events:none}
+
+/* SECTION TITLE */
+.section-title{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:16px;
+  display:flex;align-items:center;gap:10px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* STAT BAR */
+.stat-bar-track{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px}
+.stat-bar-fill{height:100%;border-radius:2px;transition:width 1.2s cubic-bezier(0.16,1,0.3,1)}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
+  letter-spacing:.5px;text-transform:uppercase}
+.badge-judo{background:var(--judo-gold-dim);color:var(--judo-gold);border:1px solid rgba(245,197,24,0.25)}
+.badge-swim{background:var(--swim-cyan-dim);color:var(--swim-cyan);border:1px solid rgba(0,212,255,0.2)}
+.badge-hand{background:var(--hand-orange-dim);color:var(--hand-orange);border:1px solid rgba(255,107,43,0.2)}
+.badge-success{background:rgba(0,229,126,0.1);color:var(--success);border:1px solid rgba(0,229,126,0.2)}
+.badge-danger{background:rgba(255,62,62,0.1);color:var(--danger);border:1px solid rgba(255,62,62,0.2)}
+.badge-neutral{background:rgba(124,156,191,0.1);color:var(--neutral);border:1px solid rgba(124,156,191,0.2)}
+.badge-amber{background:rgba(255,171,0,0.1);color:var(--amber);border:1px solid rgba(255,171,0,0.2)}
+
+/* ALERT STRIP */
+.alert-strip{border:1px solid rgba(255,62,62,0.3);background:rgba(255,62,62,0.05);
+  border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:16px;
+  animation:alert-glow 3s ease-in-out infinite}
+.alert-amber{border-color:rgba(255,171,0,0.35);background:rgba(255,171,0,0.05);
+  animation:amber-glow 3s ease-in-out infinite}
+@keyframes alert-glow{0%,100%{box-shadow:none}50%{box-shadow:0 0 20px rgba(255,62,62,0.12)}}
+@keyframes amber-glow{0%,100%{box-shadow:none}50%{box-shadow:0 0 20px rgba(255,171,0,0.1)}}
+
+/* EVENT ROWS */
+.event-row{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;
+  padding:14px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all 0.18s}
+.event-row:hover{border-color:var(--border-bright);background:var(--bg-card-hover)}
+.event-row.expanded{border-color:var(--border-bright)}
+.event-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dot-judo{background:var(--judo-gold);box-shadow:0 0 8px var(--judo-gold)}
+.dot-swim{background:var(--swim-cyan);box-shadow:0 0 8px var(--swim-cyan)}
+.dot-hand{background:var(--hand-orange);box-shadow:0 0 8px var(--hand-orange)}
+.dot-health{background:var(--danger);box-shadow:0 0 8px var(--danger)}
+
+/* MONTH DIVIDER */
+.month-divider{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);padding:16px 0 8px;
+  display:flex;align-items:center;gap:10px}
+.month-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* FILTER PILLS */
+.filter-pill{padding:5px 14px;border-radius:999px;font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  border:1px solid var(--border);color:var(--text-muted);background:transparent;cursor:pointer;transition:all 0.15s;white-space:nowrap}
+.filter-pill:hover{border-color:var(--border-bright);color:var(--text-primary)}
+.fp-all{border-color:var(--border-bright);color:var(--text-primary);background:var(--bg-card)}
+.fp-judo{border-color:var(--judo-gold);color:var(--judo-gold);background:var(--judo-gold-dim)}
+.fp-swim{border-color:var(--swim-cyan);color:var(--swim-cyan);background:var(--swim-cyan-dim)}
+.fp-hand{border-color:var(--hand-orange);color:var(--hand-orange);background:var(--hand-orange-dim)}
+
+/* RESULT TAGS */
+.rtag-win{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--judo-gold)}
+.rtag-medal{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:#94a3b8}
+.rtag-2eme{color:#60a5fa}
+.rtag-records{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--swim-cyan)}
+.rtag-nc{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--text-muted)}
+.rtag-dsq{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--danger)}
+
+/* TACTIC TILE */
+.tactic-tile{border:1px solid var(--border);border-radius:12px;padding:16px;background:var(--bg-surface)}
+.tactic-tile-label{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+
+/* GRIDS */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px}
+
+/* RANKING */
+.ranking-number{font-family:'Barlow Condensed',sans-serif;font-size:80px;font-weight:900;line-height:1;letter-spacing:-3px}
+
+/* RECORD PILL */
+.record-pill{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:999px;
+  background:var(--judo-gold-dim);border:1px solid rgba(245,197,24,0.3);
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--judo-gold)}
+
+/* ADV STARS */
+.adv-stars{display:flex;gap:2px}
+.adv-star{width:8px;height:8px;border-radius:1px}
+.star-judo{background:var(--judo-gold)} .star-swim{background:var(--swim-cyan)} .star-hand{background:var(--hand-orange)}
+.star-empty{background:var(--border)}
+
+/* FADE */
+.fade-up{animation:fadeUp 0.35s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.no-scroll{scrollbar-width:none;-ms-overflow-style:none}
+.no-scroll::-webkit-scrollbar{display:none}
+
+/* DARK TOOLTIP RECHARTS */
+.recharts-tooltip-wrapper{z-index:9999}
+
+/* TIMELINE */
+.tl-rail{position:relative;display:flex;overflow-x:auto;gap:0;padding:16px 0 24px;-webkit-overflow-scrolling:touch}
+.tl-rail::before{content:'';position:absolute;top:52px;left:0;right:0;height:2px;background:var(--border)}
+.tl-item{flex-shrink:0;width:140px;position:relative;display:flex;flex-direction:column;align-items:center;gap:0}
+.tl-dot-wrap{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  border:2px solid var(--border);background:var(--bg-base);margin-top:43px;margin-bottom:8px;flex-shrink:0;z-index:2;position:relative}
+.tl-dot-inner{width:8px;height:8px;border-radius:50%}
+.tl-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;
+  padding:8px 10px;width:128px;font-size:10px;transition:border-color .2s;cursor:default}
+.tl-card:hover{border-color:var(--border-bright)}
+.tl-date{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);font-weight:700;letter-spacing:1px;margin-bottom:4px}
+.tl-name{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--text-primary);line-height:1.2;margin-bottom:4px}
+.tl-result{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800}
+/* volume bars on timeline */
+.tl-vol-bar{position:absolute;top:0;left:50%;transform:translateX(-50%);width:36px;display:flex;flex-direction:column-reverse;gap:1px;align-items:center}
+
+@media(max-width:900px){
+  .sidebar{width:56px}
+  .main-content{margin-left:56px;padding:20px 16px}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  .topbar-title{font-size:26px}
+}
+</style>
 </head>
-<body class="bg-[#f4f7f9] dark:bg-slate-950 text-slate-900 dark:text-slate-100">
-    
-    <div id="root">
-        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; color: #4f46e5;">
-            <p style="font-weight: bold; font-family: sans-serif;">Chargement du tableau de bord Léo Analytics...</p>
-        </div>
+<body>
+<div id="root"></div>
+
+<script>
+window._RC = window.Recharts || {};
+</script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useRef, useEffect } = React;
+const RC = window._RC;
+const AreaChart = RC.AreaChart; const Area = RC.Area;
+const BarChart = RC.BarChart; const Bar = RC.Bar;
+const LineChart = RC.LineChart; const Line = RC.Line;
+const XAxis = RC.XAxis; const YAxis = RC.YAxis;
+const CartesianGrid = RC.CartesianGrid;
+const RTooltip = RC.Tooltip;
+const ResponsiveContainer = RC.ResponsiveContainer;
+
+// ── ICONS ─────────────────────────────────────────────────────────────────────
+const Ico = ({ d, size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
+    dangerouslySetInnerHTML={{ __html: d }} />
+);
+const I = {
+  cockpit:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+  bio:'<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
+  judo:'<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0v-7z"/>',
+  swim:'<path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.6 2 5 2 2.3 0 2.3-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.6 2 5 2 2.3 0 2.3-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.6 2 5 2 2.3 0 2.3-2 5-2"/>',
+  hand:'<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>',
+  cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+  tl:'<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>',
+  shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
+  zap:'<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+  clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  trending:'<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>',
+  star:'<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+  chevDown:'<polyline points="6 9 12 15 18 9"/>',
+  chevUp:'<polyline points="18 15 12 9 6 15"/>',
+  bone:'<path d="M17 2a3 3 0 0 1 3 3 3 3 0 0 1-3 3H7a3 3 0 0 1-3-3 3 3 0 0 1 3-3zm0 14a3 3 0 0 0 3 3 3 3 0 0 0-3-3H7a3 3 0 0 0-3 3 3 3 0 0 0 3-3"/>',
+  arrowR:'<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>',
+};
+
+// ── PURE COMPONENTS ───────────────────────────────────────────────────────────
+const SportDot = ({ sport, size = 10 }) => {
+  const cls = sport === 'Judo' ? 'dot-judo' : sport === 'Natation' ? 'dot-swim' : sport === 'Handball' ? 'dot-hand' : 'dot-health';
+  return <span className={`event-dot ${cls}`} style={{ width: size, height: size }} />;
+};
+
+const Badge = ({ type, text }) => {
+  const cls = type === 'judo' ? 'badge-judo' : type === 'swim' ? 'badge-swim' : type === 'hand' ? 'badge-hand'
+    : type === 'success' ? 'badge-success' : type === 'danger' ? 'badge-danger' : type === 'amber' ? 'badge-amber' : 'badge-neutral';
+  return <span className={`badge ${cls}`}>{text}</span>;
+};
+
+const StatBar = ({ value, color = 'var(--judo-gold)', max = 100 }) => (
+  <div className="stat-bar-track">
+    <div className="stat-bar-fill" style={{ width: `${(value / max) * 100}%`, background: color }} />
+  </div>
+);
+
+const AdvStars = ({ count, sport, max = 5 }) => {
+  const cls = sport === 'Judo' ? 'star-judo' : sport === 'Natation' ? 'star-swim' : 'star-hand';
+  return (
+    <div className="adv-stars">
+      {Array.from({ length: max }).map((_, i) => (
+        <span key={i} className={`adv-star ${i < count ? cls : 'star-empty'}`} />
+      ))}
+    </div>
+  );
+};
+
+const ResultTag = ({ result }) => {
+  if (!result) return null;
+  const r = result.toUpperCase();
+  if (r.includes('1ER')) return <span className="rtag-win">1ER 🥇</span>;
+  if (r.includes('2ÈME') || r.includes('2EME')) return <span className="rtag-medal rtag-2eme">2ÈME 🥈</span>;
+  if (r.includes('3ÈME') || r.includes('3EME')) return <span className="rtag-medal">3ÈME 🥉</span>;
+  if (r.includes('RECORDS') || r.includes('RECORD')) return <span className="rtag-records">⚡ RECORDS</span>;
+  if (r.includes('DSQ')) return <span className="rtag-dsq">DSQ</span>;
+  return <span className="rtag-nc">{result}</span>;
+};
+
+const DarkTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-bright)', borderRadius: 8, padding: '10px 14px', fontFamily: 'JetBrains Mono,monospace', fontSize: 11 }}>
+      <p style={{ color: 'var(--text-muted)', marginBottom: 6, letterSpacing: 1 }}>{label}</p>
+      {payload.map((p, i) => <p key={i} style={{ color: p.color, margin: '2px 0' }}>{p.name}: <strong>{p.value}</strong></p>)}
+    </div>
+  );
+};
+
+const SectionTitle = ({ children }) => <div className="section-title">{children}</div>;
+
+// Arc gauge semi-circle
+const ArcGauge = ({ value, color, size = 90, stroke = 8 }) => {
+  const r = (size / 2) - stroke;
+  const circ = 2 * Math.PI * r;
+  const arc = circ * 0.72;
+  const filled = arc * (value / 100);
+  const off = -(arc * 0.11);
+  return (
+    <div style={{ position: 'relative', width: size, height: size * 0.65, overflow: 'hidden' }}>
+      <svg width={size} height={size} style={{ position: 'absolute', top: 0, left: 0 }}>
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none"
+          stroke="var(--border)" strokeWidth={stroke}
+          strokeDasharray={`${arc} ${circ}`} strokeDashoffset={off}
+          transform={`rotate(-90 ${size / 2} ${size / 2})`} strokeLinecap="round" />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none"
+          stroke={color} strokeWidth={stroke}
+          strokeDasharray={`${filled} ${circ}`} strokeDashoffset={off}
+          transform={`rotate(-90 ${size / 2} ${size / 2})`} strokeLinecap="round"
+          style={{ filter: `drop-shadow(0 0 6px ${color}80)`, transition: 'stroke-dasharray 1.2s cubic-bezier(0.16,1,0.3,1)' }} />
+      </svg>
+      <div style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', textAlign: 'center' }}>
+        <span style={{ fontFamily: 'Barlow Condensed,sans-serif', fontSize: size * 0.22, fontWeight: 900, color, lineHeight: 1 }}>{value}</span>
+      </div>
+    </div>
+  );
+};
+
+// ── DATA ──────────────────────────────────────────────────────────────────────
+// Source: Google Drive Calendrier Léo (onglet CALENDRIER SAISON) + Data Léo — relus 13/05/2026
+const DATA = {
+  identity: {
+    name: "Léo", fullName: "MODOT Léo", born: 2019, age: "7 ans (mai 2026)",
+    morpho: { h: 127, w: 25.5, imc: 15.8 },
+    avgMorpho: { h: 123, w: 23.5, imc: 15.6 },
+    details: "Envergure: 122 cm · Taille assise: 68 cm",
+    projection: "185 cm / 78 kg", type: "Longiligne en construction",
+    status: "Multisport Structuré · 7-8h/sem · Modèle Güllich"
+  },
+
+  kpis: [
+    { label: "Score Global", value: "84", unit: "/100", trend: "+2", color: "var(--judo-gold)", glow: 'judo', desc: "Tech(+) · Mental(+) · Explo(++) · Souplesse(−)" },
+    { label: "Rang Natation", value: "5ÈME", unit: "🇫🇷", trend: "National", color: "var(--swim-cyan)", glow: 'swim', desc: "25m Dos · Catégorie 2019 · ~50 nageurs" },
+    { label: "Victoires Judo", value: "22", unit: "/24", trend: "91.7%", color: "var(--judo-gold)", glow: 'judo', desc: "Saison 2025-2026 · Ceinture Jaune 2⭐" },
+    { label: "Risque Blessure", value: "55", unit: "%", trend: "⚠ Cheville", color: "var(--danger)", glow: 'danger', desc: "3ème épisode cheville droite · Récidive" },
+  ],
+
+  alerts: [
+    { color: 'var(--danger)', label: 'ALERTE SANTÉ', icon: 'shield', titre: 'Cheville droite · 3ème récidive', texte: 'Épisode 06/05 (collision judo). Zone fragilisée. Reprise ~11/05. Chevillère obligatoire tous les séances.', type: 'danger' },
+    { color: 'var(--danger)', label: 'SOUPLESSE', icon: 'bone', titre: 'Perte −4cm depuis sept. 2025', texte: 'Poussée croissance +3cm (127cm). Étirements ischio/psoas quotidiens. Remplacer 15min multi-sport.', type: 'danger' },
+    { color: 'var(--amber)', label: 'CHARGE', icon: 'clock', titre: 'Plafonnement Güllich — 8h/sem', texte: 'Volume avril 16.5h (récupération cheville). Ne pas compenser en mai-juin. Modèle Güllich à respecter.', type: 'amber' },
+    { color: 'var(--swim-cyan)', label: 'TECHNIQUE NATATION', icon: 'zap', titre: 'J3 Avenirs · 31/05/2026', texte: 'Prochaine compétition natation. Priorité : alignement tête-bassin + coulée + respiration 2 temps crawl.', type: 'swim' },
+  ],
+
+  gauges: [
+    { label: "Risque Blessure", value: 55, color: "var(--danger)", desc: "3ème épisode cheville D — zone fragilisée" },
+    { label: "Fatigue SNC", value: 28, color: "var(--swim-cyan)", desc: "Volume réduit avr — récupération en cours" },
+    { label: "Spécialisation", value: 34, color: "var(--judo-gold)", desc: "Judo dominant 34% — idéal Güllich < 50%" },
+  ],
+
+  predictive: [
+    { mois: 'Oct', reel: 70, opti: 72 }, { mois: 'Nov', reel: 74, opti: 74 },
+    { mois: 'Déc', reel: 75, opti: 76 }, { mois: 'Jan', reel: 79, opti: 78 },
+    { mois: 'Fév', reel: 82, opti: 80 }, { mois: 'Mar', reel: 84, opti: 82 },
+    { mois: 'Avr', reel: 81, opti: 84 }, { mois: 'Mai', reel: null, opti: 86 },
+  ],
+
+  volume: [
+    { mois: 'Sep', Judo: 11, Natation: 11, Handball: 5, Multi: 5, TOTAL: 32 },
+    { mois: 'Oct', Judo: 8, Natation: 6.5, Handball: 3.75, Multi: 5, TOTAL: 23.25 },
+    { mois: 'Nov', Judo: 12.5, Natation: 10, Handball: 5, Multi: 6, TOTAL: 33.5 },
+    { mois: 'Déc', Judo: 11, Natation: 7.5, Handball: 3.75, Multi: 5, TOTAL: 27.25 },
+    { mois: 'Jan', Judo: 12, Natation: 10, Handball: 5.75, Multi: 6, TOTAL: 33.75 },
+    { mois: 'Fév', Judo: 8, Natation: 8.5, Handball: 5, Multi: 4, TOTAL: 25.5 },
+    { mois: 'Mar', Judo: 12, Natation: 15, Handball: 3, Multi: 6, TOTAL: 36 },
+    { mois: 'Avr', Judo: 4, Natation: 6, Handball: 2.5, Multi: 4, TOTAL: 16.5 },
+  ],
+
+  physical: [
+    { cat: 'Vitesse', tests: [{ name: 'Sprint 20m', val: '4.69 s', evo: '−11%', good: true }, { name: 'Sprint 10m', val: '3.23 s', evo: 'Record', good: true }] },
+    { cat: 'Explosivité', tests: [{ name: 'Saut sans élan', val: '162 cm', evo: '+2cm', good: true }, { name: 'Saut avec élan', val: '236 cm', evo: '+16cm', good: true }] },
+    { cat: 'Aérobie', tests: [{ name: 'Test 6 min', val: '900 m', evo: '−10%', good: false, note: 'Rec: 1000m sept.' }, { name: 'VMA Estimée', val: '9 km/h' }, { name: 'Lancer balle', val: '16 m' }] },
+    { cat: 'Neuro-musculaire', tests: [{ name: 'Réflexes D', val: '7/10' }, { name: 'Réflexes G', val: '8/10' }, { name: 'Souplesse', val: '−1 cm', evo: '−4cm', good: false, alert: true }] },
+  ],
+
+  mental: [
+    { name: 'Plaisir', score: 100, color: 'var(--success)' },
+    { name: 'Orient. Tâche', score: 95, color: 'var(--judo-gold)' },
+    { name: 'Compétence', score: 90, color: 'var(--swim-cyan)' },
+    { name: 'Résilience', score: 88, color: 'var(--hand-orange)' },
+    { name: 'Autonomie', score: 78, color: 'var(--neutral)' },
+  ],
+
+  judo: {
+    club: "Dojo Grenelle (75)", grade: "Ceinture Jaune 2 Barrettes", debut: "Sept. 2023", trophies: 9,
+    kpis: [{ l: 'Heures', v: '191h+' }, { l: 'Randoris', v: '575+' }, { l: 'Combats', v: '24' }, { l: 'Victoires', v: '22' }],
+    attacks: [
+      { name: 'Hanche (Harai-Goshi / O-Goshi)', val: 52 }, { name: 'Jambe (Ko-Soto / De-Ashi-Barai)', val: 22 },
+      { name: 'Ne-Waza (Sol)', val: 18 }, { name: 'Épaule (Ippon Seoi Nage)', val: 8 }
+    ],
+    bio: "22 victoires / 24 combats (91.7%). Forte progression mentale. Variété d'attaques en hausse. Résilience exemplaire.",
+    weak: "Saisie de manche (Kumi-kata) parfois relâchée. Rotation trop systématique identifiée à Trilport (04/2026). Manque de variété face à garde compacte.",
+    diagnostic: [
+      { t: 'HANCHE (KOSHI-WAZA)', d: 'Excellente verticalité retrouvée. Harai-Goshi et O-Goshi bien maîtrisés. Fin du "plongeon" confirmée à Nogent et Coignières.' },
+      { t: 'JAMBE (ASHI-WAZA)', d: 'En forte progression. Ko-Soto-Gari modèle (Magny). De-Ashi-Barai + Tai-Otoshi combo (Nogent). Point fort longiligne.' },
+      { t: 'NE-WAZA (SOL)', d: 'Liaison debout-sol déterminante. Yoko-Shiho-Gatame + Hon-Kesa-Gatame maîtrisés. Sécurise les victoires sous pression.' },
+      { t: 'ALERTE VARIÉTÉ (Trilport 04/26)', d: 'Neutralisé par garde compacte. Trop dépendant de la rotation Harai-Goshi. Développer Seoi-Nage + préparations de jambe.' },
+    ]
+  },
+
+  natation: {
+    club: "AC Boulogne-Billancourt", debut: "Sept. 2024",
+    kpis: [{ l: 'Heures', v: '133h+' }, { l: 'KM', v: '42+' }, { l: 'Courses Off.', v: '2' }, { l: 'Record Dos', v: '25.38s' }],
+    records: [
+      { nage: '25m Dos', time: '00:25.38', date: '29/03/2026', context: 'J2 Avenirs · La Garenne Colombes' },
+      { nage: '25m Crawl', time: '00:27.32', date: '29/03/2026', context: 'J2 Avenirs · La Garenne Colombes' }
+    ],
+    chronos: [
+      { d: 'Jul.2025', dos: 34, crawl: 39 }, { d: 'Fév.2026', dos: 31, crawl: 32.8 },
+      { d: '07/02', dos: 28.46, crawl: null }, { d: '29/03', dos: 25.38, crawl: 27.32 }
+    ],
+    bio: "Fréquence motrice excellente. Progression spectaculaire : −8.6s en dos en 9 mois. 5ème national 2019.",
+    weak: "Coulée de départ trop courte. Bassin bas (traînée). Respiration en 2 temps crawl déséquilibre la nage. Alignement tête-bassin à corriger.",
+  },
+
+  handball: {
+    club: "Issy Paris Hand (92)", debut: "Sept. 2024",
+    kpis: [{ l: 'Heures', v: '69h' }, { l: 'Matchs', v: '20' }, { l: 'Tournois', v: '7' }, { l: 'Podiums', v: '4' }],
+    bio: "Vitesse et explosivité en contre-attaque. Vision du jeu en progrès. 7 buts + 8 passes en un tournoi (Fontenay, avr. 2026).",
+    weak: "Décision au tir trop lointaine. Marquage défensif perfectible (arracher le ballon). Démarquage en cours d'acquisition.",
+  },
+
+  // CALENDRIER SAISON — onglet officiel seulement
+  past: [
+    { id: 'p10', month: 'Oct. 2025', date: '12/10', sport: 'Judo', name: 'Pithiviers (45)', result: '1ER', adv: 1, desc: '1er tournoi saison. Peu adversité. 2 ippons Harai-Goshi + Tai-Otoshi.', com: '' },
+    { id: 'p9', month: 'Nov. 2025', date: '16/11', sport: 'Judo', name: 'Drancy (93)', result: '1ER', adv: 3, desc: '3 combats parfaitement gérés. Tai-Otoshi, Ippon Seoi, enchainement sol.', com: 'Gestion mentale et concentration exemplaires.' },
+    { id: 'p8', month: 'Nov. 2025', date: '29/11', sport: 'Handball', name: 'Interclub #1 U7 (Issy)', result: '1ER', adv: 2, desc: '1er tournoi avec enfants de son âge. Meilleur marqueur : 12 buts (½ temps/match).', com: 'Bonne puissance de tir. Geste perfectible.' },
+    { id: 'p7', month: 'Déc. 2025', date: '07/12', sport: 'Judo', name: 'Paris Sorbier (75)', result: '1ER', adv: 4, desc: '1ère défaite de saison au 1er combat. Résilience exemplaire : 2 ippons ensuite.', com: 'Excès de confiance corrigé. Osoto Gari × 2.' },
+    { id: 'p6', month: 'Déc. 2025', date: '13/12', sport: 'Judo', name: 'Saint-Arnoult (78)', result: '1ER', adv: 1, desc: '2 combats. Ippon décisif en fin de combat malgré 2 pénalités.', com: 'Harai-Goshi + Tai-Otoshi.' },
+    { id: 'p5', month: 'Jan. 2026', date: '10/01', sport: 'Judo', name: 'Amilly (45)', result: '1ER', adv: 1, desc: 'Règle double Ippon. 3 victoires avec autorité. Liaison sol réactive.', com: 'Frustration sur restriction technique révèle manque de variété.' },
+    { id: 'p4h2', month: 'Jan. 2026', date: '18/01', sport: 'Handball', name: 'Interclub #2 U7 (Suresnes)', result: '1ER', adv: 1, desc: 'Collectif maîtrisé. 10 buts en 38min malgré gastro 2j avant.', com: 'Tir trop loin. Vision du jeu en progrès.' },
+    { id: 'p4h3', month: 'Jan. 2026', date: '24/01', sport: 'Handball', name: 'Interclub #3 U9 (Issy)', result: 'NC', adv: 5, desc: 'Surclassement U9. Défaites 25-0 et 12-2 face aux plus âgés. Actif défensivement.', com: 'Pédagogique. Maturité après frustration initiale.' },
+    { id: 'p3n', month: 'Fév. 2026', date: '07/02', sport: 'Natation', name: 'J1 Avenirs (92) — Suresnes', result: 'DSQ', adv: 3, desc: '28.46s. DSQ retournement dos (réflexe de survie spatiale). Gestion parfaite.', com: 'Résilience exemplaire. Sans larmes. Reprise moteur.' },
+    { id: 'p3j', month: 'Fév. 2026', date: '21/02', sport: 'Judo', name: 'Magny-en-Vexin (95)', result: '1ER', adv: 1, desc: '3 ippons. Ko-Soto-Gari modèle au 3ème combat. Verticalité retrouvée.', com: 'Liaison debout-sol fluide. Défaut kuzushi persistant.' },
+    { id: 'p2j', month: 'Mar. 2026', date: '07/03', sport: 'Judo', name: 'Nogent-le-Rotrou (28)', result: '1ER', adv: 2, desc: '3 victoires doubles Ippon. O-Goshi, Ko-Soto-Gari, De-Ashi-Barai + Tai-Otoshi.', com: 'Posture verticale confirmée. Répertoire technique élargi.' },
+    { id: 'p2h4', month: 'Mar. 2026', date: '14/03', sport: 'Handball', name: 'Interclub #4 U7 (Issy)', result: '3ÈME', adv: 3, desc: 'Douleur cheville droite match 1. Gêne articulaire (froid appliqué). Impact performance.', com: 'Engagement défensif constant malgré la gêne.' },
+    { id: 'p2j2', month: 'Mar. 2026', date: '22/03', sport: 'Judo', name: 'Coignières (78)', result: '1ER', adv: 3, desc: 'Tournoi accroché. Forte progression mentale. Combat renversé. Harai-Goshi propre.', com: 'Liaison sol déterminante. Yoko-Shiho-Gatame sous pression.' },
+    { id: 'p2h5', month: 'Mar. 2026', date: '28/03', sport: 'Handball', name: 'Interclub #5 U7 (Fontenay)', result: '1ER', adv: 1, desc: '7 buts + 8 passes décisives. Domination collective. Tirs en suspension.', com: 'Progression tir et conduite de balle confirmée.' },
+    { id: 'p2n', month: 'Mar. 2026', date: '29/03', sport: 'Natation', name: 'J2 Avenirs — La Garenne Colombes', result: 'RECORDS', adv: 3, desc: '25m Dos : 25.38s 🏆 · 25m Crawl : 27.32s 🏆 — Records PR pulvérisés. 5ème national estimé.', com: 'Progression −3s en dos. Alignement + coulée à travailler.' },
+    { id: 'p1j', month: 'Avr. 2026', date: '19/04', sport: 'Judo', name: 'Trilport (77)', result: '2ÈME', adv: 3, desc: 'Surclassé face aux 2018. 2V / 1D. Limite rotation systématique identifiée.', com: 'Tournoi d\'alerte tech. Harai-Goshi trop systématique. Séquelles cheville légères.' },
+  ],
+
+  // CALENDRIER SAISON — uniquement les entrées inscrites ou prévues
+  future: [
+    { id: 'f_j3nat', month: 'Mai 2026', date: '31/05', sport: 'Natation', name: 'J3 Avenirs (92)', time: 'À définir', drive: 'À définir', address: 'Département 92', inscrit: false, next: true },
+    { id: 'f_hand_etoiles', month: 'Mai 2026', date: '24/05', sport: 'Handball', name: 'Tournoi des Étoiles (Triel-sur-Seine)', time: '08h00–18h00', drive: '0h45', address: 'Stade Gaston Chirac, Triel (78)', inscrit: false },
+    { id: 'f_hand_festi', month: 'Mai 2026', date: '30/05', sport: 'Handball', name: 'FESTIHAND (Issy)', time: 'À définir', drive: '0h05', address: 'Cité des sports, Issy (92)', inscrit: false },
+    { id: 'f11', month: 'Juin 2026', date: '07/06', sport: 'Judo', name: 'Challenge Petits Tigres (75)', time: '11h15–11h45', drive: '0h15', address: 'INJ, 21 av de la Porte de Chatillon, Paris 14e', inscrit: false },
+    { id: 'f_j4nat', month: 'Juin 2026', date: '31/05', sport: 'Natation', name: 'J4 Avenirs (92)', time: 'À définir', drive: 'À définir', address: 'Département 92', inscrit: false },
+  ],
+
+  // BLESSURES — source Data Léo
+  injuries: [
+    { date: '15/09/2025', zone: 'Tibias/jambes', type: 'Myosite probable', grav: 3, etat: 'Résolu', recidive: false },
+    { date: '20/09/2025', zone: 'Sommeil', type: 'Somnambulisme/cauchemars', grav: 2, etat: 'Amélioré', recidive: false },
+    { date: '15/10/2025', zone: 'ORL droite', type: 'Otite séreuse', grav: 2, etat: 'Résolu', recidive: false },
+    { date: '10/11/2025', zone: 'Général', type: 'État grippal', grav: 2, etat: 'Résolu', recidive: false },
+    { date: '14/03/2026', zone: 'Cheville droite', type: 'Gêne articulaire', grav: 1, etat: 'Résolu', recidive: false },
+    { date: '06/04/2026', zone: 'Cheville droite', type: 'Entorse légère', grav: 2, etat: 'Favorable', recidive: true },
+    { date: '06/05/2026', zone: 'Cheville droite', type: 'Douleur moyenne (collision)', grav: 2, etat: '⚠ En cours', recidive: true },
+  ],
+};
+
+// ── TABS CONFIG ───────────────────────────────────────────────────────────────
+const TABS = [
+  { id: 'cockpit', label: 'COCKPIT', sub: 'Vue globale', icon: 'cockpit', aClass: '' },
+  { id: 'bio', label: 'BIOMÉTRIE', sub: 'Corps & tests', icon: 'bio', aClass: 'bio' },
+  { id: 'judo', label: 'JUDO', sub: '22/24 victoires', icon: 'judo', aClass: '' },
+  { id: 'swim', label: 'NATATION', sub: '5ème national', icon: 'swim', aClass: 'swim' },
+  { id: 'hand', label: 'HANDBALL', sub: 'Issy Paris Hand', icon: 'hand', aClass: 'hand' },
+  { id: 'cal', label: 'CALENDRIER', sub: 'Résultats saison', icon: 'cal', aClass: 'cal' },
+  { id: 'tl', label: 'TIMELINE', sub: 'Chronologie saison', icon: 'tl', aClass: 'tl' },
+];
+const SECTION = {
+  cockpit: 'COCKPIT DÉCISIONNEL', bio: 'SUIVI BIOMÉTRIQUE',
+  judo: 'ANALYSE — JUDO', swim: 'ANALYSE — NATATION', hand: 'ANALYSE — HANDBALL',
+  cal: 'CALENDRIER & RÉSULTATS', tl: 'TIMELINE SAISON 2025-2026',
+};
+
+// ── COCKPIT ───────────────────────────────────────────────────────────────────
+const CockpitTab = ({ goTo }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+    {/* NEXT EVENT — J3 Avenirs 31/05 */}
+    <div className="alert-strip" style={{ cursor: 'pointer', borderColor: 'rgba(0,212,255,0.3)', background: 'rgba(0,212,255,0.04)', animation: 'none' }} onClick={() => goTo('cal')}>
+      <div style={{ width: 40, height: 40, borderRadius: 8, background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--swim-cyan)', flexShrink: 0 }}>
+        <Ico d={I.swim} size={18} />
+      </div>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--swim-cyan)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 4 }}>PROCHAINE ÉCHÉANCE · CALENDRIER SAISON</div>
+        <div style={{ fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: 18, color: 'var(--text-primary)' }}>31/05/2026 — J3 Avenirs (92) · Natation · Lieu à définir</div>
+      </div>
+      <Badge type="swim" text="NON INSCRIT" />
     </div>
 
-    <script type="text/babel">
-        class ErrorBoundary extends React.Component {
-            constructor(props) { super(props); this.state = { hasError: false, error: null }; }
-            static getDerivedStateFromError(error) { return { hasError: true, error }; }
-            render() {
-                if (this.state.hasError) {
-                    return (
-                        <div className="p-8 text-red-500 bg-red-50 min-h-screen">
-                            <h1 className="text-2xl font-bold mb-4">Une erreur est survenue :</h1>
-                            <pre className="bg-white p-4 rounded shadow overflow-auto text-sm">{this.state.error.toString()}</pre>
-                        </div>
-                    );
-                }
-                return this.props.children;
-            }
-        }
+    {/* ALERTE CHEVILLE */}
+    <div className="alert-strip">
+      <div style={{ width: 40, height: 40, borderRadius: 8, background: 'rgba(255,62,62,0.1)', border: '1px solid rgba(255,62,62,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--danger)', flexShrink: 0 }}>
+        <Ico d={I.bone} size={18} />
+      </div>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--danger)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 4 }}>ALERTE SANTÉ ACTIVE</div>
+        <div style={{ fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: 17, color: 'var(--text-primary)' }}>Cheville droite · 3ème récidive (06/05) · Reprise estimée ~11/05 · Chevillère obligatoire</div>
+      </div>
+      <Badge type="danger" text="EN COURS" />
+    </div>
 
-        const { useState, useEffect } = React;
-        const { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip: RechartsTooltip, ResponsiveContainer, BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend } = window.Recharts;
+    {/* KPIs */}
+    <div className="grid-4" style={{ gap: 12 }}>
+      {DATA.kpis.map((k, i) => (
+        <div key={i} className={`card card-glow-${k.glow}`}>
+          <div className="card-label">{k.label}</div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+            <span className="card-value" style={{ fontSize: k.value.length > 3 ? 32 : 42 }}>{k.value}</span>
+            <span style={{ fontFamily: 'Barlow Condensed', fontSize: 18, fontWeight: 700, color: 'var(--text-muted)' }}>{k.unit}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8, gap: 8 }}>
+            <span style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--text-muted)' }}>{k.desc}</span>
+            <span style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: k.color, background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: 4, whiteSpace: 'nowrap' }}>{k.trend}</span>
+          </div>
+        </div>
+      ))}
+    </div>
 
-        // --- ICONES GLOBALES ---
-        const Icon = ({ path, size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} dangerouslySetInnerHTML={{ __html: path }} />
-        );
-        const Activity = (p) => <Icon {...p} path='<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>' />;
-        const Target = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>' />;
-        const AlertCircle = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>' />;
-        const ShieldAlert = (p) => <Icon {...p} path='<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>' />;
-        const Award = (p) => <Icon {...p} path='<circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>' />;
-        const Waves = (p) => <Icon {...p} path='<path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.6 2 5 2 2.3 0 2.3-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.6 2 5 2 2.3 0 2.3-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.6 2 5 2 2.3 0 2.3-2 5-2 1.3 0 1.9.5 2.5 1"/>' />;
-        const User = (p) => <Icon {...p} path='<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>' />;
-        const Calendar = (p) => <Icon {...p} path='<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>' />;
-        const Brain = (p) => <Icon {...p} path='<path d="M9.5 2h5"/><path d="M16 4.5v1"/><path d="M8 4.5v1"/><path d="M12 21.5c-3-.5-5.5-3-5.5-6.5v-2c0-1.5-1-2.5-2-3s-1.5-2-.5-3.5 3-2.5 4.5-1.5c1 .5 2 .5 3 .5s2 0 3-.5c1.5-1 3.5 0 4.5 1.5s.5 3-2 3.5-2 1.5-2 3v2c0 3.5-2.5 6-5.5 6.5z"/>' />;
-        const Compass = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>' />;
-        const Zap = (p) => <Icon {...p} path='<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>' />;
-        const TrophyIcon = (p) => <Icon {...p} path='<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0v-7z"/>' />;
-        const Flag = (p) => <Icon {...p} path='<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>' />;
-        const MapPin = (p) => <Icon {...p} path='<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>' />;
-        const Clock = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' />;
-        const ArrowRight = (p) => <Icon {...p} path='<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>' />;
-        const CheckCircle2 = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/>' />;
-        const ChevronDown = (p) => <Icon {...p} path='<polyline points="6 9 12 15 18 9"/>' />;
-        const ChevronUp = (p) => <Icon {...p} path='<polyline points="18 15 12 9 6 15"/>' />;
-        const Crosshair = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/>' />;
-        const InfoIcon = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>' />;
-        const TrendingUp = (p) => <Icon {...p} path='<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>' />;
-        const StarIcon = (p) => <Icon {...p} path='<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>' />;
-        
-        // Mode Sombre
-        const MoonIcon = (p) => <Icon {...p} path='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>' />;
-        const SunIcon = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>' />;
+    {/* MOTEUR DÉCISION + GAUGES */}
+    <div className="grid-2" style={{ alignItems: 'start' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <SectionTitle>MOTEUR DE DÉCISION</SectionTitle>
+        {DATA.alerts.map((a, i) => (
+          <div key={i} className="tactic-tile" style={{ borderLeft: `3px solid ${a.color}` }}>
+            <div className="tactic-tile-label" style={{ color: a.color }}>{a.label}</div>
+            <div style={{ fontFamily: 'Barlow Condensed', fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>{a.titre}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{a.texte}</div>
+          </div>
+        ))}
+      </div>
 
-        // Icônes spécifiques
-        const BallIcon = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20M2 12a14.5 14.5 0 0 0 20 0"/>' />;
-        const JudoIcon = (p) => <Icon {...p} path='<rect x="3" y="10" width="18" height="4" rx="1"/><path d="M12 14v5M10 14l-2 4M14 14l2 4"/>' />;
-
-        // --- COMPOSANT INFOBULLE ---
-        const Tooltip = ({ text, children }) => (
-            <div className="custom-tooltip-container">
-                {children}
-                <div className="custom-tooltip-content">{text}</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <SectionTitle>INDICES D'ÉTAT</SectionTitle>
+        {DATA.gauges.map((g, i) => (
+          <div key={i}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+              <span style={{ fontFamily: 'Barlow Condensed', fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>{g.label}</span>
+              <span style={{ fontFamily: 'JetBrains Mono', fontSize: 13, fontWeight: 700, color: g.color }}>{g.value}%</span>
             </div>
-        );
+            <StatBar value={g.value} color={g.color} />
+            <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--text-muted)', marginTop: 4 }}>{g.desc}</div>
+          </div>
+        ))}
 
-        const Gauge = ({ label, value, colorClass, bgClass, desc }) => (
-            <div>
-                <div className="flex justify-between text-xs font-bold mb-1.5"><span className="text-slate-600 dark:text-slate-300">{label}</span><span className={colorClass.replace('bg-', 'text-')}>{value}%</span></div>
-                <div className={`h-2.5 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700`}>
-                    <div className={`h-full rounded-full transition-all duration-1000 ${bgClass}`} style={{ width: `${value}%` }}></div>
+        <SectionTitle style={{ marginTop: 8 }}>TRAJECTOIRE GÜLLICH</SectionTitle>
+        {AreaChart && ResponsiveContainer ? (
+          <div style={{ height: 190 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={DATA.predictive} margin={{ top: 5, right: 5, left: -30, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="gReel" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#f5c518" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#f5c518" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="gOpti" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#00d4ff" stopOpacity={0.15} />
+                    <stop offset="95%" stopColor="#00d4ff" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                <XAxis dataKey="mois" tick={{ fontSize: 10, fill: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
+                <YAxis domain={[60, 100]} tick={{ fontSize: 10, fill: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
+                <RTooltip content={<DarkTooltip />} />
+                <Area type="monotone" dataKey="opti" name="Trajectoire cible" stroke="#00d4ff" strokeWidth={1} strokeDasharray="4 4" fill="url(#gOpti)" dot={false} />
+                <Area type="monotone" dataKey="reel" name="Progression Léo" stroke="#f5c518" strokeWidth={2} fill="url(#gReel)" dot={{ r: 3, fill: '#f5c518', strokeWidth: 0 }} activeDot={{ r: 5 }} connectNulls={false} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        ) : null}
+
+        <SectionTitle>VOLUME MENSUEL</SectionTitle>
+        {BarChart && ResponsiveContainer ? (
+          <div style={{ height: 180 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={DATA.volume} margin={{ top: 0, right: 0, left: -30, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                <XAxis dataKey="mois" tick={{ fontSize: 10, fill: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
+                <RTooltip content={<DarkTooltip />} />
+                <Bar dataKey="Judo" stackId="a" fill="rgba(245,197,24,0.7)" />
+                <Bar dataKey="Natation" stackId="a" fill="rgba(0,212,255,0.7)" />
+                <Bar dataKey="Handball" stackId="a" fill="rgba(255,107,43,0.7)" />
+                <Bar dataKey="Multi" stackId="a" fill="rgba(124,156,191,0.5)" radius={[3, 3, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        ) : null}
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8 }}>
+          {[{ l: 'Judo', v: '78.5h', c: 'var(--judo-gold)' }, { l: 'Natation', v: '74.5h', c: 'var(--swim-cyan)' }, { l: 'Handball', v: '33.75h', c: 'var(--hand-orange)' }, { l: 'Multi', v: '41h', c: 'var(--neutral)' }].map(s => (
+            <div key={s.l} style={{ background: 'var(--bg-surface)', borderRadius: 8, padding: '8px', textAlign: 'center', border: '1px solid var(--border)' }}>
+              <div style={{ fontFamily: 'JetBrains Mono', fontSize: 9, color: 'var(--text-muted)', marginBottom: 4, letterSpacing: 1 }}>{s.l}</div>
+              <div style={{ fontFamily: 'Barlow Condensed', fontSize: 18, fontWeight: 700, color: s.c }}>{s.v}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ fontFamily: 'JetBrains Mono', fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', marginTop: -4 }}>Total saison : <strong style={{ color: 'var(--text-primary)' }}>227.75h</strong></div>
+      </div>
+    </div>
+  </div>
+);
+
+// ── BIOMETRIE ─────────────────────────────────────────────────────────────────
+const BioTab = () => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div className="grid-3" style={{ gap: 12 }}>
+      {[
+        { label: 'Taille', val: `${DATA.identity.morpho.h} cm`, diff: `+${DATA.identity.morpho.h - DATA.identity.avgMorpho.h} cm vs moy`, avg: `Moy: ${DATA.identity.avgMorpho.h} cm` },
+        { label: 'Poids', val: `${DATA.identity.morpho.w} kg`, diff: `+${(DATA.identity.morpho.w - DATA.identity.avgMorpho.w).toFixed(1)} kg vs moy`, avg: `Moy: ${DATA.identity.avgMorpho.w} kg` },
+        { label: 'IMC', val: `${DATA.identity.morpho.imc}`, diff: 'Normal — longiligne', avg: `Moy: ${DATA.identity.avgMorpho.imc}` },
+      ].map((m, i) => (
+        <div key={i} className="card">
+          <div className="card-label">{m.label}</div>
+          <div className="card-value">{m.val}</div>
+          <div className="card-sub">{m.diff}</div>
+          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--text-muted)', marginTop: 4 }}>{m.avg}</div>
+        </div>
+      ))}
+    </div>
+
+    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+      <span className="status-pill">{DATA.identity.details}</span>
+      <span className="status-pill">Projection adulte: {DATA.identity.projection}</span>
+      <span className="record-pill">★ {DATA.identity.type}</span>
+    </div>
+
+    <div className="grid-2" style={{ alignItems: 'start', gap: 20 }}>
+      {/* Mental */}
+      <div className="card">
+        <SectionTitle>PROFIL MENTAL</SectionTitle>
+        {DATA.mental.map((m, i) => (
+          <div key={i} style={{ marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
+              <span style={{ fontFamily: 'Barlow Condensed', fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>{m.name}</span>
+              <span style={{ fontFamily: 'JetBrains Mono', fontSize: 13, fontWeight: 700, color: m.color }}>{m.score}</span>
+            </div>
+            <StatBar value={m.score} color={m.color} />
+          </div>
+        ))}
+      </div>
+
+      {/* Tests physiques */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {DATA.physical.map((cat, i) => (
+          <div key={i} className="card">
+            <SectionTitle>{cat.cat}</SectionTitle>
+            {cat.tests.map((t, j) => (
+              <div key={j} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, paddingBottom: j < cat.tests.length - 1 ? 10 : 0, borderBottom: j < cat.tests.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                <span style={{ fontFamily: 'Barlow', fontSize: 13, color: 'var(--text-secondary)' }}>{t.name}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontFamily: 'JetBrains Mono', fontSize: 13, fontWeight: 700, color: t.alert ? 'var(--danger)' : 'var(--text-primary)' }}>{t.val}</span>
+                  {t.evo && <span style={{ fontFamily: 'JetBrains Mono', fontSize: 10, fontWeight: 700, color: t.good ? 'var(--success)' : 'var(--danger)', background: 'rgba(255,255,255,0.05)', padding: '1px 6px', borderRadius: 4 }}>{t.evo}</span>}
                 </div>
-                {desc && <p className="text-[9px] text-slate-400 mt-1">{desc}</p>}
-            </div>
-        );
-
-        const App = () => {
-          const [activeTab, setActiveTab] = useState('cockpit');
-          const [viewMode, setViewMode] = useState('expert'); 
-          
-          // Etats calendrier (ID uniques)
-          const [expandedPastId, setExpandedPastId] = useState(null);
-          const [expandedFutureId, setExpandedFutureId] = useState(null);
-          
-          // Filtres du Calendrier
-          const [pastFilter, setPastFilter] = useState('ALL');
-          const [futureFilter, setFutureFilter] = useState('ALL');
-          
-          // Etat Mode Sombre
-          const [isDark, setIsDark] = useState(false);
-          useEffect(() => {
-              if (isDark) document.documentElement.classList.add('dark');
-              else document.documentElement.classList.remove('dark');
-          }, [isDark]);
-
-          // --- MOTEUR DE DECISION ---
-          const decisionEngine = {
-              alerte: { type: 'danger', titre: 'Risque Blessure / Souplesse', texte: 'Perte de souplesse (-1cm) et poussée de croissance en cours. Indice de risque structurel modéré. Assouplissements obligatoires.' },
-              prioritePhysique: { titre: 'Mobilité & Relâchement', texte: 'Remplacer 15min de multi-sport par des étirements ischio/psoas quotidiens.' },
-              prioriteTechnique: { titre: 'Départs & Prise d\'info', texte: 'Focus sur l\'angle d\'entrée dans l\'eau au plongeon et la levée de tête au Handball.' },
-              contrainte: { titre: 'Plafonnement Volume', texte: 'Ne pas dépasser 8h de sport structuré hebdomadaire (Principes de Güllich).' }
-          };
-
-          const predictiveData = [
-              { mois: 'Oct', reel: 70, opti: 72 }, { mois: 'Nov', reel: 74, opti: 74 },
-              { mois: 'Déc', reel: 75, opti: 76 }, { mois: 'Jan', reel: 79, opti: 78 },
-              { mois: 'Fév', reel: 82, opti: 80 }, { mois: 'Mar', reel: 84, opti: 82 },
-              { mois: 'Avr', reel: null, opti: 84 }, { mois: 'Mai', reel: null, opti: 86 }
-          ];
-
-          // --- 1. DATA: IDENTITÉ & KPIs ---
-          const identity = {
-            name: "Léo", age: "6 ans 10 mois", category: "U9 / Pré-Poussin",
-            morphology: {
-              current: { height: 127.0, weight: 25.7, imc: 15.9 },
-              average: { height: 123.0, weight: 23.5, imc: 15.6 }
-            },
-            details: "Envergure: 122 cm | Taille assise: 68 cm",
-            projection: "185 cm / 78 kg", type: "Longiligne en construction",
-            status: "Multisport Structuré (7-8h hebdo)"
-          };
-
-          const advancedKPIs = [
-            { label: "Score Global Pondéré", value: "84/100", trend: "+2", color: "text-indigo-600 dark:text-indigo-400", desc: "Tech(+), Mental(+), Explo(++), Souplesse(-)", info: "Moyenne pondérée : Technique (30%), Physique (25%), Mental (25%), Régularité (10%), Potentiel estimé (10%)." },
-            { label: "Indice Transfert", value: "8.5/10", trend: "Validé", color: "text-blue-500 dark:text-blue-400", desc: "Basé sur les données motrices", info: "Évalue la capacité à transférer une compétence acquise dans un sport vers un autre (ex: appuis handball réutilisés au judo)." },
-            { label: "Victoire / Gabarit Sup.", value: "78%", trend: "En test", color: "text-orange-500 dark:text-orange-400", desc: "Performance face à plus lourd/grand", info: "Ratio de victoire calculé uniquement lors de surclassements d'âge (U9) ou de poids." },
-            { label: "Indice Stabilité Méc.", value: "6.5/10", trend: "Fragile", color: "text-amber-500 dark:text-amber-400", desc: "Hanche intermittente sous pression", info: "Capacité à maintenir sa posture de force (Shisei) et sa verticalité face à l'agressivité de l'adversaire." },
-          ];
-
-          // --- 2. DATA: VOLUME & TESTS ---
-          const volumeMensuel = [
-            { mois: 'Sept', Judo: 11, Natation: 11, Handball: 5, Multisport: 5, TOTAL: 32 },
-            { mois: 'Oct', Judo: 8, Natation: 6.5, Handball: 3.75, Multisport: 5, TOTAL: 23.25 },
-            { mois: 'Nov', Judo: 12.5, Natation: 10, Handball: 5, Multisport: 6, TOTAL: 33.5 },
-            { mois: 'Déc', Judo: 11, Natation: 7.5, Handball: 3.75, Multisport: 5, TOTAL: 27.25 },
-            { mois: 'Jan', Judo: 12, Natation: 10, Handball: 5.75, Multisport: 6, TOTAL: 33.75 },
-            { mois: 'Fév', Judo: 8, Natation: 8.5, Handball: 5, Multisport: 4, TOTAL: 25.5 },
-            { mois: 'Mars', Judo: 12, Natation: 15, Handball: 3, Multisport: 6, TOTAL: 36 },
-          ];
-
-          const athleticRadar = [
-            { subject: 'Vitesse', val: 95 }, { subject: 'Explosivité', val: 95 },
-            { subject: 'Coordination', val: 88 }, { subject: 'Endurance', val: 80 },
-            { subject: 'Souplesse', val: 30 }, { subject: 'Rotation', val: 65 },
-          ];
-
-          const extendedPhysicalTests = [
-            { cat: 'Vitesse', tests: [{ name: 'Sprint 20m', val: '4.69 s', evo: '-11%' }, { name: 'Slalom 10m', val: '3.31 s', evo: '+1%' }, { name: 'Vitesse moy 200m', val: '2.85 m/s' }] },
-            { cat: 'Explosivité', tests: [{ name: 'Saut sans élan', val: '162 cm', evo: '+1.2%' }, { name: 'Saut avec élan', val: '236 cm', evo: '+2.1%' }, { name: 'Saut vertical', val: '22 cm', evo: '' }, { name: 'Ratio Explo Horizontale', val: '1.89', evo: '' }] },
-            { cat: 'Aérobie & Motricité', tests: [{ name: 'Test 6 min', val: '900 m', evo: '-10%' }, { name: 'VMA Estimée', val: '9 km/h', evo: '' }, { name: '200m', val: '1 min 10', evo: '' }, { name: 'Lancer balle', val: '16 m', evo: '' }] },
-            { cat: 'Neuromusculaire', tests: [{ name: 'Réflexes Main D', val: '7/10', evo: '' }, { name: 'Réflexes Main G', val: '8/10', evo: '' }, { name: 'Souplesse', val: '-1 cm', alert: true, evo: '-4cm' }] },
-          ];
-
-          const mentalData = [
-            { name: 'Plaisir', score: 100, color: '#10b981', info: "Motivation intrinsèque maximale, aucune contrainte ressentie par l'enfant." }, 
-            { name: 'Orient. Tâche', score: 95, color: '#6d28d9', info: "Focalisation saine sur la maîtrise de ses propres gestes plutôt que la comparaison aux autres." },
-            { name: 'Compétence', score: 90, color: '#8b5cf6', info: "Confiance en ses capacités, favorisée par l'excellence des résultats sportifs." }, 
-            { name: 'Résilience', score: 85, color: '#f59e0b', info: "Capacité à rebondir après un échec (excellente réaction post-DSQ natation)." },
-            { name: 'Autonomie', score: 75, color: '#3b82f6', info: "Autonomie logistique franchie : prépare son sac, écoute sans aide parentale." },
-          ];
-
-          // --- 3. DATA: SPÉCIALITÉS ---
-          const judoAdvancedStats = {
-            club: "Dojo Grenelle (75)",
-            grade: "Ceinture Jaune 2 Barrettes", debut: "Sept. 2023 (2.5 ans)",
-            kpis: [
-              { label: 'Heures cumulées', value: "191h", sub: 'Depuis 2023' }, 
-              { label: 'Randoris', value: "575", sub: 'Cumul (3/h)' },
-              { label: 'Combats', value: "22", sub: 'Saison 25-26' }, 
-              { label: 'Victoires', value: "21", sub: 'Dont 3 Ne-Waza' },
-            ],
-            directions: [
-              { name: 'Hanche (Tai-Otoshi / O-Goshi)', value: 55, color: '#f59e0b' },
-              { name: 'Jambe (De-Ashi-Barai / Ko-Soto)', value: 20, color: '#10b981' },
-              { name: 'Ne-Waza (Sol)', value: 20, color: '#3b82f6' },
-              { name: 'Épaule (Ippon Seoi Nage)', value: 5, color: '#4f46e5' },
-            ]
-          };
-
-          const natationStats = {
-            club: "ACBB (92)",
-            debut: "Sept. 2024 (1.5 an)",
-            kpis: [
-              { label: 'Heures cumulées', value: "133h", sub: 'Depuis 2024' },
-              { label: 'KM parcourus', value: "42", sub: 'Cumul estimé' },
-              { label: 'Courses Off.', value: "3", sub: 'Saison 25-26' },
-              { label: 'Record 25m', value: "25.38s", sub: 'Dos (Nouveau)' },
-            ]
-          };
-
-          const handballStats = {
-            club: "Issy Paris Hand (92)",
-            debut: "Sept. 2024 (1.5 an)",
-            kpis: [
-              { label: 'Heures cumulées', value: "69h", sub: 'Depuis 2024' },
-              { label: 'Matchs Joués', value: "20", sub: 'Saison 25-26' },
-              { label: 'Tournois', value: "7", sub: 'Saison 25-26' },
-              { label: 'Podiums', value: "4", sub: 'Dont 3 victoires' },
-            ]
-          };
-
-          // --- 4. DATA: CALENDRIER (FORMAT FLAT) ---
-          const pastEventsList = [
-            { id: "p_n2903", month: "Mars 2026", date: '29/03', sport: 'Natation', name: 'J2 Avenirs (92)', result: '3ÈME (Bronze)', adv: 3, matches: "2 courses", desc: "Records personnels explosés sur 25m Dos (25.38s) et 25m Crawl (27.32s). Superbe 3ème place de sa catégorie d'âge (2018-2019) en dos.", com: "Meilleure gestion globale. Attention à l'entrée en piqué au plongeon et à la respiration en 2 temps en crawl." },
-            { id: "p_h2803", month: "Mars 2026", date: '28/03', sport: 'Handball', name: 'Interclub #5 U7 (Fontenay)', result: '1ER', adv: 1, matches: "2 matchs", desc: "Superbe performance collective. Léo continue de dominer par sa vitesse.", com: "Très bonne vision du jeu et passes précises. L'adversité était faible sur ce plateau." },
-            { id: "p_c2203", month: "Mars 2026", date: '22/03', sport: 'Judo', name: 'Coignières (78)', result: '1ER', adv: 3, matches: "3 combats", desc: "Tournoi accroché. Forte progression mentale sous pression avec 3 victoires par Ippon.", com: "Meilleure gestion du kumi-kata. Harai-Goshi propre. Liaison debout-sol déterminante (Yoko-Shiho-Gatame)." },
-            { id: "p_h1403", month: "Mars 2026", date: '14/03', sport: 'Handball', name: 'Interclub #4 U7 (Issy)', result: '3ÈME', adv: 3, matches: "Plusieurs matchs", desc: "Termine sur le podium (3ème place) de l'interclub.", com: "Engagement constant et toujours une grosse solidité défensive." },
-            { id: "p0", month: "Mars 2026", date: '07/03', sport: 'Judo', name: 'Nogent le Rotrou (28)', result: '1ER', adv: 2, matches: "3 combats", desc: "Tournoi parfaitement maîtrisé avec 3 victoires par Ippon.", com: "Excellente posture verticale (fin du 'plongeon'). Utilisation très efficace du balayage (De-Ashi-Barai)." },
-            
-            { id: "p1", month: "Février 2026", date: '21/02', sport: 'Judo', name: 'Magny-en-Vexin (95)', result: '1ER', adv: 1, matches: "3 combats", desc: "Niveau global faible. Tournoi maîtrisé du début à la fin.", com: "Attaque en jambe explosive parfaitement exécutée (Ko-Soto-Gari)." },
-            { id: "p2", month: "Février 2026", date: '08/02', sport: 'Judo', name: 'Saint-Arnoult-en-Yv. (78)', result: '1ER', adv: 2, matches: "3 combats", desc: "Très bonne gestion des combats sur un tournoi de niveau modéré.", com: "Belles liaisons debout-sol et confirmation des acquis." },
-            { id: "p3", month: "Février 2026", date: '07/02', sport: 'Natation', name: 'Suresnes (92)', result: 'DSQ', adv: 3, matches: "1 course", desc: "Disqualification sur 25m dos pour retournement sur le ventre.", com: "Chrono d'entraînement (28.46s) validant le niveau." },
-            
-            { id: "p4", month: "Janvier 2026", date: '24/01', sport: 'Handball', name: 'Issy (92) - U9', result: 'NC', adv: 4, matches: "Plusieurs matchs", desc: "Surclassement en U9. Tournoi compliqué face à des gabarits supérieurs.", com: "A eu du mal à lâcher son ballon rapidement." },
-            { id: "p5", month: "Janvier 2026", date: '18/01', sport: 'Handball', name: 'Suresnes (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", desc: "Victoire de l'équipe sur ce tournoi interclub.", com: "Évolution très positive sur sa vision du jeu. Capable de lever la tête." },
-            { id: "p6", month: "Janvier 2026", date: '11/01', sport: 'Judo', name: 'Amilly (45)', result: '1ER', adv: 2, matches: "3 combats", desc: "Tournoi de rentrée 2026 bien maîtrisé.", com: "Domination sur les prises de hanche (Tai-Otoshi)." },
-            
-            { id: "p7", month: "Décembre 2025", date: '07/12', sport: 'Judo', name: 'Paris Sorbier (75)', result: '1ER', adv: 4, matches: "3 combats", desc: "Termine 1er au global malgré sa seule défaite de l'année.", com: "Excellente attitude de résilience." },
-            
-            { id: "p8", month: "Novembre 2025", date: '29/11', sport: 'Handball', name: 'Issy (92) - U7', result: '1ER', adv: 2, matches: "3 matchs", desc: "Meilleur marqueur de la compétition avec 12 buts.", com: "Très performant face aux enfants de son âge." },
-            { id: "p9", month: "Novembre 2025", date: '16/11', sport: 'Judo', name: 'Drancy (93)', result: '1ER', adv: 3, matches: "3 combats", desc: "Tournoi parfaitement géré niveau mental et concentration.", com: "1er combat: Tai-Otoshi. 2ème: Ippon Seoi Nage." },
-            
-            { id: "p10", month: "Octobre 2025", date: '12/10', sport: 'Judo', name: 'Pithiviers (45)', result: '1ER', adv: 1, matches: "2 combats", desc: "1er tournoi de la saison, peu d'adversité.", com: "1er et 2ème combat remportés par le même mix : Harai Goshi puis Tai-Otoshi." }
-          ];
-
-          const futureEventsList = [
-            { id: "f_villers", month: "Avril 2026", date: '12/04', sport: 'Judo', name: "Tournoi de Villers-Cotterêts (02)", time: 'À définir', drive: '1h15 de route', address: 'Villers-Cotterêts (02)', inscrit: false },
-            { id: "f8", month: "Mai 2026", date: '24/05', sport: 'Handball', name: 'Tournoi des Étoiles', time: '08h00-18h00', drive: '0h45 de route', address: 'Sur Herbe (Lieu à confirmer)', inscrit: false },
-            { id: "f_nat3", month: "Mai 2026", date: '30/05', sport: 'Natation', name: 'J3 Avenirs (92)', time: 'À définir', drive: 'À définir', address: 'Sur le département 92', inscrit: false },
-            { id: "f11", month: "Juin 2026", date: '07/06', sport: 'Judo', name: 'Challenge Petits Tigres (75)', time: '11h15-11h45', drive: '0h15 de route', address: 'INJ, 21 av de la Porte de Chatillon', inscrit: false },
-            { id: "f12", month: "Juin 2026", date: '20/06', sport: 'Natation', name: 'J4 Avenirs (92)', time: 'À définir', drive: 'À définir', address: 'Sur le département 92', inscrit: false }
-          ];
-
-          // Filtrage et Groupement des événements sécurisés
-          const filteredPast = pastEventsList.filter(ev => pastFilter === 'ALL' || ev.sport === pastFilter);
-          const groupedPast = filteredPast.reduce((acc, ev) => {
-              if (!acc[ev.month]) acc[ev.month] = [];
-              acc[ev.month].push(ev);
-              return acc;
-          }, {});
-
-          const filteredFuture = futureEventsList.filter(ev => futureFilter === 'ALL' || ev.sport === futureFilter);
-          const groupedFuture = filteredFuture.reduce((acc, ev) => {
-              if (!acc[ev.month]) acc[ev.month] = [];
-              acc[ev.month].push(ev);
-              return acc;
-          }, {});
-
-          // --- Utilitaires de rendu ---
-          const Card = ({ children, title, icon: IconCmp, rightContent, className = "" }) => (
-            <div className={`bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm relative card-container ${className}`}>
-              <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none z-0"></div>
-              <div className="relative z-10 h-full flex flex-col">
-                {(title || rightContent) && (
-                  <div className="flex items-center justify-between mb-6">
-                    {title && <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center gap-2">{IconCmp && <IconCmp size={18} className="text-indigo-500" />} {title}</h3>}
-                    {rightContent && rightContent}
-                  </div>
-                )}
-                {children}
               </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Blessures */}
+    <SectionTitle>HISTORIQUE BLESSURES</SectionTitle>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {DATA.injuries.map((b, i) => (
+        <div key={i} className="event-row" style={{ borderLeft: `3px solid ${b.etat.includes('cours') ? 'var(--danger)' : b.recidive ? 'var(--amber)' : 'var(--border)'}` }}>
+          <SportDot sport="health" size={9} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--text-muted)', marginBottom: 2 }}>{b.date}</div>
+            <div style={{ fontFamily: 'Barlow Condensed', fontSize: 15, fontWeight: 700, color: b.etat.includes('cours') ? 'var(--danger)' : 'var(--text-primary)' }}>{b.zone} — {b.type}</div>
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {b.recidive && <Badge type="danger" text="RÉCIDIVE" />}
+            <span style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: b.etat.includes('cours') ? 'var(--danger)' : b.etat === 'Résolu' ? 'var(--success)' : 'var(--amber)', border: `1px solid ${b.etat.includes('cours') ? 'rgba(255,62,62,0.3)' : 'var(--border)'}`, padding: '3px 8px', borderRadius: 6 }}>{b.etat}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+// ── JUDO ─────────────────────────────────────────────────────────────────────
+const JudoTab = () => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div className="card card-glow-judo" style={{ borderColor: 'rgba(245,197,24,0.3)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
+        <div>
+          <div style={{ fontFamily: 'Barlow Condensed', fontSize: 80, fontWeight: 900, color: 'var(--judo-gold)', lineHeight: 1, letterSpacing: -3 }}>22<span style={{ fontSize: 40, color: 'var(--text-muted)' }}>/24</span></div>
+          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 11, color: 'var(--text-muted)', letterSpacing: 1, marginTop: 4 }}>VICTOIRES · SAISON 2025-2026</div>
+        </div>
+        <div style={{ width: 1, height: 80, background: 'var(--border)' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <Badge type="judo" text={DATA.judo.grade} />
+          <div style={{ fontFamily: 'Barlow Condensed', fontSize: 22, fontWeight: 700, color: 'var(--text-primary)' }}>{DATA.judo.club}</div>
+          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 11, color: 'var(--text-muted)' }}>Début: {DATA.judo.debut} · 191h+ · 575+ randoris</div>
+        </div>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 2 }}>
+          {Array.from({ length: DATA.judo.trophies }).map((_, i) => <span key={i} style={{ fontSize: 18 }}>🥇</span>)}
+        </div>
+      </div>
+    </div>
+
+    <div className="grid-4" style={{ gap: 12 }}>
+      {DATA.judo.kpis.map((k, i) => (
+        <div key={i} className="card"><div className="card-label">{k.l}</div><div className="card-value">{k.v}</div></div>
+      ))}
+    </div>
+
+    <div className="grid-2" style={{ alignItems: 'start', gap: 20 }}>
+      <div className="card">
+        <SectionTitle>SYSTÈME D'ATTAQUE</SectionTitle>
+        {DATA.judo.attacks.map((a, i) => (
+          <div key={i} style={{ marginBottom: 18 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+              <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{a.name}</span>
+              <span style={{ fontFamily: 'JetBrains Mono', fontSize: 13, fontWeight: 700, color: 'var(--judo-gold)' }}>{a.val}%</span>
             </div>
-          );
+            <StatBar value={a.val} color="var(--judo-gold)" />
+          </div>
+        ))}
+      </div>
 
-          // Règle de couleur : Sprint/Slalom = plus bas est mieux. Distance = plus haut est mieux.
-          const getEvoClass = (testName, evo) => {
-            if (!evo) return 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400';
-            const isNegative = evo.includes('-');
-            const name = testName.toLowerCase();
-            const lowerIsBetter = name.includes('sprint') || name.includes('slalom');
-            
-            if (lowerIsBetter) {
-                return isNegative ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
-            } else {
-                return isNegative ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
-            }
-          };
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className="card" style={{ borderLeft: '3px solid var(--success)' }}>
+          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--success)', letterSpacing: 2, marginBottom: 8 }}>POINTS FORTS</div>
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.7 }}>{DATA.judo.bio}</div>
+        </div>
+        <div className="card" style={{ borderLeft: '3px solid var(--danger)' }}>
+          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--danger)', letterSpacing: 2, marginBottom: 8 }}>AXES DE PROGRESSION</div>
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.7 }}>{DATA.judo.weak}</div>
+        </div>
+        <div className="card">
+          <SectionTitle>DIAGNOSTIC TECHNIQUE</SectionTitle>
+          {DATA.judo.diagnostic.map((item, i) => (
+            <div key={i} style={{ marginBottom: 14, paddingBottom: 14, borderBottom: i < DATA.judo.diagnostic.length - 1 ? '1px solid var(--border)' : 'none' }}>
+              <div style={{ fontFamily: 'JetBrains Mono', fontSize: 9, color: 'var(--judo-gold)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 4 }}>{item.t}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{item.d}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
-          const renderStars = (count) => {
-             const stars = [];
-             for(let i=0; i<count; i++) {
-                 stars.push(<StarIcon key={i} size={12} className="text-yellow-500 fill-yellow-500" />);
-             }
-             return <div className="flex items-center gap-0.5">{stars}</div>;
-          };
-          
-          const getSportIcon = (sport) => {
-              if (sport === 'Judo') return JudoIcon;
-              if (sport === 'Handball') return BallIcon;
-              if (sport === 'Natation') return Waves;
-              return Target;
-          };
-          
-          const getSportColorClass = (sport) => {
-              if (sport === 'Judo') return 'text-slate-900 dark:text-white bg-slate-200 dark:bg-slate-700';
-              if (sport === 'Handball') return 'text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/30';
-              if (sport === 'Natation') return 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30';
-              return 'bg-slate-100 text-slate-600';
-          };
+// ── NATATION ─────────────────────────────────────────────────────────────────
+const SwimTab = () => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div className="card card-glow-swim" style={{ borderColor: 'rgba(0,212,255,0.3)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
+        <div>
+          <div className="ranking-number" style={{ color: 'var(--swim-cyan)' }}>5ÈME</div>
+          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 11, color: 'var(--text-muted)', letterSpacing: 1, marginTop: 4 }}>NATIONAL · 25M DOS · CAT. 2019</div>
+        </div>
+        <div style={{ width: 1, height: 80, background: 'var(--border)' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <Badge type="swim" text="Avenirs 2 Garçons" />
+          <div style={{ fontFamily: 'Barlow Condensed', fontSize: 22, fontWeight: 700, color: 'var(--text-primary)' }}>{DATA.natation.club}</div>
+          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 11, color: 'var(--text-muted)' }}>Début: {DATA.natation.debut} · 133h+ · 42 km+</div>
+        </div>
+      </div>
+    </div>
 
-          const renderCustomBarLabel = (props) => {
-              if (!props || props.x == null || props.y == null || !props.payload || props.payload.TOTAL == null) return null;
-              return (
-                <text x={props.x + props.width / 2} y={props.y - 5} fill={isDark ? "#94a3b8" : "#64748b"} fontSize="10px" fontWeight="bold" textAnchor="middle">
-                  {props.payload.TOTAL}h
-                </text>
-              );
-          };
+    <SectionTitle>RECORDS PERSONNELS</SectionTitle>
+    <div className="grid-2" style={{ gap: 12 }}>
+      {DATA.natation.records.map((r, i) => (
+        <div key={i} className="card" style={{ borderColor: 'rgba(0,212,255,0.3)' }}>
+          <div className="card-label">{r.nage}</div>
+          <div className="card-value mono" style={{ color: 'var(--swim-cyan)' }}>{r.time}</div>
+          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--text-muted)', marginTop: 6 }}>{r.date} · {r.context}</div>
+        </div>
+      ))}
+    </div>
 
-          return (
-            <div className="min-h-screen font-sans p-4 md:p-8">
-              
-              {/* HEADER COCKPIT */}
-              <header className="max-w-7xl mx-auto mb-8 bg-white dark:bg-slate-900 rounded-[2rem] p-8 border-l-8 border-l-indigo-600 shadow-lg shadow-slate-200/50 dark:shadow-none transition-colors relative z-20">
-                <div className="flex flex-col lg:flex-row justify-between items-start gap-6">
-                  <div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded-md text-[10px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-800">Cockpit Décisionnel • Güllich Model</span>
-                      <span className="text-xs font-bold text-slate-400 flex items-center gap-1"><Clock size={12}/> MAJ: Fin Mars 2026</span>
+    <div className="grid-4" style={{ gap: 12 }}>
+      {DATA.natation.kpis.map((k, i) => (
+        <div key={i} className="card"><div className="card-label">{k.l}</div><div className="card-value" style={{ fontSize: 30 }}>{k.v}</div></div>
+      ))}
+    </div>
+
+    <div className="grid-2" style={{ alignItems: 'start', gap: 20 }}>
+      <div className="card">
+        <SectionTitle>PROGRESSION CHRONOS 25m DOS</SectionTitle>
+        {LineChart && ResponsiveContainer ? (
+          <div style={{ height: 220 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={DATA.natation.chronos} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                <XAxis dataKey="d" tick={{ fontSize: 10, fill: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
+                <YAxis domain={[24, 36]} reversed tick={{ fontSize: 10, fill: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
+                <RTooltip content={<DarkTooltip />} />
+                <Line dataKey="dos" name="25m Dos" stroke="var(--swim-cyan)" strokeWidth={2.5} dot={{ r: 4, fill: 'var(--swim-cyan)', strokeWidth: 0 }} activeDot={{ r: 6 }} />
+                <Line dataKey="crawl" name="25m Crawl" stroke="var(--judo-gold)" strokeWidth={2} strokeDasharray="4 4" dot={{ r: 3, fill: 'var(--judo-gold)', strokeWidth: 0 }} connectNulls={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        ) : null}
+        <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--text-muted)', textAlign: 'center', marginTop: 8 }}>
+          −8.6s en dos depuis jul. 2025 · −11.7s en crawl depuis jul. 2025
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className="card" style={{ borderLeft: '3px solid var(--success)' }}>
+          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--success)', letterSpacing: 2, marginBottom: 8 }}>POINTS FORTS</div>
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.7 }}>{DATA.natation.bio}</div>
+        </div>
+        <div className="card" style={{ borderLeft: '3px solid var(--swim-cyan)' }}>
+          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--swim-cyan)', letterSpacing: 2, marginBottom: 8 }}>AXE J3 AVENIRS — 31/05</div>
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.7 }}>{DATA.natation.weak}</div>
+        </div>
+        <div className="card" style={{ borderColor: 'rgba(0,212,255,0.25)', padding: 20 }}>
+          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--text-muted)', letterSpacing: 2, marginBottom: 12 }}>RANG NATIONAL 2019</div>
+          <div style={{ fontFamily: 'Barlow Condensed', fontSize: 60, fontWeight: 900, color: 'var(--swim-cyan)', lineHeight: 1 }}>5<span style={{ fontSize: 24, color: 'var(--text-muted)', fontWeight: 300 }}>/ ~50</span></div>
+          <div style={{ marginTop: 16, height: 4, background: 'var(--border)', borderRadius: 2, overflow: 'hidden' }}>
+            <div style={{ width: '92%', height: '100%', background: 'linear-gradient(90deg, var(--swim-cyan), rgba(0,212,255,0.3))', borderRadius: 2 }} />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'JetBrains Mono', fontSize: 9, color: 'var(--text-muted)', marginTop: 4 }}>
+            <span>1er</span><span>50ème</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// ── HANDBALL ─────────────────────────────────────────────────────────────────
+const HandTab = () => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div className="card card-glow-hand" style={{ borderColor: 'rgba(255,107,43,0.3)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
+        <div>
+          <div className="ranking-number" style={{ color: 'var(--hand-orange)', fontSize: 60 }}>4</div>
+          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 11, color: 'var(--text-muted)', letterSpacing: 1, marginTop: 4 }}>PODIUMS / 7 TOURNOIS · SAISON</div>
+        </div>
+        <div style={{ width: 1, height: 80, background: 'var(--border)' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <Badge type="hand" text="U7 Issy Paris Hand" />
+          <div style={{ fontFamily: 'Barlow Condensed', fontSize: 22, fontWeight: 700, color: 'var(--text-primary)' }}>{DATA.handball.club}</div>
+          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 11, color: 'var(--text-muted)' }}>Début: {DATA.handball.debut} · 69h</div>
+        </div>
+      </div>
+    </div>
+
+    <div className="grid-4" style={{ gap: 12 }}>
+      {DATA.handball.kpis.map((k, i) => (
+        <div key={i} className="card"><div className="card-label">{k.l}</div><div className="card-value">{k.v}</div></div>
+      ))}
+    </div>
+
+    <div className="grid-2" style={{ alignItems: 'start', gap: 20 }}>
+      <div className="card" style={{ borderLeft: '3px solid var(--success)' }}>
+        <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--success)', letterSpacing: 2, marginBottom: 8 }}>POINTS FORTS</div>
+        <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.7 }}>{DATA.handball.bio}</div>
+      </div>
+      <div className="card" style={{ borderLeft: '3px solid var(--hand-orange)' }}>
+        <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--hand-orange)', letterSpacing: 2, marginBottom: 8 }}>AXES DE PROGRESSION</div>
+        <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.7 }}>{DATA.handball.weak}</div>
+      </div>
+    </div>
+
+    <div className="card">
+      <SectionTitle>PERFORMANCE NOTABLE — FONTENAY (28/03/2026)</SectionTitle>
+      <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+        {[{ l: 'Buts', v: '7', c: 'var(--hand-orange)' }, { l: 'Passes déc.', v: '8', c: 'var(--swim-cyan)' }, { l: 'Score Match 1', v: '16–2', c: 'var(--success)' }, { l: 'Score Match 2', v: '16–0', c: 'var(--success)' }].map((s, i) => (
+          <div key={i}>
+            <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--text-muted)', marginBottom: 4 }}>{s.l}</div>
+            <div style={{ fontFamily: 'Barlow Condensed', fontSize: 36, fontWeight: 900, color: s.c, lineHeight: 1 }}>{s.v}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+// ── CALENDRIER ────────────────────────────────────────────────────────────────
+const CalTab = () => {
+  const [expId, setExpId] = useState(null);
+  const [filter, setFilter] = useState('ALL');
+
+  const filtered = filter === 'ALL' ? DATA.past : DATA.past.filter(e => e.sport === filter);
+  const grouped = filtered.reduce((a, e) => { (a[e.month] = a[e.month] || []).push(e); return a; }, {});
+  const fpClass = (f) => filter === f ? (f === 'ALL' ? 'filter-pill fp-all' : `filter-pill fp-${f === 'Judo' ? 'judo' : f === 'Natation' ? 'swim' : 'hand'}`) : 'filter-pill';
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {/* Prochaine : J3 Avenirs */}
+      <div style={{ background: 'rgba(0,212,255,0.05)', border: '1px solid rgba(0,212,255,0.25)', borderRadius: 14, padding: '16px 20px' }}>
+        <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--swim-cyan)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 10 }}>PROCHAINES ÉCHÉANCES · SOURCE CALENDRIER SAISON</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {DATA.future.sort((a, b) => a.date.localeCompare(b.date)).map((e, i) => (
+            <div key={i} className="event-row">
+              <SportDot sport={e.sport} size={10} />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--text-muted)', marginBottom: 2 }}>{e.month} · {e.date}</div>
+                <div style={{ fontFamily: 'Barlow Condensed', fontSize: 16, fontWeight: 700, color: e.next ? 'var(--swim-cyan)' : 'var(--text-primary)' }}>
+                  {e.next && '→ '}{e.name}
+                </div>
+                <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{e.address}{e.time && e.time !== 'À définir' ? ` · ${e.time}` : ''}{e.drive && e.drive !== 'À définir' ? ` · ${e.drive} trajet` : ''}</div>
+              </div>
+              <Badge type={e.sport === 'Judo' ? 'judo' : e.sport === 'Natation' ? 'swim' : 'hand'} text={e.sport} />
+              {e.next && <Badge type="amber" text="PROCHAINE" />}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Bilan chiffres */}
+      <div className="grid-4" style={{ gap: 12 }}>
+        {[{ l: 'Compétitions', v: '16', c: 'var(--text-primary)' }, { l: 'Podiums +', v: '12', c: 'var(--judo-gold)' }, { l: 'Records PR', v: '2', c: 'var(--swim-cyan)' }, { l: 'Win Rate Judo', v: '91.7%', c: 'var(--judo-gold)' }].map((k, i) => (
+          <div key={i} className="card"><div className="card-label">{k.l}</div><div className="card-value" style={{ color: k.c, fontSize: 36 }}>{k.v}</div></div>
+        ))}
+      </div>
+
+      {/* Filtres */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        {['ALL', 'Judo', 'Natation', 'Handball'].map(f => (
+          <button key={f} onClick={() => setFilter(f)} className={fpClass(f)}>
+            {f === 'ALL' ? 'TOUS' : f.toUpperCase()}
+          </button>
+        ))}
+        <span style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--text-muted)', marginLeft: 'auto', alignSelf: 'center' }}>Source : onglet Calendrier Saison uniquement</span>
+      </div>
+
+      {/* Résultats */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+        {Object.entries(grouped).reverse().map(([month, evts]) => (
+          <div key={month}>
+            <div className="month-divider">{month}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {evts.map(e => (
+                <div key={e.id}>
+                  <div className={`event-row ${expId === e.id ? 'expanded' : ''}`} onClick={() => setExpId(expId === e.id ? null : e.id)}>
+                    <SportDot sport={e.sport} size={10} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--text-muted)', marginBottom: 2 }}>{e.date} · {e.sport}</div>
+                      <div style={{ fontFamily: 'Barlow Condensed', fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>{e.name}</div>
                     </div>
-                    <h1 className="text-4xl font-black tracking-tight flex items-center gap-3 text-slate-900 dark:text-white">
-                      LÉO <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-emerald-400">| INTELLIGENCE SPORTIVE</span>
-                    </h1>
-                    <div className="mt-4 flex items-center gap-4">
-                      <button onClick={() => setViewMode('expert')} className={`text-xs font-bold px-4 py-2 rounded-full border transition-colors ${viewMode === 'expert' ? 'bg-slate-800 text-white border-slate-800 dark:bg-indigo-600 dark:border-indigo-600' : 'bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800 dark:border-slate-700'}`}>Vue Expert (Data)</button>
-                      <button onClick={() => setViewMode('parent')} className={`text-xs font-bold px-4 py-2 rounded-full border transition-colors ${viewMode === 'parent' ? 'bg-slate-800 text-white border-slate-800 dark:bg-indigo-600 dark:border-indigo-600' : 'bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800 dark:border-slate-700'}`}>Vue Parent (Simplifiée)</button>
-                    </div>
+                    <AdvStars count={e.adv} sport={e.sport} max={5} />
+                    <ResultTag result={e.result} />
+                    <Ico d={expId === e.id ? I.chevUp : I.chevDown} size={16} />
                   </div>
-                  
-                  {/* PANNEAU DROIT (Trophées + Dark Mode) */}
-                  <div className="flex flex-col items-end w-full lg:w-auto gap-4">
-                    <button onClick={() => setIsDark(!isDark)} className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer">
-                        {isDark ? <SunIcon size={18} /> : <MoonIcon size={18} />}
-                    </button>
-
-                    <div className="w-full">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2 text-right">Salle des Trophées</p>
-                        <div className="flex items-center justify-between lg:justify-end gap-3 bg-slate-50 dark:bg-slate-800/50 px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner">
-                          <div className="flex items-center gap-1">
-                            <JudoIcon size={14} className="text-slate-900 dark:text-slate-100 mr-1"/>
-                            {[...Array(8)].map((_, i) => <TrophyIcon key={`j-${i}`} size={12} className="text-yellow-500 fill-yellow-500" />)}
-                          </div>
-                          <span className="w-px h-4 bg-slate-300 dark:bg-slate-600"></span>
-                          <div className="flex items-center gap-1">
-                            <BallIcon size={14} className="text-orange-500 dark:text-orange-400 mr-1"/>
-                            {[...Array(3)].map((_, i) => <TrophyIcon key={`h-${i}`} size={12} className="text-yellow-500 fill-yellow-500" />)}
-                          </div>
-                          <span className="w-px h-4 bg-slate-300 dark:bg-slate-600"></span>
-                          <div className="flex items-center gap-1">
-                            <Waves size={14} className="text-blue-500 dark:text-blue-400 mr-1"/>
-                            <TrophyIcon size={12} className="text-[#CD7F32] fill-[#CD7F32]" />
-                          </div>
-                        </div>
+                  {expId === e.id && (
+                    <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-bright)', borderTop: 'none', borderRadius: '0 0 12px 12px', padding: '14px 18px', marginBottom: 4 }}>
+                      <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: e.com ? 10 : 0 }}>{e.desc}</div>
+                      {e.com && <div style={{ fontFamily: 'JetBrains Mono', fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.6, borderTop: '1px solid var(--border)', paddingTop: 10 }}>{e.com}</div>}
                     </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ── TIMELINE ──────────────────────────────────────────────────────────────────
+const TimelineTab = () => {
+  // Fusionner compétitions + blessures + volumes sur un axe temporel
+  const months = ['Sep 25','Oct 25','Nov 25','Déc 25','Jan 26','Fév 26','Mar 26','Avr 26'];
+  const volByMonth = {
+    'Sep 25':32,'Oct 25':23.25,'Nov 25':33.5,'Déc 25':27.25,
+    'Jan 26':33.75,'Fév 26':25.5,'Mar 26':36,'Avr 26':16.5,
+  };
+  const maxVol = 40;
+
+  // Events avec mois associé
+  const timelineEvents = [
+    // BLESSURES
+    { month:'Sep 25', date:'15/09', type:'health', label:'Myosite tibias', sub:'Arrêt 3 semaines', color:'var(--danger)' },
+    { month:'Oct 25', date:'15/10', type:'health', label:'Otite séreuse', sub:'ORL · Résolu', color:'var(--danger)' },
+    { month:'Nov 25', date:'10/11', type:'health', label:'Grippe + gastro', sub:'Arrêt ~1 sem.', color:'var(--danger)' },
+    { month:'Mar 26', date:'14/03', type:'health', label:'Cheville D #1', sub:'Handball · Résolu', color:'var(--amber)' },
+    { month:'Avr 26', date:'06/04', type:'health', label:'Cheville D #2', sub:'Entorse · Villers annulé', color:'var(--danger)' },
+    { month:'Avr 26', date:'06/05', type:'health', label:'Cheville D #3', sub:'Judo · En cours ⚠', color:'var(--danger)' },
+    // COMPÉTITIONS clés
+    { month:'Oct 25', date:'12/10', type:'Judo', label:'Pithiviers', sub:'1ER · Adv ⭐', color:'var(--judo-gold)' },
+    { month:'Nov 25', date:'16/11', type:'Judo', label:'Drancy', sub:'1ER · Adv ⭐⭐⭐', color:'var(--judo-gold)' },
+    { month:'Nov 25', date:'29/11', type:'Handball', label:'Interclub #1', sub:'1ER · 12 buts', color:'var(--hand-orange)' },
+    { month:'Déc 25', date:'07/12', type:'Judo', label:'Sorbier', sub:'1ER · Adv ⭐⭐⭐⭐ · 1ère défaite', color:'var(--judo-gold)' },
+    { month:'Déc 25', date:'13/12', type:'Judo', label:'St-Arnoult', sub:'1ER · Adv ⭐', color:'var(--judo-gold)' },
+    { month:'Jan 26', date:'10/01', type:'Judo', label:'Amilly', sub:'1ER · Adv ⭐', color:'var(--judo-gold)' },
+    { month:'Jan 26', date:'18/01', type:'Handball', label:'Interclub #2', sub:'1ER · 10 buts', color:'var(--hand-orange)' },
+    { month:'Jan 26', date:'24/01', type:'Handball', label:'U9 Issy', sub:'NC · Surclassé ⭐⭐⭐⭐⭐', color:'var(--hand-orange)' },
+    { month:'Fév 26', date:'07/02', type:'Natation', label:'J1 Avenirs DSQ', sub:'28.46s · Résilience', color:'var(--swim-cyan)' },
+    { month:'Fév 26', date:'21/02', type:'Judo', label:'Magny-en-Vexin', sub:'1ER · Ko-Soto modèle', color:'var(--judo-gold)' },
+    { month:'Mar 26', date:'07/03', type:'Judo', label:'Nogent-le-Rotrou', sub:'1ER · 3 doubles Ippons', color:'var(--judo-gold)' },
+    { month:'Mar 26', date:'22/03', type:'Judo', label:'Coignières', sub:'1ER · Harai propre', color:'var(--judo-gold)' },
+    { month:'Mar 26', date:'28/03', type:'Handball', label:'Fontenay', sub:'1ER · 7B + 8PD', color:'var(--hand-orange)' },
+    { month:'Mar 26', date:'29/03', type:'Natation', label:'J2 Avenirs', sub:'25.38s 🏆 · 5ème nat.', color:'var(--swim-cyan)' },
+    { month:'Avr 26', date:'19/04', type:'Judo', label:'Trilport', sub:'2ÈME · Surclassé · Alerte variété', color:'var(--judo-gold)' },
+  ];
+
+  // Grouper par mois
+  const byMonth = months.reduce((a, m) => { a[m] = timelineEvents.filter(e => e.month === m); return a; }, {});
+
+  const dotColor = type => type === 'Judo' ? 'var(--judo-gold)' : type === 'Natation' ? 'var(--swim-cyan)' : type === 'Handball' ? 'var(--hand-orange)' : 'var(--danger)';
+
+  const [hover, setHover] = useState(null);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      {/* Légende */}
+      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+        <span style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--text-muted)', letterSpacing: 1, textTransform: 'uppercase' }}>Légende :</span>
+        {[['Judo', 'var(--judo-gold)'], ['Natation', 'var(--swim-cyan)'], ['Handball', 'var(--hand-orange)'], ['Santé/Blessure', 'var(--danger)']].map(([l, c]) => (
+          <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: c, boxShadow: `0 0 6px ${c}` }} />
+            <span style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--text-secondary)' }}>{l}</span>
+          </div>
+        ))}
+        <span style={{ marginLeft: 'auto', fontFamily: 'JetBrains Mono', fontSize: 10, color: 'var(--text-muted)' }}>Barres = volume mensuel total (heures)</span>
+      </div>
+
+      {/* TIMELINE HORIZONTALE */}
+      <div style={{ overflowX: 'auto', paddingBottom: 8 }} className="no-scroll">
+        <div style={{ minWidth: 1000, position: 'relative' }}>
+
+          {/* Header mois */}
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${months.length}, 1fr)`, gap: 0, marginBottom: 0 }}>
+            {months.map(m => (
+              <div key={m} style={{ textAlign: 'center', fontFamily: 'JetBrains Mono', fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: 1, padding: '0 4px 12px' }}>{m.toUpperCase()}</div>
+            ))}
+          </div>
+
+          {/* Barres de volume */}
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${months.length}, 1fr)`, gap: 0, marginBottom: 0, height: 60, alignItems: 'flex-end' }}>
+            {months.map(m => {
+              const v = volByMonth[m] || 0;
+              const h = (v / maxVol) * 50;
+              return (
+                <div key={m} style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', height: 60 }}>
+                  <div style={{ width: '60%', height: h, background: v < 20 ? 'rgba(255,62,62,0.4)' : v > 33 ? 'rgba(0,229,126,0.35)' : 'rgba(124,156,191,0.3)', borderRadius: '3px 3px 0 0', transition: 'height 0.8s ease', position: 'relative' }}>
+                    <div style={{ position: 'absolute', top: -18, left: '50%', transform: 'translateX(-50%)', fontFamily: 'JetBrains Mono', fontSize: 9, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{v}h</div>
                   </div>
                 </div>
-              </header>
+              );
+            })}
+          </div>
 
-              {/* NAVIGATION TABS */}
-              <nav className="max-w-7xl mx-auto flex gap-2 mb-8 overflow-x-auto no-scrollbar pb-2 relative z-10">
-                {[
-                  { id: 'cockpit', label: '1. Cockpit & Décisions', icon: Target },
-                  { id: 'synthesis', label: '2. Suivi Biométrique', icon: Activity },
-                  { id: 'disciplines', label: '3. Analyse Disciplines', icon: Brain },
-                  { id: 'calendar', label: '4. Calendrier & Résultats', icon: Calendar },
-                  { id: 'strategy', label: '5. Stratégie Long Terme', icon: Compass },
-                ].map(tab => (
-                  <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-6 py-3.5 rounded-xl font-black text-sm transition-all whitespace-nowrap ${
-                      activeTab === tab.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none' : 'bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
-                    }`}>
-                    <tab.icon size={18} /> {tab.label}
-                  </button>
-                ))}
-              </nav>
+          {/* Rail axe */}
+          <div style={{ height: 2, background: 'var(--border)', margin: '0', position: 'relative' }}>
+            <div style={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)', width: '100%', height: '100%', background: 'linear-gradient(90deg, var(--border), rgba(0,212,255,0.3), var(--border))' }} />
+          </div>
 
-              <main className="max-w-7xl mx-auto pb-20 relative z-0">
-                
-                {/* =========================================================
-                    TAB 1: COCKPIT DECISIONNEL
-                ========================================================= */}
-                {activeTab === 'cockpit' && viewMode === 'expert' && (
-                  <div className="space-y-6 animate-in fade-in duration-500">
-                    
-                    {/* Alerte Prochaine Echéance */}
-                    <div onClick={() => setActiveTab('calendar')} className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-2xl p-4 md:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm cursor-pointer hover:shadow-md transition-all group">
-                      <div className="flex items-center gap-4">
-                        <div className="bg-orange-100 dark:bg-orange-800/50 p-3 rounded-full text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform"><Calendar size={24}/></div>
-                        <div>
-                          <p className="text-[11px] font-black uppercase text-orange-600 dark:text-orange-400 tracking-widest">Prochaine Échéance Sportive</p>
-                          <p className="text-sm md:text-base font-bold text-orange-900 dark:text-orange-100 mt-1">12/04/2026 - Tournoi de Villers-Cotterêts (02) (Judo)</p>
+          {/* Colonnes mois avec événements */}
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${months.length}, 1fr)`, gap: 0 }}>
+            {months.map((m, mi) => {
+              const evts = byMonth[m] || [];
+              const hasHealth = evts.some(e => e.type === 'health');
+              return (
+                <div key={m} style={{ position: 'relative', borderRight: mi < months.length - 1 ? '1px solid var(--border)' : 'none', padding: '0 4px' }}>
+                  {/* Dot sur le rail */}
+                  <div style={{ width: 12, height: 12, borderRadius: '50%', background: hasHealth ? 'var(--danger)' : evts.length > 0 ? 'var(--border-bright)' : 'var(--border)', border: `2px solid ${hasHealth ? 'var(--danger)' : evts.length > 0 ? 'var(--border-bright)' : 'var(--border)'}`, margin: '-7px auto 0', zIndex: 2, position: 'relative', boxShadow: hasHealth ? '0 0 8px var(--danger)' : 'none' }} />
+
+                  {/* Liste événements */}
+                  <div style={{ paddingTop: 12, display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    {evts.map((e, ei) => (
+                      <div key={ei}
+                        onMouseEnter={() => setHover(`${m}-${ei}`)}
+                        onMouseLeave={() => setHover(null)}
+                        style={{ background: hover === `${m}-${ei}` ? 'var(--bg-card-hover)' : 'var(--bg-card)', border: `1px solid ${e.color === 'var(--danger)' || e.type === 'health' ? 'rgba(255,62,62,0.3)' : 'var(--border)'}`, borderLeft: `3px solid ${e.color}`, borderRadius: 6, padding: '5px 7px', cursor: 'default', transition: 'background 0.15s' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+                          <div style={{ width: 5, height: 5, borderRadius: '50%', background: e.color, flexShrink: 0, boxShadow: `0 0 4px ${e.color}` }} />
+                          <span style={{ fontFamily: 'JetBrains Mono', fontSize: 8, color: 'var(--text-muted)', letterSpacing: 0.5 }}>{e.date}</span>
                         </div>
+                        <div style={{ fontFamily: 'Barlow Condensed', fontSize: 12, fontWeight: 700, color: e.type === 'health' ? 'var(--danger)' : 'var(--text-primary)', lineHeight: 1.2, marginBottom: 2 }}>{e.label}</div>
+                        <div style={{ fontFamily: 'JetBrains Mono', fontSize: 8, color: 'var(--text-muted)', lineHeight: 1.3 }}>{e.sub}</div>
                       </div>
-                      <span className="px-4 py-1.5 bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow">À Confirmer</span>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* Moteur de décision */}
-                        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Card title="Génération Automatique des Priorités" icon={Brain} className="md:col-span-2">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-800/30 alert-pulse">
-                                        <div className="flex items-center gap-2 text-red-600 dark:text-red-400 mb-2">
-                                            <ShieldAlert size={16} /> <span className="text-[10px] font-black uppercase tracking-widest">Alerte Santé (Risque Blessure)</span>
-                                        </div>
-                                        <p className="text-sm font-bold text-slate-800 dark:text-white mb-1">{decisionEngine.alerte.titre}</p>
-                                        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{decisionEngine.alerte.texte}</p>
-                                    </div>
-                                    <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30">
-                                        <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 mb-2">
-                                            <Clock size={16} /> <span className="text-[10px] font-black uppercase tracking-widest">Contrainte Charge Globale</span>
-                                        </div>
-                                        <p className="text-sm font-bold text-slate-800 dark:text-white mb-1">{decisionEngine.contrainte.titre}</p>
-                                        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{decisionEngine.contrainte.texte}</p>
-                                    </div>
-                                    <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/30">
-                                        <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 mb-2">
-                                            <Crosshair size={16} /> <span className="text-[10px] font-black uppercase tracking-widest">Focus Technique Hebdo</span>
-                                        </div>
-                                        <p className="text-sm font-bold text-slate-800 dark:text-white mb-1">{decisionEngine.prioriteTechnique.titre}</p>
-                                        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{decisionEngine.prioriteTechnique.texte}</p>
-                                    </div>
-                                    <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800/30">
-                                        <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 mb-2">
-                                            <Activity size={16} /> <span className="text-[10px] font-black uppercase tracking-widest">Focus Physique Hebdo</span>
-                                        </div>
-                                        <p className="text-sm font-bold text-slate-800 dark:text-white mb-1">{decisionEngine.prioritePhysique.titre}</p>
-                                        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{decisionEngine.prioritePhysique.texte}</p>
-                                    </div>
-                                </div>
-                            </Card>
-                        </div>
-
-                        {/* Gauges d'état */}
-                        <div className="space-y-6">
-                            <Card title="État de Forme (Intelligence)" icon={Activity}>
-                                <div className="space-y-6">
-                                    <Gauge label="Indice de Risque (Blessure)" value={65} colorClass="text-amber-500" bgClass="bg-amber-500" desc="Calculé sur la croissance vs perte de souplesse mesurée (-1cm)." />
-                                    <Gauge label="Indice de Fatigue (SNC)" value={20} colorClass="text-emerald-500" bgClass="bg-emerald-500" desc="Derniers résultats excellents = adaptation nerveuse positive." />
-                                    <Gauge label="Indice Spécialisation (Güllich)" value={35} colorClass="text-blue-500" bgClass="bg-blue-500" desc="Sport principal (Judo) = 35% du temps total. Équilibre parfait." />
-                                </div>
-                            </Card>
-                        </div>
-                    </div>
-
-                    {/* KPIs Avancés (Le parent z-index est défini au survol pour libérer l'infobulle) */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-4">
-                      {advancedKPIs.map((kpi, i) => (
-                        <div key={i} className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm relative group hover:z-50 z-10 transition-all card-container">
-                          <div className="absolute inset-0 overflow-hidden rounded-3xl z-0 pointer-events-none">
-                             <div className={`absolute -right-6 -top-6 w-24 h-24 bg-current opacity-5 rounded-full transition-transform group-hover:scale-150 ${kpi.color}`}></div>
-                          </div>
-                          <div className="flex items-center justify-between mb-2 relative z-20">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{kpi.label}</p>
-                            {kpi.info && (
-                                <Tooltip text={kpi.info}>
-                                    <div className="p-1"><InfoIcon size={14} className="text-slate-300 dark:text-slate-600 hover:text-indigo-500 cursor-help" /></div>
-                                </Tooltip>
-                            )}
-                          </div>
-                          <div className="flex items-baseline gap-3 mb-2 relative z-20">
-                            <span className={`text-3xl font-black ${kpi.color}`}>{kpi.value}</span>
-                            <span className="text-xs font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">{kpi.trend}</span>
-                          </div>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium relative z-20">{kpi.desc}</p>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Prédictif */}
-                    <Card title="Modélisation Prédictive de Progression (Indice Global)" icon={TrendingUp}>
-                        <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
-                            <p className="text-xs text-slate-500 dark:text-slate-400">Comparaison de la trajectoire de Léo par rapport au modèle théorique optimal multisport de Güllich.</p>
-                        </div>
-                        <div className="h-[300px] w-full">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={predictiveData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                              <defs>
-                                <linearGradient id="colorReel" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3}/>
-                                  <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
-                                </linearGradient>
-                                <linearGradient id="colorOpti" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                                  <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                                </linearGradient>
-                              </defs>
-                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? "#334155" : "#e2e8f0"} />
-                              <XAxis dataKey="mois" tick={{ fontSize: 12, fill: isDark ? "#94a3b8" : "#64748b" }} axisLine={false} tickLine={false} />
-                              <YAxis domain={[60, 100]} tick={{ fontSize: 12, fill: isDark ? "#94a3b8" : "#64748b" }} axisLine={false} tickLine={false} />
-                              <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', backgroundColor: isDark ? '#1e293b' : '#fff', color: isDark ? '#fff' : '#000' }} />
-                              <Legend wrapperStyle={{ fontSize: '11px', fontWeight: 'bold' }} />
-                              <Area type="monotone" dataKey="opti" name="Trajectoire Optimale (Güllich)" stroke="#10b981" fillOpacity={1} fill="url(#colorOpti)" />
-                              <Area type="monotone" dataKey="reel" name="Progression Léo (Mesurée)" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorReel)" activeDot={{ r: 6 }} />
-                            </AreaChart>
-                          </ResponsiveContainer>
-                        </div>
-                    </Card>
+                    ))}
                   </div>
-                )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
 
-                {/* VUE PARENT SIMPLIFIÉE */}
-                {activeTab === 'cockpit' && viewMode === 'parent' && (
-                  <div className="space-y-6 animate-in fade-in duration-500 max-w-3xl mx-auto">
-                      <div className="text-center mb-8">
-                          <h2 className="text-2xl font-black text-slate-800 dark:text-white mb-2">Bonjour ! Voici le résumé de Léo 🚀</h2>
-                          <p className="text-slate-500 dark:text-slate-400">Tout va super bien. Léo a explosé ses records en natation et a fait d'excellents tournois.</p>
-                      </div>
+      {/* Légende volume */}
+      <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
+        {[['Vol. faible (< 20h)', 'rgba(255,62,62,0.4)'], ['Vol. normal (20-33h)', 'rgba(124,156,191,0.3)'], ['Vol. élevé (> 33h)', 'rgba(0,229,126,0.35)']].map(([l, c]) => (
+          <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ width: 12, height: 8, borderRadius: 2, background: c }} />
+            <span style={{ fontFamily: 'JetBrains Mono', fontSize: 9, color: 'var(--text-muted)' }}>{l}</span>
+          </div>
+        ))}
+      </div>
 
-                      <Card className="border-t-8 border-t-emerald-500 text-center">
-                          <div className="mx-auto w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-4">
-                              <Target size={32} />
-                          </div>
-                          <h3 className="text-xl font-black mb-2">En pleine forme !</h3>
-                          <p className="text-sm text-slate-600 dark:text-slate-300">Léo s'amuse, il est performant, et son temps de sport est parfaitement réparti pour qu'il ne se fatigue pas de façon excessive.</p>
-                      </Card>
-
-                      <Card className="border-t-8 border-t-amber-500 text-center">
-                          <div className="mx-auto w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center text-amber-600 dark:text-amber-400 mb-4">
-                              <Activity size={32} />
-                          </div>
-                          <h3 className="text-xl font-black mb-2">Petit point d'attention (Santé)</h3>
-                          <p className="text-sm text-slate-600 dark:text-slate-300">Léo grandit vite ! Il a perdu un tout petit peu en souplesse. Pensez à faire 5 minutes d'étirements en jouant le soir pour protéger ses genoux de la croissance.</p>
-                      </Card>
-
-                      <div className="bg-orange-500 text-white rounded-3xl p-6 text-center shadow-lg">
-                          <h3 className="text-sm font-black uppercase tracking-widest text-orange-200 mb-2">Prochain rendez-vous</h3>
-                          <p className="text-xl font-black">12/04/2026</p>
-                          <p className="text-orange-100 mt-1">Tournoi de Judo à Villers-Cotterêts (À confirmer)</p>
-                      </div>
-                  </div>
-                )}
-
-                {/* === ONGLET 2: SUIVI BIOMÉTRIQUE === */}
-                {activeTab === 'synthesis' && (
-                  <div className="space-y-6 animate-in fade-in duration-500">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      <Card title="Identité & Évolution Morphologique" icon={User}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div className="space-y-4">
-                            <div className="py-2 border-b border-slate-100 dark:border-slate-800">
-                              <span className="text-xs font-bold text-slate-400 block mb-1">Âge Exact & Catégorie</span>
-                              <span className="text-sm font-black dark:text-white">{identity.age} <span className="text-indigo-500">({identity.category})</span></span>
-                            </div>
-                            <div className="py-2 border-b border-slate-100 dark:border-slate-800 flex justify-between">
-                              <div><span className="text-xs font-bold text-slate-400 block mb-1">Taille</span><span className="text-lg font-black dark:text-white">{identity.morphology.current.height} cm</span></div>
-                              <div className="text-right"><span className="text-[9px] uppercase font-bold text-slate-400 block mb-1">Moy. Âge</span><span className="text-sm font-bold text-slate-500">{identity.morphology.average.height} cm</span></div>
-                            </div>
-                            <div className="py-2 border-b border-slate-100 dark:border-slate-800 flex justify-between">
-                              <div><span className="text-xs font-bold text-slate-400 block mb-1">Poids</span><span className="text-lg font-black dark:text-white">{identity.morphology.current.weight} kg</span></div>
-                              <div className="text-right"><span className="text-[9px] uppercase font-bold text-slate-400 block mb-1">Moy. Âge</span><span className="text-sm font-bold text-slate-500">{identity.morphology.average.weight} kg</span></div>
-                            </div>
-                            <div className="py-2 border-b border-slate-100 dark:border-slate-800 flex justify-between">
-                              <div><span className="text-xs font-bold text-slate-400 block mb-1">IMC</span><span className="text-lg font-black text-indigo-600 dark:text-indigo-400">{identity.morphology.current.imc}</span></div>
-                              <div className="text-right"><span className="text-[9px] uppercase font-bold text-slate-400 block mb-1">Moy. Âge</span><span className="text-sm font-bold text-slate-500">{identity.morphology.average.imc}</span></div>
-                            </div>
-                          </div>
-                          <div className="space-y-4">
-                            <div className="py-2 border-b border-slate-100 dark:border-slate-800">
-                              <span className="text-xs font-bold text-slate-400 block mb-1">Détails Biométriques</span>
-                              <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{identity.details}</span>
-                            </div>
-                            <div className="py-2 border-b border-slate-100 dark:border-slate-800">
-                              <span className="text-xs font-bold text-slate-400 block mb-1">Profil</span>
-                              <span className="text-sm font-black text-indigo-600 dark:text-indigo-400">{identity.type}</span>
-                            </div>
-                            <div className="py-2 border-b border-slate-100 dark:border-slate-800">
-                              <span className="text-xs font-bold text-amber-500 block mb-1">Projection Adulte</span>
-                              <span className="text-lg font-black dark:text-white">{identity.projection}</span>
-                            </div>
-                            <div className="py-2">
-                              <span className="text-xs font-bold text-slate-400 block mb-1">Statut Entraînement</span>
-                              <span className="text-[11px] font-black bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">{identity.status}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </Card>
-
-                      <Card 
-                          title="Volume Horaire Mensuel - Saison 2025/2026" 
-                          icon={Activity}
-                          rightContent={
-                              <div className="text-right border border-indigo-100 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1.5 rounded-xl">
-                                  <span className="text-xl font-black text-indigo-600 dark:text-indigo-400">211.2h</span>
-                                  <span className="text-[9px] font-black uppercase tracking-widest text-indigo-400 block mt-0.5">Total Saison</span>
-                              </div>
-                          }
-                      >
-                        <div className="h-[250px] w-full mb-4 mt-2">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={volumeMensuel} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
-                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? "#334155" : "#e2e8f0"} />
-                              <XAxis dataKey="mois" tick={{ fontSize: 12, fontWeight: 600, fill: isDark ? "#94a3b8" : "#64748b" }} axisLine={false} tickLine={false} />
-                              <YAxis tick={{ fontSize: 12, fill: isDark ? "#94a3b8" : "#64748b" }} axisLine={false} tickLine={false} />
-                              <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', backgroundColor: isDark ? '#1e293b' : '#fff', color: isDark ? '#fff' : '#000', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.3)' }} itemStyle={{ fontSize: '12px', fontWeight: 'bold' }} />
-                              <Legend wrapperStyle={{ fontSize: '11px', fontWeight: 'bold' }} />
-                              <Bar dataKey="Judo" stackId="a" fill={isDark ? "#94a3b8" : "#0f172a"} radius={[0,0,0,0]} />
-                              <Bar dataKey="Natation" stackId="a" fill="#3b82f6" />
-                              <Bar dataKey="Handball" stackId="a" fill="#f97316" />
-                              {/* Rendu des labels sécurisé */}
-                              <Bar dataKey="Multisport" stackId="a" fill="#10b981" radius={[4,4,0,0]} 
-                                  label={(props) => {
-                                      if (!props || props.x == null || props.y == null || !props.payload || props.payload.TOTAL == null) return null;
-                                      return <text x={props.x + props.width / 2} y={props.y - 5} fill={isDark ? "#94a3b8" : "#64748b"} fontSize="10px" fontWeight="bold" textAnchor="middle">{props.payload.TOTAL}h</text>;
-                                  }}
-                              />
-                            </BarChart>
-                          </ResponsiveContainer>
-                        </div>
-                        <div className="grid grid-cols-4 gap-2">
-                           <div className="bg-slate-100 dark:bg-slate-800 rounded text-center py-2 border border-slate-200 dark:border-slate-700"><p className="text-[9px] font-black uppercase text-slate-600 dark:text-slate-400 mb-1">Judo</p><p className="text-sm font-bold text-slate-900 dark:text-slate-100">74.5h</p></div>
-                           <div className="bg-blue-50 dark:bg-blue-900/30 rounded text-center py-2 border border-blue-100 dark:border-blue-800"><p className="text-[9px] font-black uppercase text-blue-600 dark:text-blue-400 mb-1">Nat</p><p className="text-sm font-bold text-blue-900 dark:text-blue-100">68.5h</p></div>
-                           <div className="bg-orange-50 dark:bg-orange-900/30 rounded text-center py-2 border border-orange-100 dark:border-orange-800"><p className="text-[9px] font-black uppercase text-orange-600 dark:text-orange-400 mb-1">Hand</p><p className="text-sm font-bold text-orange-900 dark:text-orange-100">31.2h</p></div>
-                           <div className="bg-green-50 dark:bg-green-900/30 rounded text-center py-2 border border-green-100 dark:border-green-800"><p className="text-[9px] font-black uppercase text-green-600 dark:text-green-400 mb-1">Multi</p><p className="text-sm font-bold text-green-900 dark:text-green-100">37.0h</p></div>
-                        </div>
-                      </Card>
-                    </div>
-                  </div>
-                )}
-
-                {/* === ONGLET 2: BIO-MENTAL === */}
-                {activeTab === 'biomental' && (
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-in fade-in duration-500">
-                    <div className="lg:col-span-5 flex flex-col gap-6">
-                      <Card title="Équilibre Athlétique Global" icon={Zap}>
-                        <div className="flex justify-between items-center mb-2 px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 rounded-xl overflow-visible">
-                          <div className="flex items-center">
-                            <span className="text-xs font-black uppercase text-emerald-700 dark:text-emerald-400 mr-2">Note Globale Actuelle</span>
-                            <Tooltip text="Moyenne des 6 axes du développement moteur. Un score > 70/100 à cet âge indique une excellente précocité physique naturelle sans spécialisation précoce.">
-                              <InfoIcon size={14} className="text-emerald-500 cursor-help" />
-                            </Tooltip>
-                          </div>
-                          <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">75/100</span>
-                        </div>
-                        <div className="h-[250px] w-full mt-4">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <RadarChart cx="50%" cy="50%" outerRadius="65%" data={athleticRadar}>
-                              <PolarGrid stroke={isDark ? "#334155" : "#e2e8f0"} />
-                              <PolarAngleAxis dataKey="subject" tick={{ fill: isDark ? '#94a3b8' : '#64748b', fontSize: 10, fontWeight: 700 }} />
-                              <Radar name="Léo" dataKey="val" stroke="#10b981" strokeWidth={3} fill="#10b981" fillOpacity={0.3} />
-                              <RechartsTooltip contentStyle={{backgroundColor: isDark ? '#1e293b' : '#fff', border: 'none'}} />
-                            </RadarChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </Card>
-
-                      <Card title="Score Mental (INSEP)" icon={Brain}>
-                        <div className="flex justify-between items-center mb-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-2xl border border-purple-100 dark:border-purple-800 overflow-visible">
-                          <div className="flex items-start gap-2">
-                            <div><p className="text-xs font-black uppercase text-purple-700 dark:text-purple-400">Score Actuel</p><p className="text-[10px] font-bold text-purple-500 dark:text-purple-300 mt-1">Cohérent et validé</p></div>
-                            <Tooltip text="Scores très élevés car l'enfant évolue dans un environnement ludique et multisport sans spécialisation précoce.">
-                              <InfoIcon size={14} className="text-purple-400 mt-0.5 cursor-help" />
-                            </Tooltip>
-                          </div>
-                          <div className="text-3xl font-black text-purple-600 dark:text-purple-400">86<span className="text-lg text-purple-400/50">/100</span></div>
-                        </div>
-                        <div className="space-y-4">
-                          {mentalData.map((item, i) => (
-                            <div key={i} className="card-container">
-                              <div className="flex justify-between text-[11px] font-bold mb-1.5 uppercase tracking-wide">
-                                <div className="flex items-center">
-                                  <span className="text-slate-600 dark:text-slate-300 mr-1">{item.name}</span>
-                                  {item.info && <Tooltip text={item.info}><InfoIcon size={12} className="text-slate-400 hover:text-purple-500 cursor-help" /></Tooltip>}
-                                </div>
-                                <span className="text-slate-400">{item.score}%</span>
-                              </div>
-                              <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${item.score}%`, backgroundColor: item.color }}></div></div>
-                            </div>
-                          ))}
-                        </div>
-                      </Card>
-                    </div>
-
-                    <div className="lg:col-span-7 flex flex-col gap-6">
-                      <Card title="Batterie de Tests Physiques (Février 2026)" icon={Crosshair} className="h-full">
-                        <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl flex gap-4 items-start shadow-sm">
-                          <AlertCircle size={20} className="text-amber-500 shrink-0 mt-0.5"/>
-                          <div>
-                            <p className="text-xs font-black text-amber-800 dark:text-amber-400 uppercase tracking-widest mb-1">Alerte Mobilité & Récupération</p>
-                            <p className="text-xs text-amber-700/80 dark:text-amber-200/80 font-medium leading-relaxed">Souplesse critique (-1cm). Ce déficit de mobilité nécessite la mise en place d'un "Indice Mobilité/Récupération" strict pour éviter les blessures de croissance.</p>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {extendedPhysicalTests.map((category, idx) => (
-                            <div key={idx} className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
-                              <h4 className="text-[10px] font-black uppercase tracking-widest text-indigo-500 dark:text-indigo-400 mb-3 pb-2 border-b border-slate-200 dark:border-slate-700">{category.cat}</h4>
-                              <div className="space-y-3">
-                                {category.tests.map((test, i) => (
-                                  <div key={i} className="flex justify-between items-center">
-                                    <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{test.name}</span>
-                                    <div className="flex items-center gap-2">
-                                      {test.evo && (<span className={`text-[9px] font-black px-1.5 py-0.5 rounded ${getEvoClass(test.name, test.evo)}`}>{test.evo}</span>)}
-                                      <span className={`text-sm font-black ${test.alert ? 'text-red-500 bg-red-50 dark:bg-red-900/30 px-2 py-0.5 rounded' : 'text-slate-800 dark:text-slate-100'}`}>{test.val}</span>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </Card>
-
-                      <Card title="Axes d'Amélioration & Exercices (Focus Actuel)" icon={Target}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
-                          <div className="p-4 bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 rounded-2xl">
-                             <p className="text-[10px] font-black uppercase text-indigo-600 dark:text-indigo-400 mb-2">Priorité 1 : La Souplesse Globale</p>
-                             <p className="text-xs text-indigo-800/80 dark:text-indigo-200/80 font-medium mb-3 leading-relaxed">
-                               Le déficit de souplesse (-1cm au Sit & Reach) freine l'explosivité rotatoire (Hanche/Judo) et favorise les tensions.
-                             </p>
-                             <ul className="text-xs text-indigo-900 dark:text-indigo-100 space-y-1.5 list-disc pl-4 font-bold">
-                               <li>Routine du soir : 5 min d'étirements actifs (ischios / psoas).</li>
-                               <li>Yoga ludique pour enfants (postures de l'arc, du chien).</li>
-                               <li>Mobilité des épaules pour l'amplitude en natation.</li>
-                             </ul>
-                          </div>
-                          <div className="p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/30 rounded-2xl">
-                             <p className="text-[10px] font-black uppercase text-blue-600 dark:text-blue-400 mb-2">Priorité 2 : Réactivité aux signaux</p>
-                             <p className="text-xs text-blue-800/80 dark:text-blue-200/80 font-medium mb-3 leading-relaxed">
-                               Nécessaire pour le départ Natation (-0.4s de perdus) et les interceptions au Handball.
-                             </p>
-                             <ul className="text-xs text-blue-900 dark:text-blue-100 space-y-1.5 list-disc pl-4 font-bold">
-                               <li>Jeux de réflexes (attraper la balle lâchée à l'aveugle).</li>
-                               <li>Départs en sprint sur signaux sonores variés.</li>
-                               <li>Sauts latéraux réactifs avec appuis stables.</li>
-                             </ul>
-                          </div>
-                        </div>
-                      </Card>
-                    </div>
-                  </div>
-                )}
-
-                {/* === ONGLET 3: SPÉCIALITÉS === */}
-                {activeTab === 'disciplines' && (
-                  <div className="grid grid-cols-1 gap-8 animate-in fade-in duration-500">
-                    
-                    {/* SECTION JUDO */}
-                    <div className="bg-white dark:bg-slate-900 rounded-[2rem] border-t-8 border-t-slate-800 dark:border-t-slate-600 shadow-xl overflow-hidden flex flex-col h-full">
-                      <div className="p-6 md:p-8 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between md:items-center gap-4 bg-slate-50/50 dark:bg-slate-800/30">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center text-slate-900 dark:text-white shadow-inner"><JudoIcon size={24}/></div>
-                          <div>
-                            <h3 className="text-xl font-black uppercase text-slate-900 dark:text-white">Judo <span className="text-[10px] text-slate-500 font-bold ml-2 hidden sm:inline-block">— {judoAdvancedStats.club}</span></h3>
-                            <p className="text-xs font-bold text-slate-500 mt-1">{judoAdvancedStats.grade} • Début: {judoAdvancedStats.debut}</p>
-                          </div>
-                        </div>
-                        {/* RANKING ENCARTS */}
-                        <div className="flex flex-wrap md:flex-col gap-1.5 md:items-end">
-                            <span className="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800 text-[10px] font-black uppercase px-3 py-1.5 rounded-lg shadow-sm">🏆 TOP 3 Région (cat 2018-2019)</span>
-                            <span className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800 text-[10px] font-black uppercase px-3 py-1.5 rounded-lg shadow-sm">🇫🇷 TOP 10 National (cat 2018-2019)</span>
-                        </div>
-                      </div>
-                      
-                      <div className="bg-white dark:bg-slate-900 px-6 md:px-8 py-4 border-b border-slate-100 dark:border-slate-800">
-                        <div className="flex flex-wrap gap-2 md:gap-4 justify-between">
-                          {judoAdvancedStats.kpis.map((kpi, i) => (
-                             <div key={i} className="text-center px-2 py-2 flex-1 border-r border-slate-100 dark:border-slate-800 last:border-r-0">
-                               <p className="text-xl md:text-2xl font-black text-slate-900 dark:text-white">{kpi.value}</p>
-                               <p className="text-[9px] font-black uppercase text-slate-400 mt-0.5">{kpi.label}</p>
-                             </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="p-6 md:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8 flex-1">
-                        <div className="space-y-6">
-                          <div className="bg-slate-900 dark:bg-slate-800 text-white rounded-2xl p-5 shadow-inner">
-                            <h4 className="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-4">Bilan Palmarès</h4>
-                            <div className="flex justify-between items-center pb-2 border-b border-slate-700 mb-2">
-                                <span className="flex items-center gap-2 text-sm font-bold"><Award size={16} className="text-yellow-500"/> 8 Médailles d'Or</span>
-                                <span className="font-black text-lg text-yellow-400">100%</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="flex items-center gap-2 text-sm font-bold"><MapPin size={16} className="text-slate-400"/> Départements Visités</span>
-                                <span className="font-black text-lg">6</span>
-                            </div>
-                          </div>
-                          <div className="p-4 bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-800/30 rounded-xl">
-                            <p className="text-[10px] font-black uppercase text-green-600 mb-1">Points Forts (Indice Diversité : 4.2)</p>
-                            <p className="text-xs font-medium text-green-800 dark:text-green-200 leading-relaxed">Efficacité létale (21 victoires / 22 combats). Très forte progression mentale et tactique (liaison debout-sol). Variété d'attaques en hausse.</p>
-                          </div>
-                          <div className="p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl">
-                            <p className="text-[10px] font-black uppercase text-amber-600 mb-1">Points Faibles</p>
-                            <p className="text-xs font-medium text-amber-800 dark:text-amber-200 leading-relaxed">Saisie de la manche (Kumikata) parfois relâchée sous pression. Vulnérabilité face aux attaques d'épaule adverses.</p>
-                          </div>
-                        </div>
-                        <div className="lg:col-span-2 space-y-6 flex flex-col">
-                          <div>
-                            <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Système d'Attaque (Répartition)</h4>
-                            <div className="space-y-4">
-                              {judoAdvancedStats.directions.map((dir, i) => (
-                                <div key={i}>
-                                  <div className="flex justify-between text-[11px] font-bold mb-1.5"><span className="text-slate-700 dark:text-slate-300">{dir.name}</span><span style={{color: dir.color}}>{dir.value}%</span></div>
-                                  <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden"><div className="h-full transition-all duration-1000" style={{ width: `${dir.value}%`, backgroundColor: dir.color }}></div></div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                          <div className="p-5 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded-2xl flex-1">
-                            <p className="text-[10px] font-black uppercase text-slate-400 mb-3 flex items-center gap-2"><Brain size={14}/> Diagnostic Technique détaillé</p>
-                            <ul className="text-xs text-slate-700 dark:text-slate-300 space-y-3 list-disc pl-4 font-medium leading-relaxed">
-                              <li><strong className="text-slate-900 dark:text-white">Hanche (Koshi-Waza)</strong> : Excellente verticalité confirmée. Léo ne "plonge" plus. O-Goshi et Tai-Otoshi sont très bien maîtrisés.</li>
-                              <li><strong className="text-slate-900 dark:text-white">Jambe (Ashi-Waza)</strong> : En forte progression. Le balayage (De-Ashi-Barai) et le crochetage (Ko-Soto-Gari) deviennent des armes majeures exploitant parfaitement son allonge.</li>
-                              <li><strong className="text-slate-900 dark:text-white">Ne-Waza (Sol)</strong> : La liaison debout-sol devient un point fort déterminant, lui permettant de sécuriser ses victoires (immobilisation latérale).</li>
-                              <li><strong className="text-slate-900 dark:text-white">Épaule (Te-Waza)</strong> : Moins utilisé récemment au profit des techniques de jambe, plus adaptées à son gabarit longiligne.</li>
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                      {/* SECTION NATATION */}
-                      <div className="bg-white dark:bg-slate-900 rounded-[2rem] border-t-8 border-t-blue-500 shadow-xl overflow-hidden flex flex-col">
-                        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-800/30">
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600"><Waves size={20}/></div>
-                            <div>
-                              <h3 className="text-lg font-black uppercase text-slate-800 dark:text-white">Natation <span className="text-[9px] text-slate-500 font-bold ml-1 hidden sm:inline-block">— {natationStats.club}</span></h3>
-                              <p className="text-[10px] font-bold text-slate-500 mt-0.5">Début: {natationStats.debut}</p>
-                            </div>
-                          </div>
-                          {/* RANKING ENCARTS */}
-                          <div className="flex flex-wrap md:flex-col gap-1.5 md:items-end">
-                              <span className="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800 text-[9px] font-black uppercase px-2 py-1 rounded shadow-sm">🏆 TOP 10 Région (1er 2019)</span>
-                              <span className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800 text-[9px] font-black uppercase px-2 py-1 rounded shadow-sm">🇫🇷 TOP 30 National (5ème 2019)</span>
-                          </div>
-                        </div>
-                        <div className="p-6 space-y-5 flex-1 flex flex-col">
-                          <div className="grid grid-cols-4 gap-2">
-                            {natationStats.kpis.map((kpi, i) => (
-                              <div key={i} className="text-center bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-100 dark:border-slate-700">
-                                <p className="text-sm md:text-lg font-black text-blue-600">{kpi.value}</p>
-                                <p className="text-[8px] font-black uppercase text-slate-400 mt-1">{kpi.label}</p>
-                              </div>
-                            ))}
-                          </div>
-                          
-                          <div className="p-5 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/30 rounded-2xl flex-1">
-                             <p className="text-[10px] font-black uppercase text-blue-500 mb-3 flex items-center gap-2"><Brain size={14}/> Diagnostic Technique</p>
-                             <ul className="text-xs text-blue-900/80 dark:text-blue-100/80 space-y-2 list-disc pl-4 font-medium leading-relaxed">
-                               <li><strong className="text-slate-800 dark:text-white">Efficacité (Distance par Cycle) : 1.38m.</strong> Léo évolue encore dans un modèle basé sur l'énergie plutôt que la glisse pure.</li>
-                               <li><strong className="text-slate-800 dark:text-white">Glisse & Posture</strong> : Bassin légèrement bas en dos. Entrée dans l'eau en piqué en crawl provoquant une perte de vitesse.</li>
-                               <li><strong className="text-slate-800 dark:text-white">Mouvements</strong> : Trajectoires de bras approximatives en crawl (croisées). Respiration en 2 temps déséquilibrante.</li>
-                             </ul>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-4 mt-2">
-                            <div className="p-4 bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-800/30 rounded-xl">
-                              <p className="text-[10px] font-black uppercase text-green-600 mb-1">Points Forts</p>
-                              <p className="text-xs font-medium text-green-800 dark:text-green-200 leading-relaxed">Fréquence motrice. 2 records personnels pulvérisés récemment (-3s en Dos).</p>
-                            </div>
-                            <div className="p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl">
-                              <p className="text-[10px] font-black uppercase text-amber-600 mb-1">Points Faibles</p>
-                              <p className="text-xs font-medium text-amber-800 dark:text-amber-200 leading-relaxed">Réactivité au départ (-0.4s). Gestion de l'espace à l'approche du mur.</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* SECTION HANDBALL */}
-                      <div className="bg-white dark:bg-slate-900 rounded-[2rem] border-t-8 border-t-orange-500 shadow-xl overflow-hidden flex flex-col">
-                        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-800/30">
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600"><BallIcon size={20}/></div>
-                            <div>
-                              <h3 className="text-lg font-black uppercase text-slate-800 dark:text-white">Handball <span className="text-[9px] text-slate-500 font-bold ml-1 hidden sm:inline-block">— {handballStats.club}</span></h3>
-                              <p className="text-[10px] font-bold text-slate-500 mt-0.5">Début: {handballStats.debut}</p>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="p-6 space-y-5 flex-1 flex flex-col">
-                          <div className="grid grid-cols-4 gap-2">
-                            {handballStats.kpis.map((kpi, i) => (
-                              <div key={i} className="text-center bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-100 dark:border-slate-700">
-                                <p className="text-sm md:text-lg font-black text-orange-600">{kpi.value}</p>
-                                <p className="text-[8px] font-black uppercase text-slate-400 mt-1">{kpi.label}</p>
-                              </div>
-                            ))}
-                          </div>
-
-                          <div className="p-5 bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-800/30 rounded-2xl flex-1">
-                             <p className="text-[10px] font-black uppercase text-orange-500 mb-3 flex items-center gap-2"><Brain size={14}/> Diagnostic Technique</p>
-                             <ul className="text-xs text-orange-900/80 dark:text-orange-100/80 space-y-2 list-disc pl-4 font-medium leading-relaxed">
-                               <li><strong className="text-slate-800 dark:text-white">Défense</strong> : Agressivité et placement excellents. Appuis très solides (transfert du judo).</li>
-                               <li><strong className="text-slate-800 dark:text-white">Tir / Finition</strong> : Très explosif en contre-attaque. Bon bras dominant.</li>
-                               <li><strong className="text-slate-800 dark:text-white">Prise d'info</strong> : Vision du jeu naissante, mais libère la balle trop tard face aux gros gabarits (U9).</li>
-                             </ul>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-4 mt-2">
-                            <div className="p-4 bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-800/30 rounded-xl">
-                              <p className="text-[10px] font-black uppercase text-green-600 mb-1">Points Forts</p>
-                              <p className="text-xs font-medium text-green-800 dark:text-green-200 leading-relaxed">Capacité défensive très forte. Vitesse et explosivité sur contre-attaque.</p>
-                            </div>
-                            <div className="p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl">
-                              <p className="text-[10px] font-black uppercase text-amber-600 mb-1">Points Faibles</p>
-                              <p className="text-xs font-medium text-amber-800 dark:text-amber-200 leading-relaxed">Tendance à s'enfermer face aux adversaires plus lourds (U9).</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* === ONGLET 4: CALENDRIER & RÉSULTATS === */}
-                {activeTab === 'calendar' && (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in duration-500">
-                    
-                    {/* Colonne Gauche: Passé interactif */}
-                    <Card title="Événements Passés & Résultats" icon={Award}>
-                      
-                      {/* Filtres Passé */}
-                      <div className="flex gap-2 mb-4 overflow-x-auto no-scrollbar pb-1">
-                          {['ALL', 'Judo', 'Handball', 'Natation'].map(f => (
-                             <button key={f} onClick={() => setPastFilter(f)} className={`px-3 py-1 text-[10px] font-black uppercase rounded-full border transition-colors ${pastFilter === f ? 'bg-slate-800 text-white border-slate-800 dark:bg-indigo-500 dark:border-indigo-500' : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}>
-                                 {f === 'ALL' ? 'Tous' : f}
-                             </button>
-                          ))}
-                      </div>
-
-                      <div className="space-y-4">
-                        {Object.keys(groupedPast).length === 0 ? (
-                           <p className="text-sm text-slate-400 font-medium text-center py-4">Aucun événement passé pour ce filtre.</p>
-                        ) : Object.entries(groupedPast).map(([month, events]) => (
-                          <div key={month} className="space-y-3">
-                            <div className="flex items-center gap-3 pt-2 pb-1">
-                               <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">{month}</h4>
-                               <div className="flex-1 border-b border-slate-200 dark:border-slate-800"></div>
-                            </div>
-                            {events.map((ev) => {
-                              const isExp = expandedPastId === ev.id;
-                              const EvIcon = getSportIcon(ev.sport);
-                              const iconColorClass = getSportColorClass(ev.sport);
-
-                              return (
-                              <div key={ev.id} className="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-800/30 hover:border-slate-300 dark:hover:border-slate-600 transition-colors shadow-sm">
-                                <div className="p-4 flex items-center justify-between cursor-pointer" onClick={() => setExpandedPastId(isExp ? null : ev.id)}>
-                                  <div className="flex items-center gap-4">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${iconColorClass}`}><EvIcon size={18} /></div>
-                                    <div><p className="text-sm font-black text-slate-800 dark:text-white">{ev.name}</p><p className="text-[10px] font-bold text-slate-500 uppercase mt-0.5">{ev.date} • {ev.sport}</p></div>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap hidden sm:block ${ev.result === '1ER' || ev.result.includes('1er') || ev.result.includes('3ÈME') || ev.result === 'RECORDS' ? 'border-yellow-400 text-yellow-700 bg-yellow-50 dark:bg-yellow-900/30 dark:text-yellow-400' : ev.result === 'DSQ' || ev.result === 'NC' ? 'border-red-400 text-red-600 bg-red-50 dark:bg-red-900/30 dark:text-red-400' : 'border-slate-200 text-slate-600 bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300'}`}>{ev.result}</span>
-                                    <div className="bg-white dark:bg-slate-800 p-1 rounded-full border border-slate-200 dark:border-slate-700">{isExp ? <ChevronUp size={16} className="text-slate-400"/> : <ChevronDown size={16} className="text-slate-400"/>}</div>
-                                  </div>
-                                </div>
-                                <div className="px-4 pb-3 sm:hidden text-right block border-t border-slate-100 dark:border-slate-700 pt-2">
-                                   <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap ${ev.result === '1ER' || ev.result.includes('1er') || ev.result.includes('3ÈME') || ev.result === 'RECORDS' ? 'border-yellow-400 text-yellow-700 bg-yellow-50 dark:bg-yellow-900/30 dark:text-yellow-400' : ev.result === 'DSQ' || ev.result === 'NC' ? 'border-red-400 text-red-600 bg-red-50 dark:bg-red-900/30 dark:text-red-400' : 'border-slate-200 text-slate-600 bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300'}`}>{ev.result}</span>
-                                </div>
-                                {isExp && (
-                                  <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-inner grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Adversité</p>{renderStars(ev.adv)}</div>
-                                    <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Volume</p><p className="text-xs font-bold text-slate-700 dark:text-slate-300">{ev.matches}</p></div>
-                                    <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Résumé</p><p className="text-xs font-medium text-slate-600 dark:text-slate-400 leading-relaxed">{ev.desc}</p></div>
-                                    <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Commentaire Technique</p><p className="text-xs font-medium text-slate-600 dark:text-slate-400 leading-relaxed italic border-l-2 border-slate-200 dark:border-slate-700 pl-2">{ev.com}</p></div>
-                                  </div>
-                                )}
-                              </div>
-                            )})}
-                          </div>
-                        ))}
-                      </div>
-                    </Card>
-
-                    {/* FUTURE EVENTS */}
-                    <Card title="Événements à venir" icon={Calendar}>
-                      {/* Filtres Futur */}
-                      <div className="flex gap-2 mb-4 overflow-x-auto no-scrollbar pb-1">
-                          {['ALL', 'Judo', 'Handball', 'Natation'].map(f => (
-                             <button key={f} onClick={() => setFutureFilter(f)} className={`px-3 py-1 text-[10px] font-black uppercase rounded-full border transition-colors ${futureFilter === f ? 'bg-slate-800 text-white border-slate-800 dark:bg-indigo-500 dark:border-indigo-500' : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}>
-                                 {f === 'ALL' ? 'Tous' : f}
-                             </button>
-                          ))}
-                      </div>
-                      
-                      <div className="space-y-4">
-                        {Object.keys(groupedFuture).length === 0 ? (
-                           <p className="text-sm text-slate-400 font-medium text-center py-4">Aucun événement à venir pour ce filtre.</p>
-                        ) : Object.entries(groupedFuture).map(([month, events]) => (
-                          <div key={month} className="space-y-3">
-                            <div className="flex items-center gap-3 pt-2 pb-1">
-                               <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">{month}</h4>
-                               <div className="flex-1 border-b border-slate-200 dark:border-slate-800"></div>
-                            </div>
-                            {events.map((ev) => {
-                              const isExp = expandedFutureId === ev.id;
-                              const EvIcon = getSportIcon(ev.sport);
-                              const iconColorClass = getSportColorClass(ev.sport);
-
-                              return (
-                              <div key={ev.id} className="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-800/30 hover:border-slate-300 dark:hover:border-slate-600 transition-colors shadow-sm">
-                                <div className="p-4 flex items-center justify-between cursor-pointer" onClick={() => setExpandedFutureId(isExp ? null : ev.id)}>
-                                  <div className="flex items-center gap-4">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${iconColorClass}`}><EvIcon size={18} /></div>
-                                    <div><p className="text-sm font-black text-slate-800 dark:text-white">{ev.name}</p><p className="text-[10px] font-bold text-slate-500 uppercase mt-0.5">{ev.date} • {ev.sport}</p></div>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap hidden sm:block ${ev.inscrit ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:border-green-800 dark:text-green-400' : 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:border-orange-800 dark:text-orange-400'}`}>{ev.inscrit ? 'Confirmé' : 'À Confirmer'}</span>
-                                    <div className="bg-white dark:bg-slate-800 p-1 rounded-full border border-slate-200 dark:border-slate-700">{isExp ? <ChevronUp size={16} className="text-slate-400"/> : <ChevronDown size={16} className="text-slate-400"/>}</div>
-                                  </div>
-                                </div>
-                                <div className="px-4 pb-3 sm:hidden text-right block border-t border-slate-100 dark:border-slate-700 pt-2">
-                                   <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap ${ev.inscrit ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:border-green-800 dark:text-green-400' : 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:border-orange-800 dark:text-orange-400'}`}>{ev.inscrit ? 'Confirmé' : 'À Confirmer'}</span>
-                                </div>
-                                {isExp && (
-                                  <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-inner grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Horaires</p><p className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1"><Clock size={12}/>{ev.time}</p></div>
-                                    <div><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Logistique</p><p className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">🚗 {ev.drive}</p></div>
-                                    <div className="md:col-span-2"><p className="text-[9px] uppercase font-black text-slate-400 mb-1">Lieu Exact</p><p className="text-xs font-medium text-slate-600 dark:text-slate-400 flex items-start gap-1"><MapPin size={12} className="shrink-0 mt-0.5"/>{ev.address}</p></div>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                          </div>
-                        ))}
-                      </div>
-                    </Card>
-                  </div>
-                )}
-
-                {/* === ONGLET 5: STRATÉGIE === */}
-                {activeTab === 'strategy' && (
-                  <div className="space-y-6 animate-in fade-in duration-500">
-                    <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-[2rem] p-8 shadow-2xl relative overflow-hidden">
-                      <div className="absolute top-0 right-0 p-8 opacity-10"><Compass size={150}/></div>
-                      <div className="relative z-10 max-w-3xl">
-                        <h2 className="text-sm font-black uppercase tracking-widest text-indigo-400 mb-4">Postulat Stratégique Majeur</h2>
-                        <p className="text-2xl md:text-3xl font-black leading-tight mb-6">
-                          "Ce n'est pas la performance brute qui progresse aujourd'hui... <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-emerald-400">c'est la structure du sportif.</span>"
-                        </p>
-                        <ul className="space-y-2 text-sm text-slate-300 font-medium">
-                          <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-400"/> Autonomie mentale validée en compétition.</li>
-                          <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-400"/> Identité technique en pleine construction.</li>
-                          <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-400"/> Explosivité physiologique naturelle confirmée.</li>
-                        </ul>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                      <Card className="border-t-4 border-t-emerald-500">
-                        <div className="mb-4"><span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400 rounded-lg text-[10px] font-black uppercase tracking-widest">Court Terme (Trimestre)</span></div>
-                        <h3 className="text-lg font-black mb-4 dark:text-white">Nettoyage Technique</h3>
-                        <ul className="space-y-3 text-xs text-slate-600 dark:text-slate-300 font-medium">
-                          <li className="flex gap-2 items-start"><ArrowRight size={14} className="text-emerald-500 shrink-0 mt-0.5"/> Consolider le Ko-Soto-Gari (Judo).</li>
-                          <li className="flex gap-2 items-start"><ArrowRight size={14} className="text-emerald-500 shrink-0 mt-0.5"/> Stabiliser la mécanique de rotation (Hanche).</li>
-                          <li className="flex gap-2 items-start"><ArrowRight size={14} className="text-emerald-500 shrink-0 mt-0.5"/> Finir "propre" au mur en natation.</li>
-                        </ul>
-                      </Card>
-                      <Card className="border-t-4 border-t-blue-500">
-                        <div className="mb-4"><span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 rounded-lg text-[10px] font-black uppercase tracking-widest">Moyen Terme (Saison)</span></div>
-                        <h3 className="text-lg font-black mb-4 dark:text-white">Adversité & Physique</h3>
-                        <ul className="space-y-3 text-xs text-slate-600 dark:text-slate-300 font-medium">
-                          <li className="flex gap-2 items-start"><ArrowRight size={14} className="text-blue-500 shrink-0 mt-0.5"/> Affronter volontairement une adversité dense.</li>
-                          <li className="flex gap-2 items-start"><ArrowRight size={14} className="text-blue-500 shrink-0 mt-0.5"/> Lâcher la balle plus vite (Handball U9).</li>
-                          <li className="flex gap-2 items-start"><ArrowRight size={14} className="text-blue-500 shrink-0 mt-0.5"/> Augmenter l'explosivité verticale pure.</li>
-                        </ul>
-                      </Card>
-                      <Card className="border-t-4 border-t-slate-800 dark:border-t-slate-400">
-                        <div className="mb-4"><span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-300 rounded-lg text-[10px] font-black uppercase tracking-widest">Long Terme (2 ans +)</span></div>
-                        <h3 className="text-lg font-black mb-4 dark:text-white">Construction Identitaire</h3>
-                        <ul className="space-y-3 text-xs text-slate-600 dark:text-slate-300 font-medium">
-                          <li className="flex gap-2 items-start"><ArrowRight size={14} className="text-slate-800 dark:text-slate-400 shrink-0 mt-0.5"/> Construire un profil de "déséquilibre intelligent".</li>
-                          <li className="flex gap-2 items-start"><ArrowRight size={14} className="text-slate-800 dark:text-slate-400 shrink-0 mt-0.5"/> Maintien strict du modèle multisport jusqu'en U11.</li>
-                        </ul>
-                      </Card>
-                    </div>
-                    
-                    {/* ENCART MODÈLE DE GULLICH */}
-                    <Card title="Le Modèle Théorique de Güllich" icon={Brain}>
-                       <div className="flex flex-col md:flex-row items-start gap-4">
-                          <div className="hidden md:block text-indigo-500"><Target size={40} /></div>
-                          <div>
-                            <p className="text-sm font-bold text-slate-800 dark:text-white mb-2">L'échantillonnage sportif plutôt que la spécialisation précoce</p>
-                            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-                              Le modèle de Güllich (issu des recherches sur les médaillés olympiques) démontre que la spécialisation tardive (post-15 ans) offre les meilleures probabilités d'atteindre l'élite. La pratique multisport actuelle (Judo, Handball, Natation) permet à Léo de se constituer une <strong>bibliothèque motrice</strong> très riche.
-                            </p>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                               <div className="p-3 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl border border-emerald-100 dark:border-emerald-800/30">
-                                  <p className="text-[10px] font-black text-emerald-600 uppercase mb-1">Bénéfice Physique</p>
-                                  <p className="text-xs font-medium text-emerald-800 dark:text-emerald-200">Baisse de 40% des blessures de surmenage liées à la répétition des mêmes gestes.</p>
-                               </div>
-                               <div className="p-3 bg-purple-50 dark:bg-purple-900/10 rounded-xl border border-purple-100 dark:border-purple-800/30">
-                                  <p className="text-[10px] font-black text-purple-600 uppercase mb-1">Bénéfice Mental</p>
-                                  <p className="text-xs font-medium text-purple-800 dark:text-purple-200">Évite la saturation psychologique et le burn-out précoce avant l'adolescence.</p>
-                               </div>
-                               <div className="p-3 bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-800/30">
-                                  <p className="text-[10px] font-black text-blue-600 uppercase mb-1">Transfert Moteur</p>
-                                  <p className="text-xs font-medium text-blue-800 dark:text-blue-200">Croisement des compétences direct (ex: les appuis du Hand stabilisent la garde au Judo).</p>
-                               </div>
-                            </div>
-                          </div>
-                       </div>
-                    </Card>
-
-                    <Card title="Probabilités Statistiques d'Accès à l'Élite (Filtre Pyramidal)" icon={Target}>
-                       <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">Indicateurs théoriques moyens du parcours d'accès au Haut Niveau (basés sur le volume de licenciés fédéraux). Justifie la stratégie de ne pas spécialiser un athlète avant 12 ans pour ne pas brûler les étapes.</p>
-                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                          <div className="p-5 border border-slate-200 dark:border-slate-700 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-center">
-                             <div className="w-10 h-10 bg-slate-200 dark:bg-slate-700 rounded-xl flex items-center justify-center text-slate-900 dark:text-white mx-auto mb-3"><JudoIcon size={20}/></div>
-                             <h4 className="font-black text-slate-900 dark:text-white mb-4">JUDO</h4>
-                             <div className="space-y-2 text-xs">
-                               <div className="flex justify-between border-b border-slate-200 dark:border-slate-700 pb-1"><span className="text-slate-600 dark:text-slate-400 font-medium">Pôle Espoir (15 ans)</span><span className="font-black text-slate-800 dark:text-slate-300">~2.0%</span></div>
-                               <div className="flex justify-between border-b border-slate-200 dark:border-slate-700 pb-1"><span className="text-slate-600 dark:text-slate-400 font-medium">Pôle France / INSEP</span><span className="font-black text-slate-800 dark:text-slate-300">~0.2%</span></div>
-                               <div className="flex justify-between"><span className="text-slate-600 dark:text-slate-400 font-medium">Élite Internationale</span><span className="font-black text-slate-800 dark:text-slate-300">0.01%</span></div>
-                             </div>
-                          </div>
-                          <div className="p-5 border border-orange-100 dark:border-orange-800/30 rounded-2xl bg-orange-50 dark:bg-orange-900/10 text-center">
-                             <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/50 rounded-full flex items-center justify-center text-orange-600 dark:text-orange-400 mx-auto mb-3"><BallIcon size={20}/></div>
-                             <h4 className="font-black text-orange-900 dark:text-orange-400 mb-4">HANDBALL</h4>
-                             <div className="space-y-2 text-xs">
-                               <div className="flex justify-between border-b border-orange-100 dark:border-orange-800/50 pb-1"><span className="text-slate-600 dark:text-slate-400 font-medium">Centre Formation</span><span className="font-black text-orange-600 dark:text-orange-400">~1.0%</span></div>
-                               <div className="flex justify-between border-b border-orange-100 dark:border-orange-800/50 pb-1"><span className="text-slate-600 dark:text-slate-400 font-medium">Joueur Pro (D1/D2)</span><span className="font-black text-orange-600 dark:text-orange-400">~0.1%</span></div>
-                               <div className="flex justify-between"><span className="text-slate-600 dark:text-slate-400 font-medium">Élite Internationale</span><span className="font-black text-orange-600 dark:text-orange-400">0.005%</span></div>
-                             </div>
-                          </div>
-                          <div className="p-5 border border-blue-100 dark:border-blue-800/30 rounded-2xl bg-blue-50 dark:bg-blue-900/10 text-center">
-                             <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400 mx-auto mb-3"><Waves size={20}/></div>
-                             <h4 className="font-black text-blue-900 dark:text-blue-400 mb-4">NATATION</h4>
-                             <div className="space-y-2 text-xs">
-                               <div className="flex justify-between border-b border-blue-100 dark:border-blue-800/50 pb-1"><span className="text-slate-600 dark:text-slate-400 font-medium">Niveau N2 / Interreg.</span><span className="font-black text-blue-600 dark:text-blue-400">~3.0%</span></div>
-                               <div className="flex justify-between border-b border-blue-100 dark:border-blue-800/50 pb-1"><span className="text-slate-600 dark:text-slate-400 font-medium">Niveau N1 / Élite</span><span className="font-black text-blue-600 dark:text-blue-400">~0.5%</span></div>
-                               <div className="flex justify-between"><span className="text-slate-600 dark:text-slate-400 font-medium">Élite Internationale</span><span className="font-black text-blue-600 dark:text-blue-400">0.02%</span></div>
-                             </div>
-                          </div>
-                       </div>
-                    </Card>
-                  </div>
-                )}
-              </main>
+      {/* Résumé narratif */}
+      <div className="card" style={{ borderLeft: '3px solid var(--neutral)' }}>
+        <SectionTitle>LECTURE DE SAISON</SectionTitle>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
+          {[
+            { periode: 'Sep – Nov 2025', titre: 'Démarrage chaotique', desc: 'Myosite + otite + grippe/gastro. Volume perturbé. Mais Léo enchaîne 3 premières compétitions malgré les épisodes.', color: 'var(--amber)' },
+            { periode: 'Déc 2025 – Mar 2026', titre: 'Montée en puissance', desc: 'Pic de volume en mars (36h). Série de 9 victoires consécutives. Records PR natation. Harai-Goshi propre, Seoi-Nage émergent.', color: 'var(--success)' },
+            { periode: 'Avr – Mai 2026', titre: 'Zone de vigilance', desc: 'Volume chute (16.5h). 3ème épisode cheville droite. Alerte variété technique Judo (Trilport). J3 Avenirs 31/05 comme prochain objectif.', color: 'var(--danger)' },
+          ].map((p, i) => (
+            <div key={i} style={{ background: 'var(--bg-surface)', borderRadius: 10, padding: 16, borderTop: `3px solid ${p.color}` }}>
+              <div style={{ fontFamily: 'JetBrains Mono', fontSize: 9, color: 'var(--text-muted)', letterSpacing: 1, marginBottom: 6 }}>{p.periode}</div>
+              <div style={{ fontFamily: 'Barlow Condensed', fontSize: 16, fontWeight: 700, color: p.color, marginBottom: 8 }}>{p.titre}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{p.desc}</div>
             </div>
-          );
-        };
+          ))}
+        </div>
+      </div>
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(
-            <ErrorBoundary>
-                <App />
-            </ErrorBoundary>
-        );
-    </script>
+      {/* Corrélations */}
+      <div className="card">
+        <SectionTitle>CORRÉLATIONS DÉTECTÉES</SectionTitle>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {[
+            { cause: 'Poussée croissance (+3cm)', impact: 'Perte souplesse −4cm', action: 'Étirements ischio/psoas quotidiens', c: 'var(--danger)' },
+            { cause: 'Surcharge sept. 2025', impact: 'Myosite tibias (CPK élevés)', action: 'Güllich 8h/sem max + repos respectés', c: 'var(--amber)' },
+            { cause: 'Travail natation (gainage)', impact: 'Meilleure verticalité judo', action: 'Continuer corrélation motrice', c: 'var(--success)' },
+            { cause: 'Cheville D fragilisée (×3)', impact: 'Arrêts + tournois annulés', action: 'Chevillère obligatoire + renforcement proprio.', c: 'var(--danger)' },
+          ].map((r, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 14, padding: '12px 0', borderBottom: i < 3 ? '1px solid var(--border)' : 'none' }}>
+              <div style={{ fontFamily: 'JetBrains Mono', fontSize: 11, color: r.c, background: `${r.c}18`, padding: '4px 10px', borderRadius: 6, whiteSpace: 'nowrap', flexShrink: 0, border: `1px solid ${r.c}30` }}>{r.cause}</div>
+              <div style={{ color: 'var(--text-muted)', flexShrink: 0 }}><Ico d={I.arrowR} size={14} /></div>
+              <div style={{ fontFamily: 'JetBrains Mono', fontSize: 11, color: 'var(--text-secondary)' }}>{r.impact}</div>
+              <div style={{ color: 'var(--text-muted)', flexShrink: 0 }}><Ico d={I.arrowR} size={14} /></div>
+              <div style={{ fontFamily: 'Barlow Condensed', fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{r.action}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ── APP ───────────────────────────────────────────────────────────────────────
+const App = () => {
+  const [tab, setTab] = useState('cockpit');
+  const goTo = (t) => setTab(t);
+
+  const renderContent = () => {
+    switch (tab) {
+      case 'cockpit': return <CockpitTab goTo={goTo} />;
+      case 'bio': return <BioTab />;
+      case 'judo': return <JudoTab />;
+      case 'swim': return <SwimTab />;
+      case 'hand': return <HandTab />;
+      case 'cal': return <CalTab />;
+      case 'tl': return <TimelineTab />;
+      default: return <CockpitTab goTo={goTo} />;
+    }
+  };
+
+  return (
+    <div className="os-layout">
+      {/* SIDEBAR */}
+      <aside className="sidebar">
+        <div style={{ paddingBottom: 18, marginBottom: 8, borderBottom: '1px solid var(--border)', width: '100%', display: 'flex', justifyContent: 'center' }}>
+          <span style={{ fontFamily: 'Barlow Condensed,sans-serif', fontWeight: 900, fontSize: 13, letterSpacing: 2, color: 'var(--text-primary)', writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>LÉO·OS</span>
+        </div>
+        {TABS.map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)}
+            className={`nav-btn ${tab === t.id ? 'active ' + t.aClass : ''}`}
+            title={t.label}>
+            <Ico d={I[t.icon]} size={19} />
+            <span className="nav-tooltip">{t.label}<br /><span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>{t.sub}</span></span>
+          </button>
+        ))}
+      </aside>
+
+      {/* MAIN */}
+      <main className="main-content fade-up" key={tab}>
+        <div className="topbar">
+          <div>
+            <div className="topbar-section-name">{SECTION[tab]}</div>
+            <div className="topbar-title">MODOT LÉO <span style={{ color: 'var(--text-muted)', fontWeight: 300 }}>· 7 ANS · 2019</span></div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div className="status-pill"><span className="dot" /><span>MAJ 13/05/2026</span></div>
+            <div className="status-pill" style={{ borderColor: 'rgba(0,212,255,0.3)', color: 'var(--swim-cyan)' }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--swim-cyan)', animation: 'pulse-dot 2s infinite', display: 'inline-block' }} />
+              <span>J3 Avenirs · 31/05</span>
+            </div>
+          </div>
+        </div>
+        {renderContent()}
+      </main>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  React.createElement(React.StrictMode, null, React.createElement(App))
+);
+</script>
 </body>
 </html>
