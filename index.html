@@ -1291,8 +1291,8 @@ Reponds en JSON valide strict avec exactement cette structure (textes courts, 1-
       const data = await resp.json();
       if (data.error) throw new Error(data.error.message);
       const raw = data.content.map(b => b.text || '').join('');
-      // Robust JSON extraction
-      const clean = raw.replace(/```json/g, '').replace(/```/g, '').trim();
+      // Robust JSON extraction - avoid backtick regex in Babel
+      const clean = raw.split('```json').join('').split('```').join('').trim();
       // Find the JSON object boundaries
       const start = clean.indexOf('{');
       const end = clean.lastIndexOf('}');
