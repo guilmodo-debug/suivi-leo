@@ -1242,51 +1242,22 @@ const PiloteTab = () => {
       ],
     };
 
-    return `Tu es un assistant expert en développement sportif de l'enfant (modèle multisport Güllich, développement à long terme de l'athlète, psychologie sportive jeune). Tu analyses la situation complète de Léo, 7 ans (né 2019), athlète multisport (judo, natation, handball).
+    return `Analyse Léo (7 ans, 2019), athlete multisport. Données au 13/05/2026:
+- Morpho: 127cm/25.5kg, +3cm depuis sep2025
+- Score global: 84/100
+- Volumes saison: Judo 78.5h / Natation 74.5h / Hand 33.75h / Multi 41h. Avril: 16.5h (cheville)
+- Judo: 22V/24 combats, ceinture jaune 2 barrettes. Alerte: Harai-Goshi trop systematique (Trilport 04/2026)
+- Natation: 5eme national 25m dos, record 25.38s (29/03/2026). Faiblesses: coulee, bassin, respiration crawl
+- Handball: 20 matchs, 4 podiums, 7 buts+8 passes (Fontenay avr2026)
+- Blessures: cheville droite 3eme recidive 06/05 EN COURS. Historique: myosite tibias sep25, otite oct25
+- Souplesse: -4cm depuis sep2025 (croissance)
+- Indices: risque blessure 55%, fatigue SNC 28%, specialisation judo 34%
+- Mental: plaisir 100%, tache 95%, competence 90%, resilience 88%
+- Prochain: J3 Avenirs natation 31/05/2026 (non inscrit)
+- Alertes: cheville fragilisee x3, souplesse en baisse, Güllich 8h/sem max, technique natation J3
 
-DONNÉES DU DASHBOARD — ${ctx.date}:
-- Âge: ${ctx.age} | Morpho: ${ctx.morpho}
-- Score global: ${ctx.scoreGlobal}
-- Volume saison: ${ctx.volumeSaison} | Avril: ${ctx.volumeAvril}
-- Judo: ${ctx.judo}
-- Natation: ${ctx.natation}
-- Handball: ${ctx.handball}
-- Blessures: ${ctx.blessures}
-- Souplesse: ${ctx.souplesse}
-- Indices: Risque blessure ${ctx.risqueBlessure} | Fatigue SNC ${ctx.fatigueSNC} | Spécialisation ${ctx.specialisation}
-- Profil mental: ${ctx.mentalProfile}
-- Prochain événement: ${ctx.prochainEvenement}
-- Alertes: ${ctx.alertesPrincipales.join(' | ')}
-- Corrélations détectées: ${ctx.correlations.join(' | ')}
-
-Génère une analyse structurée en JSON STRICT (pas de markdown, pas de backticks, JSON pur) avec exactement ce format:
-{
-  "diagnostic": "3 phrases max sur la situation globale de Léo. Synthèse factuelle, ton entraîneur expert.",
-  "questions_ct": [
-    {"q": "Question", "contexte": "Contexte court"},
-    {"q": "Question courte terme 2", "contexte": "Contexte"},
-    {"q": "Question courte terme 3", "contexte": "Contexte"}
-  ],
-  "questions_mt": [
-    {"q": "Question", "contexte": "Contexte court"},
-    {"q": "Question moyen terme 2", "contexte": "Contexte"},
-    {"q": "Question moyen terme 3", "contexte": "Contexte"}
-  ],
-  "scenarios": [
-    {"titre": "Nom", "description": "2 phrases max", "forces": "Force principale", "risques": "Risque principal", "couleur": "cyan"},
-    {"titre": "Nom court", "description": "2-3 phrases", "forces": "Force", "risques": "Risque", "couleur": "gold"},
-    {"titre": "Nom court", "description": "2-3 phrases", "forces": "Force", "risques": "Risque", "couleur": "orange"}
-  ],
-  "questions_leo": [
-    {"q": "Question à poser directement à Léo (langage enfant 7 ans)", "objectif": "Ce qu'on cherche à comprendre"},
-    {"q": "Question 2", "objectif": "Objectif"},
-    {"q": "Question 3", "objectif": "Objectif"},
-    {"q": "Question 4", "objectif": "Objectif"},
-    {"q": "Question 5", "objectif": "Objectif"}
-  ],
-  "signal_alerte": "Une phrase, alerte prioritaire du moment.",
-  "mot_coach": "1 phrase encourageante pour Léo."
-}`;
+Reponds en JSON valide strict avec exactement cette structure (textes courts, 1-2 phrases max par champ):
+{"diagnostic":"...","questions_ct":[{"q":"...","contexte":"..."},{"q":"...","contexte":"..."},{"q":"...","contexte":"..."}],"questions_mt":[{"q":"...","contexte":"..."},{"q":"...","contexte":"..."},{"q":"...","contexte":"..."}],"scenarios":[{"titre":"...","description":"...","forces":"...","risques":"...","couleur":"cyan"},{"titre":"...","description":"...","forces":"...","risques":"...","couleur":"gold"},{"titre":"...","description":"...","forces":"...","risques":"...","couleur":"orange"}],"questions_leo":[{"q":"...","objectif":"..."},{"q":"...","objectif":"..."},{"q":"...","objectif":"..."},{"q":"...","objectif":"..."},{"q":"...","objectif":"..."}],"signal_alerte":"...","mot_coach":"..."}``;
   };
 
   const generate = async () => {
@@ -1308,15 +1279,53 @@ Génère une analyse structurée en JSON STRICT (pas de markdown, pas de backtic
         },
         body: JSON.stringify({
           model: 'claude-sonnet-4-5',
-          max_tokens: 4000,
+          max_tokens: 8000,
+          system: 'Tu reponds UNIQUEMENT en JSON valide, sans markdown, sans backticks, sans commentaires. Chaque champ texte doit etre court (2-3 phrases max). Pas d apostrophe courbe, uniquement apostrophe droite.',
           messages: [{ role: 'user', content: buildPrompt() }]
         })
       });
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error((errData.error && errData.error.message) || 'HTTP ' + resp.status);
+      }
       const data = await resp.json();
       if (data.error) throw new Error(data.error.message);
       const raw = data.content.map(b => b.text || '').join('');
-      const clean = raw.replace(/```json|```/g, '').trim();
-      const parsed = JSON.parse(clean);
+      // Robust JSON extraction
+      const clean = raw.replace(/```json/g, '').replace(/```/g, '').trim();
+      // Find the JSON object boundaries
+      const start = clean.indexOf('{');
+      const end = clean.lastIndexOf('}');
+      if (start === -1 || end === -1) throw new Error('Pas de JSON dans la reponse: ' + clean.slice(0, 100));
+      const jsonStr = clean.slice(start, end + 1);
+      let parsed;
+      try {
+        parsed = JSON.parse(jsonStr);
+      } catch(parseErr) {
+        // Try to salvage partial JSON by extracting fields individually
+        const getField = (key) => {
+          const rx = new RegExp('"' + key + '"\s*:\s*"([^"]*)"');
+          const m = jsonStr.match(rx);
+          return m ? m[1] : '';
+        };
+        const getArray = (key) => {
+          try {
+            const rx = new RegExp('"' + key + '"\s*:\s*(\[[^\]]*\])');
+            const m = jsonStr.match(rx);
+            return m ? JSON.parse(m[1]) : [];
+          } catch(e) { return []; }
+        };
+        parsed = {
+          diagnostic: getField('diagnostic') || 'Analyse partielle disponible.',
+          questions_ct: getArray('questions_ct'),
+          questions_mt: getArray('questions_mt'),
+          scenarios: getArray('scenarios'),
+          questions_leo: getArray('questions_leo'),
+          signal_alerte: getField('signal_alerte'),
+          mot_coach: getField('mot_coach'),
+          _partial: true
+        };
+      }
       setResult(parsed);
       setPhase('done');
     } catch (e) {
